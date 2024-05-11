@@ -1,0 +1,7 @@
+/.devcontainer
+/.vscode
+/build
+/CMakeLists.txt
+/sdkconfig
+/sdkconfig.ci
+/sdkconfig.old
