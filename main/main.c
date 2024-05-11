@@ -364,10 +364,12 @@ static void event_handler(void* arg, esp_event_base_t event_base,
             ESP_LOGI(TAG, "*WiFi Connected %d#",WiFiNumber);
             s_retry_num = 0;
             FirstWiFiConnection = 1;
+            connected_to_wifi_and_internet = true;
  
     }    
     
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
+        connected_to_wifi_and_internet = false;
         if (s_retry_num < CONFIG_ESP_MAXIMUM_RETRY) {
             esp_wifi_connect();
             s_retry_num++;
@@ -532,6 +534,7 @@ void load_settings_nvs(){
         strcpy(server_ip_addr, DEFAULT_SERVER_IP_ADDR_TRY);
         ESP_LOGI(TAG, "***************************");
         ESP_LOGI(TAG, "*JUMPER SENSED AT POWER ON#");
+        ESP_LOGI(TAG, "*Server IP ADDRESS is %s#",server_ip_addr);
         if(utils_nvs_get_int(NVS_SERVER_PORT_KEY_JUMPER, &jumperPort) == ESP_OK){
                ESP_LOGI(TAG, "*JUMPER Port is %d#",jumperPort);
                server_port = jumperPort; 
@@ -928,74 +931,74 @@ void tcpip_client_task(){
     }
 }
 
-void WiFiConnection (void)
-{
-        set_led_state(SEARCH_FOR_WIFI);
-        bool connected_to_wifi = false;
-        int WiFiRetryCount = 0;
-        while (connected_to_wifi == 0)
-        {
-            if (WiFiRetryCount >= 3) 
-            {
-                ESP_LOGI(TAG, "*Restarting as WiFi Not Sensed#");
-                vTaskDelay(500);
-                esp_restart();                
-            }   
-            if (WiFiNumber != 1)
-            {
-                ESP_LOGI(TAG, "*Trying to connect to SSID1 %s %s#",WIFI_SSID_1, WIFI_PASS_1);
-                if(!connect_to_wifi(WIFI_SSID_1, WIFI_PASS_1)){
-                    s_retry_num = 0;
-                    WiFiNumber = 1;
-                    ESP_LOGI(TAG, "*Failed to Connect SSID1#");
-                    WiFiRetryCount++;
-                }else{
-                    ESP_LOGI(TAG, "*Connected To WiFi1#");
-                    connected_to_wifi = true;
-                    WiFiNumber = 1;
-                }
-            }
+// void WiFiConnection (void)
+// {
+//         set_led_state(SEARCH_FOR_WIFI);
+//         bool connected_to_wifi = false;
+//         int WiFiRetryCount = 0;
+//         while (connected_to_wifi == 0)
+//         {
+//             if (WiFiRetryCount >= 3) 
+//             {
+//                 ESP_LOGI(TAG, "*Restarting as WiFi Not Sensed#");
+//                 vTaskDelay(500);
+//                 esp_restart();                
+//             }   
+//             if (WiFiNumber != 1)
+//             {
+//                 ESP_LOGI(TAG, "*Trying to connect to SSID1 %s %s#",WIFI_SSID_1, WIFI_PASS_1);
+//                 if(!connect_to_wifi(WIFI_SSID_1, WIFI_PASS_1)){
+//                     s_retry_num = 0;
+//                     WiFiNumber = 1;
+//                     ESP_LOGI(TAG, "*Failed to Connect SSID1#");
+//                     WiFiRetryCount++;
+//                 }else{
+//                     ESP_LOGI(TAG, "*Connected To WiFi1#");
+//                     connected_to_wifi = true;
+//                     WiFiNumber = 1;
+//                 }
+//             }
 
-            else
-            {
-                ESP_LOGI(TAG, "*Trying to connect to SSID2 %s %s#",WIFI_SSID_2, WIFI_PASS_2);
-                if(!connect_to_wifi(WIFI_SSID_2, WIFI_PASS_2)){
-                    s_retry_num = 0;
-                    WiFiNumber = 2;
-                    ESP_LOGI(TAG, "*Failed to Connect SSID2#");
-                    WiFiRetryCount++;
-                }else{
-                    ESP_LOGI(TAG, "*Connected To WiFi2#");
-                    connected_to_wifi = true;
-                    WiFiNumber = 2;
-                }
-            }
-        }
+//             else
+//             {
+//                 ESP_LOGI(TAG, "*Trying to connect to SSID2 %s %s#",WIFI_SSID_2, WIFI_PASS_2);
+//                 if(!connect_to_wifi(WIFI_SSID_2, WIFI_PASS_2)){
+//                     s_retry_num = 0;
+//                     WiFiNumber = 2;
+//                     ESP_LOGI(TAG, "*Failed to Connect SSID2#");
+//                     WiFiRetryCount++;
+//                 }else{
+//                     ESP_LOGI(TAG, "*Connected To WiFi2#");
+//                     connected_to_wifi = true;
+//                     WiFiNumber = 2;
+//                 }
+//             }
+//         }
 
-    if(connected_to_wifi){
-             connected_to_wifi_and_internet = true;
-        // esp_http_client_config_t config = {
-        //     .url = "http://www.google.com",  
-        // };
-        // esp_http_client_handle_t client = esp_http_client_init(&config);
-        // esp_err_t err = esp_http_client_perform(client);
-        // if (err == ESP_OK) {
-        //     ESP_LOGI(TAG, "*Internet connection test successful#");
-        //     connected_to_wifi_and_internet = true;
-        // } else {
-        //     ESP_LOGI(TAG,"*Internet connection test failed: %s#", esp_err_to_name(err));
-        //     set_led_state(WIFI_FOUND_NO_INTERNET);
-        // }
-        // esp_http_client_cleanup(client);
-    }
+//     if(connected_to_wifi){
+//              connected_to_wifi_and_internet = true;
+//         // esp_http_client_config_t config = {
+//         //     .url = "http://www.google.com",  
+//         // };
+//         // esp_http_client_handle_t client = esp_http_client_init(&config);
+//         // esp_err_t err = esp_http_client_perform(client);
+//         // if (err == ESP_OK) {
+//         //     ESP_LOGI(TAG, "*Internet connection test successful#");
+//         //     connected_to_wifi_and_internet = true;
+//         // } else {
+//         //     ESP_LOGI(TAG,"*Internet connection test failed: %s#", esp_err_to_name(err));
+//         //     set_led_state(WIFI_FOUND_NO_INTERNET);
+//         // }
+//         // esp_http_client_cleanup(client);
+//     }
 
 
-}
+// }
 
 void wifi_init_sta(void)
 {
 
-
+    load_settings_nvs();
     s_wifi_event_group = xEventGroupCreate();
 
     ESP_ERROR_CHECK(esp_netif_init());
@@ -1043,19 +1046,20 @@ void wifi_init_sta(void)
     }
   
     if(connected_to_wifi){
-        esp_http_client_config_t config = {
-            .url = "http://www.google.com",  
-        };
-        esp_http_client_handle_t client = esp_http_client_init(&config);
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK) {
-            ESP_LOGI(TAG, "Internet connection test successful\n");
-            set_led_state(WIFI_AND_INTERNET_NO_SERVER);
-        } else {
-            ESP_LOGI(TAG,"Internet connection test failed: %s\n", esp_err_to_name(err));
-            set_led_state(WIFI_FOUND_NO_INTERNET);
-        }
-        esp_http_client_cleanup(client);
+        connected_to_wifi_and_internet = true;
+        // esp_http_client_config_t config = {
+        //     .url = "http://www.google.com",  
+        // };
+        // esp_http_client_handle_t client = esp_http_client_init(&config);
+        // esp_err_t err = esp_http_client_perform(client);
+        // if (err == ESP_OK) {
+        //     ESP_LOGI(TAG, "Internet connection test successful\n");
+        //     set_led_state(WIFI_AND_INTERNET_NO_SERVER);
+        // } else {
+        //     ESP_LOGI(TAG,"Internet connection test failed: %s\n", esp_err_to_name(err));
+        //     set_led_state(WIFI_FOUND_NO_INTERNET);
+        // }
+        // esp_http_client_cleanup(client);
     }
 
 }
