@@ -14,6 +14,9 @@ wifi/server disconnection to be tested
 
 1445 - started working. picked up simple task
 
+110524T1
+copied WiFi code from example 
+
 090525T1
 
 080524T4
@@ -350,6 +353,7 @@ void led_set_level(gpio_num_t gpio_num, int state){
     #endif
 }
 
+static int FirstWiFiConnection = 0;
 static void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
 {
@@ -357,26 +361,31 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         esp_wifi_connect();
     } 
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
-         connected_to_wifi_and_internet = true;
-         ESP_LOGI(TAG,"*WiFi ReConnected#");
-    }
+            ESP_LOGI(TAG, "*WiFi Connected %d#",WiFiNumber);
+            s_retry_num = 0;
+            FirstWiFiConnection = 1;
+ 
+    }    
+    
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        connected_to_wifi_and_internet = false;
-        ESP_LOGI(TAG,"*WiFi Disconnected#");
         if (s_retry_num < CONFIG_ESP_MAXIMUM_RETRY) {
             esp_wifi_connect();
             s_retry_num++;
-            ESP_LOGI(TAG, "*retry to connect to the AP %d#",s_retry_num);
+            ESP_LOGI(TAG, "*retry to connect to the AP  %d#",s_retry_num);
         } else {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
-            ESP_LOGI(TAG, "*Let Us Start WiFi again#");
-            WiFiConnection(); // try 1 and 2
-            
-        }
+            ESP_LOGI(TAG, "*WiFi failed bit set %d#",WiFiNumber);
+            if ((FirstWiFiConnection == 1) || (WiFiNumber == 2))
+            {
+                ESP_LOGI(TAG, "*restarting after 2 seconds#");
+                vTaskDelay(2000/portTICK_PERIOD_MS);
+                esp_restart();
+            }
+    }
         ESP_LOGI(TAG,"*connect to the AP fail#");
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
-        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+        ESP_LOGI(TAG, "*got ip:*" IPSTR, IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
@@ -409,20 +418,19 @@ bool connect_to_wifi(char * ssid, char * psk){
             portMAX_DELAY);
 
     if (bits & WIFI_CONNECTED_BIT) {
-        ESP_LOGI(TAG, "connected to ap ssid:%s password:%s \r\n", ssid, psk);
+        ESP_LOGI(TAG, "*connected to ap ssid:%s password:%s \r\n#", ssid, psk);
         wifi_connected = true;
-        connected_to_wifi_and_internet = true;
     } else if (bits & WIFI_FAIL_BIT) {
-        ESP_LOGI(TAG, "failed to connect to ssid:%s, password:%s \r\n", ssid, psk);
+        ESP_LOGI(TAG, "*failed to connect to ssid:%s, password:%s \r\n#", ssid, psk);
     } else {
-        ESP_LOGE(TAG, "unexpected event");
+        ESP_LOGE(TAG, "*unexpected event#");
     }
 
     xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT);
-
+    ESP_LOGI(TAG,"*returning from connect 2 wifi#");
     return wifi_connected;
 }
-
+ 
 nvs_handle_t utils_nvs_handle;
 
 void utils_nvs_init(){
@@ -986,7 +994,6 @@ void WiFiConnection (void)
 
 void wifi_init_sta(void)
 {
-    load_settings_nvs();
 
 
     s_wifi_event_group = xEventGroupCreate();
@@ -1011,8 +1018,46 @@ void wifi_init_sta(void)
                                                         &event_handler,
                                                         NULL,
                                                         &instance_got_ip));
+    set_led_state(SEARCH_FOR_WIFI);
+    bool connected_to_wifi = false;
+    //ESP_LOGI(TAG, "Trying to connect to SSID1 %s | %s",DEFAULT_SSID1,DEFAULT_PASS1);
+    ESP_LOGI(TAG, "*Trying to connect to SSID1#");
+    WiFiNumber = 1;
+    if(!connect_to_wifi(WIFI_SSID_1, WIFI_PASS_1)){
+       // ESP_LOGI(TAG, "Trying to connect to SSID2 %S | %S",DEFAULT_SSID2, DEFAULT_PASS1);
+        ESP_LOGI(TAG, "*Trying to connect to SSID2# ");
+        WiFiNumber = 2;
+        s_retry_num = 0;
+        if(!connect_to_wifi(WIFI_SSID_2, WIFI_PASS_2)){
+            ESP_LOGI(TAG, "Could not connect to SSID2. Restarting....");
+            ESP_LOGI(TAG, "*restarting after 2 seconds#");
+            vTaskDelay(2000/portTICK_PERIOD_MS);
+            esp_restart();
+        }else{
+            ESP_LOGI(TAG, "*Connected To WiFi2#");
+            connected_to_wifi = true;
+        }
+    }else{
+        ESP_LOGI(TAG, "*Connected To WiFi1#");
+        connected_to_wifi = true;
+    }
+  
+    if(connected_to_wifi){
+        esp_http_client_config_t config = {
+            .url = "http://www.google.com",  
+        };
+        esp_http_client_handle_t client = esp_http_client_init(&config);
+        esp_err_t err = esp_http_client_perform(client);
+        if (err == ESP_OK) {
+            ESP_LOGI(TAG, "Internet connection test successful\n");
+            set_led_state(WIFI_AND_INTERNET_NO_SERVER);
+        } else {
+            ESP_LOGI(TAG,"Internet connection test failed: %s\n", esp_err_to_name(err));
+            set_led_state(WIFI_FOUND_NO_INTERNET);
+        }
+        esp_http_client_cleanup(client);
+    }
 
-    WiFiConnection(); // connect to WiFi 1 and then WiFi 2
 }
 
 uint32_t millis(void) {
