@@ -16,6 +16,8 @@ wifi/server disconnection to be tested
 
 110524T1
 copied WiFi code from example 
+ESP_RETRY_GAP added
+When socket connected send *WiFi X# where x is wifi number
 
 090525T1
 
@@ -175,7 +177,8 @@ int jumperPort;
 int16_t caValue;
 int16_t cashValue;
 int sock = -1;
-
+#define ESP_MAXIMUM_RETRY       10
+#define ESP_RETRY_GAP           2000
 #define Production          1
 #define NVS_SSID_1_KEY        "SSID1"
 #define NVS_PASS_1_KEY        "PASS1"
@@ -207,7 +210,7 @@ int sock = -1;
 #define DEFAULT_SERVER_IP_ADDR "134.209.19.213"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://vending-iot.com/esp/firmware.bin"
-#define FWVersion "*Kwikpay-05MAY24#"
+#define FWVersion "*Kwikpay-11MAY24#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -370,7 +373,9 @@ static void event_handler(void* arg, esp_event_base_t event_base,
     
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         connected_to_wifi_and_internet = false;
-        if (s_retry_num < CONFIG_ESP_MAXIMUM_RETRY) {
+        set_led_state(SEARCH_FOR_WIFI);
+        vTaskDelay(ESP_RETRY_GAP);
+        if (s_retry_num < ESP_MAXIMUM_RETRY) {
             esp_wifi_connect();
             s_retry_num++;
             ESP_LOGI(TAG, "*retry to connect to the AP  %d#",s_retry_num);
@@ -650,11 +655,17 @@ void tcpip_client_task(){
                     sock = -1;
                 }else{
                     ESP_LOGI(TAG, "*Successfully connected#");  
-                    ESP_LOGI(TAG, "*MAC Address:%s#", MAC_ADDRESS_ESP) ;
+                    ESP_LOGI(TAG, "*MAC Address,%s#", MAC_ADDRESS_ESP) ;
+               
                     set_led_state(EVERYTHING_OK_LED); 
-                    sprintf(payload, "*MAC:%s#", MAC_ADDRESS_ESP); //actual when in production
+
+                    sprintf(payload, "*MAC,%s#", MAC_ADDRESS_ESP); //actual when in production
 //                    sprintf(payload, "*MAC:84:0D:8E:0E:F8:F2#"); //hard coded for tested 
                     int err = send(sock, payload, strlen(payload), 0);
+
+                    sprintf(payload, "*WiFi,%d#", WiFiNumber); //actual when in production
+                    err = send(sock, payload, strlen(payload), 0);
+
                     if (err < 0) {
                         ESP_LOGE(TAG, "*Error occurred during sending: errno %d#", errno);
                         shutdown(sock, 0);
@@ -1027,7 +1038,7 @@ void wifi_init_sta(void)
     ESP_LOGI(TAG, "*Trying to connect to SSID1#");
     WiFiNumber = 1;
     if(!connect_to_wifi(WIFI_SSID_1, WIFI_PASS_1)){
-       // ESP_LOGI(TAG, "Trying to connect to SSID2 %S | %S",DEFAULT_SSID2, DEFAULT_PASS1);
+        //ESP_LOGI(TAG, "Trying to connect to SSID2 %S | %S",DEFAULT_SSID2, DEFAULT_PASS1);
         ESP_LOGI(TAG, "*Trying to connect to SSID2# ");
         WiFiNumber = 2;
         s_retry_num = 0;
@@ -1516,8 +1527,8 @@ void sendHBT (void)
 {
     char payload[100];
     for (;;) {
-        ESP_LOGI(TAG, "*HBT:%s#", MAC_ADDRESS_ESP);
-        sprintf(payload, "*HBT:%s#", MAC_ADDRESS_ESP); //actual when in production
+        ESP_LOGI(TAG, "*HBT,%s#", MAC_ADDRESS_ESP);
+        sprintf(payload, "*HBT,%s#", MAC_ADDRESS_ESP); //actual when in production
         int err = send(sock, payload, strlen(payload), 0);
         // gpio_set_level(LedHBT, 1);
         // vTaskDelay(200/portTICK_PERIOD_MS);
@@ -1990,7 +2001,7 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
     ESP_LOGI(TAG, "=========================================================");
-    ESP_LOGI(TAG, "                 *08MAY24T1#                             ");
+    ESP_LOGI(TAG, "                 *11MAY24T1 FOTA#                             ");
     ESP_LOGI(TAG, "=========================================================");
     utils_nvs_init();
     status_leds_init();
