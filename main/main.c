@@ -14,6 +14,19 @@ wifi/server disconnection to be tested
 
 1445 - started working. picked up simple task
 
+200521
+adding commands to set and read INH status
+*INH:0# or *INH:1# 
+reply *INH-DONE,x#
+save value in INHPOutputValue
+ESP IO 14 is CINHO (reverse polarity)
+
+
+*INH?#
+reply *INH,0# or *INH,1#
+display from INHInputValue
+IO23 is INHInput
+
 160524T1
 FOTA commands * and # added
 
@@ -168,6 +181,10 @@ also data sent from server is received and displayed on ESP_LOGI
 #include "esp_netif.h"
 #include "rom/ets_sys.h"
 
+
+int INHInputValue = 0;
+int INHOutputValue = 0;
+int PreviousINHValue = 0;
 char WIFI_SSID_1[64];
 char WIFI_PASS_1[64];
 char WIFI_SSID_2[64];
@@ -724,6 +741,31 @@ void tcpip_client_task(){
                                         sprintf(payload, "*CA-OK,%d,%d#",pulseWitdh,SignalPolarity); //actual when in production
                                         send(sock, payload, strlen(payload), 0);
                                  }
+
+                                else if(strncmp(rx_buffer, "*INH?#",6) == 0){
+                                        if (INHInputValue !=0)
+                                            INHInputValue = 1;
+                                        ESP_LOGI(TAG, "INH Values @ numValue %d ",INHInputValue);
+                                        sprintf(payload, "*INH,%d#",INHInputValue); 
+                                        send(sock, payload, strlen(payload), 0);
+                                 }
+                                else if(strncmp(rx_buffer, "*INH:", 5) == 0){
+                                        sscanf(rx_buffer, "*INH:%d#", &INHOutputValue);
+                                        if (INHOutputValue != 0)
+                                        {
+                                            INHOutputValue = 1;
+                                            gpio_set_level(CINHO, 0);
+                                        }
+                                        else
+                                        {
+                                              gpio_set_level(CINHO, 1);
+                                        }
+                                        ESP_LOGI (TAG, "Set INH Output as %d",INHOutputValue);
+                                        sprintf(payload, "*INH-DONE,%d#",INHOutputValue); //actual when in production
+                                        send(sock, payload, strlen(payload), 0);
+                                }    
+
+
                                 else if(strncmp(rx_buffer, "*SP:", 4) == 0){
                                         sscanf(rx_buffer, "*SP:%d#", &jumperPort);
                                         sprintf(payload, "*SP-OK,%d#",jumperPort); //actual when in production
@@ -1578,6 +1620,19 @@ static void gpio_read_n_act(void* arg)
     char payload[100];
     for (;;)
     {
+        if (gpio_get_level(CINHI) == 0)
+        {
+            INHInputValue = 0;        
+        }
+        else
+        {
+            INHInputValue = 1;        
+            
+        }
+        if (PreviousINHValue != INHInputValue)
+        {
+            PreviousINHValue = INHInputValue;
+        }
         InputPin = 0;
         if (gpio_get_level(ICH1) == 0)
         {
