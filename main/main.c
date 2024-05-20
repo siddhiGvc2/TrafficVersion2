@@ -14,6 +14,9 @@ wifi/server disconnection to be tested
 
 1445 - started working. picked up simple task
 
+160524T1
+FOTA commands * and # added
+
 110524T1
 copied WiFi code from example 
 ESP_RETRY_GAP added
@@ -583,10 +586,10 @@ void load_settings_nvs(){
 
 
     if(utils_nvs_get_str(NVS_OTA_URL_KEY, FOTA_URL, 256) == ESP_OK){
-        ESP_LOGI(TAG, "FOTA URL From NVS %s", FOTA_URL);
+        ESP_LOGI(TAG, "*FOTA URL From NVS %s#", FOTA_URL);
     }else{
         strcpy(FOTA_URL, DEFAULT_FOTA_URL);
-        ESP_LOGI(TAG, "Default FOTA URL : %s", FOTA_URL);
+        ESP_LOGI(TAG, "*Default FOTA URL : %s#", FOTA_URL);
         utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
     }
 
@@ -1133,7 +1136,7 @@ void http_fota( void ){
 
     update_partition = esp_ota_get_next_update_partition(NULL);
     if (update_partition == NULL) {
-        printf("Failed to get OTA partition.\n");
+        printf("Failed to get OTA partition.\n#");
         //esp_http_client_cleanup(client);
         set_led_state(prev_state);
         return;
@@ -1166,13 +1169,13 @@ void http_fota( void ){
     */
     
     if ((err = esp_http_client_open(client, 0)) != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to open HTTP connection: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "*Failed to open HTTP connection: %s#", esp_err_to_name(err));
         esp_http_client_cleanup(client);
         set_led_state(prev_state);
         return;
     }
 
-    ESP_LOGI(TAG, "esp_http_client_open");
+    ESP_LOGI(TAG, "*esp_http_client_open#");
 
     /*
     int read_bytes = 0;
@@ -1199,7 +1202,7 @@ void http_fota( void ){
         while (total_read_len < content_length ) {
             read_len = esp_http_client_read(client, data, MAX_HTTP_RECV_BUFFER);
             if (read_len <= 0) {
-                ESP_LOGI(TAG, "Error read data");
+                ESP_LOGI(TAG, "*Error read data#");
             }
             //ESP_LOGI(TAG, "read_len = %d", read_len);
             total_read_len += read_len;
@@ -1208,7 +1211,7 @@ void http_fota( void ){
                 printf("Failed to write OTA data: %s\n", esp_err_to_name(err));
                 esp_http_client_cleanup(client);
             }else{
-                ESP_LOGI(TAG, "OTA Percent : %d", ((total_read_len*100)/content_length) );
+                ESP_LOGI(TAG, "*OTA Percent : %d#", ((total_read_len*100)/content_length) );
             }
         }
     }
@@ -1221,17 +1224,17 @@ void http_fota( void ){
         return;
     }
 
-    ESP_LOGI(TAG, "ota data written");
+    ESP_LOGI(TAG, "*ota data written#");
 
     err = esp_ota_end(ota_handle);
     if (err != ESP_OK) {
-        printf("OTA update failed: %s\n", esp_err_to_name(err));
+        printf("*OTA update failed: %s\n#", esp_err_to_name(err));
         esp_http_client_cleanup(client);
         set_led_state(prev_state);
         return;
     }
 
-    ESP_LOGI(TAG, "esp_ota_end");
+    ESP_LOGI(TAG, "*esp_ota_end#");
 
     err = esp_ota_set_boot_partition(update_partition);
     if (err != ESP_OK) {
@@ -1241,10 +1244,10 @@ void http_fota( void ){
         return;
     }
 
-    ESP_LOGI(TAG, "esp_ota_set_boot_partition");
+    ESP_LOGI(TAG, "*esp_ota_set_boot_partition#");
     
     esp_http_client_cleanup(client);
-    printf("OTA update successful! Restarting...\n");
+    printf("*OTA update successful! Restarting...\n#");
     vTaskDelay(2000/portTICK_PERIOD_MS);
     esp_restart();
     set_led_state(prev_state);
