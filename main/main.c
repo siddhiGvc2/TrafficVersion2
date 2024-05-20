@@ -20,6 +20,10 @@ adding commands to set and read INH status
 reply *INH-DONE,x#
 save value in INHPOutputValue
 ESP IO 14 is CINHO (reverse polarity)
+demo done
+while doing fota also send FOTA URL to server 
+display*FOTA-OVER# at end
+
 
 
 *INH?#
@@ -185,6 +189,7 @@ also data sent from server is received and displayed on ESP_LOGI
 int INHInputValue = 0;
 int INHOutputValue = 0;
 int PreviousINHValue = 0;
+#define INHIBITLevel 1
 char WIFI_SSID_1[64];
 char WIFI_PASS_1[64];
 char WIFI_SSID_2[64];
@@ -222,15 +227,15 @@ int sock = -1;
 
 
 
-#define DEFAULT_SSID1  "SSID1"
-#define DEFAULT_PASS1  "PASS1234"
-#define DEFAULT_SSID2  "GVCSYS1"
+#define DEFAULT_SSID1  "GVCSYS1"
+#define DEFAULT_PASS1  "GVC3065V"
+#define DEFAULT_SSID2  "GVCSYS2"
 #define DEFAULT_PASS2  "GVC3065V"
 #define DEFAULT_SERVER_IP_ADDR_TRY "165.232.180.111"
 #define DEFAULT_SERVER_IP_ADDR "134.209.19.213"
 #define DEFAULT_SERVER_PORT    6666
-#define DEFAULT_FOTA_URL  "http://vending-iot.com/esp/firmware.bin"
-#define FWVersion "*Kwikpay-11MAY24#"
+#define DEFAULT_FOTA_URL  "http://165.232.180.111/esp/firmware.bin"
+#define FWVersion "*Kwikpay-20MAY24DEMO#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -686,6 +691,10 @@ void tcpip_client_task(){
                     sprintf(payload, "*WiFi,%d#", WiFiNumber); //actual when in production
                     err = send(sock, payload, strlen(payload), 0);
 
+                    ESP_LOGI(TAG, "*%s#",FWVersion);
+                    err = send(sock, FWVersion, strlen(FWVersion), 0);
+
+
                     if (err < 0) {
                         ESP_LOGE(TAG, "*Error occurred during sending: errno %d#", errno);
                         shutdown(sock, 0);
@@ -818,6 +827,7 @@ void tcpip_client_task(){
                                     tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*FOTA#", 6) == 0){
                                     send(sock, "*FOTA-OK#", strlen("*FOTA-OK#"), 0);
+                                    send(sock,FOTA_URL,strlen(FOTA_URL),0);
                                     tx_event_pending = 1;
                                     http_fota();
                                 }else if(strncmp(rx_buffer, "*SIP:", 5) == 0){
@@ -866,7 +876,13 @@ void tcpip_client_task(){
                                     if (edges == 0) 
                                     {
                                         sscanf(rx_buffer, "*V:%d:%d:%d#", &TID,&pin,&pulses);
-                                        if (TID != LastTID)
+                                        if (INHInputValue == INHIBITLevel)
+                                        {
+                                          ESP_LOGI(TAG, "*UNIT DISABLED#");
+                                          send(sock, "*VEND DISABLED#", strlen("*VEND DISABLED#"), 0);
+                                            
+                                        }
+                                        else if (TID != LastTID)
                                         {
                                             edges = pulses*2;  // doubled edges
                                             // strcpy(WIFI_PASS_2, buf);
@@ -1212,6 +1228,7 @@ void http_fota( void ){
     
     if ((err = esp_http_client_open(client, 0)) != ESP_OK) {
         ESP_LOGE(TAG, "*Failed to open HTTP connection: %s#", esp_err_to_name(err));
+        send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
         esp_http_client_cleanup(client);
         set_led_state(prev_state);
         return;
@@ -1245,12 +1262,14 @@ void http_fota( void ){
             read_len = esp_http_client_read(client, data, MAX_HTTP_RECV_BUFFER);
             if (read_len <= 0) {
                 ESP_LOGI(TAG, "*Error read data#");
+                send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
             }
             //ESP_LOGI(TAG, "read_len = %d", read_len);
             total_read_len += read_len;
             err = esp_ota_write(ota_handle, (const void *)data, read_len);
             if (err != ESP_OK) {
                 printf("Failed to write OTA data: %s\n", esp_err_to_name(err));
+                send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
                 esp_http_client_cleanup(client);
             }else{
                 ESP_LOGI(TAG, "*OTA Percent : %d#", ((total_read_len*100)/content_length) );
@@ -1271,6 +1290,7 @@ void http_fota( void ){
     err = esp_ota_end(ota_handle);
     if (err != ESP_OK) {
         printf("*OTA update failed: %s\n#", esp_err_to_name(err));
+        send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
         esp_http_client_cleanup(client);
         set_led_state(prev_state);
         return;
@@ -1281,6 +1301,7 @@ void http_fota( void ){
     err = esp_ota_set_boot_partition(update_partition);
     if (err != ESP_OK) {
         printf("Failed to set boot partition: %s\n", esp_err_to_name(err));
+        send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
         esp_http_client_cleanup(client);
         set_led_state(prev_state);
         return;
@@ -1290,6 +1311,8 @@ void http_fota( void ){
     
     esp_http_client_cleanup(client);
     printf("*OTA update successful! Restarting...\n#");
+    send(sock, "*FOTA-OVER#", strlen("*FOTA-OVER#"), 0);
+    
     vTaskDelay(2000/portTICK_PERIOD_MS);
     esp_restart();
     set_led_state(prev_state);
@@ -1632,6 +1655,11 @@ static void gpio_read_n_act(void* arg)
         if (PreviousINHValue != INHInputValue)
         {
             PreviousINHValue = INHInputValue;
+            // if (gpio_get_level(JUMPER) == 0)
+            // {
+                sprintf(payload, "*INH,%d#",INHInputValue); 
+                send(sock, payload, strlen(payload), 0);
+            // }
         }
         InputPin = 0;
         if (gpio_get_level(ICH1) == 0)
@@ -2059,7 +2087,7 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
     ESP_LOGI(TAG, "=========================================================");
-    ESP_LOGI(TAG, "                 *11MAY24T1 FOTA#                             ");
+    ESP_LOGI(TAG, "            *20MAY24T1 FOTA#                             ");
     ESP_LOGI(TAG, "=========================================================");
     utils_nvs_init();
     status_leds_init();
