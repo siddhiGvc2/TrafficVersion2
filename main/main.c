@@ -235,7 +235,7 @@ int sock = -1;
 #define DEFAULT_SERVER_IP_ADDR "134.209.19.213"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://165.232.180.111/esp/firmware.bin"
-#define FWVersion "*Kwikpay-20MAY24DEMO#"
+#define FWVersion "*Kwikpay-20MAY24URL#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -648,7 +648,7 @@ bool extractSubstring(const char* str, char* result) {
 }
 
 void tcpip_client_task(){
-    char payload[100];
+    char payload[270];
     char rx_buffer[128];
     int addr_family = 0;
     int ip_protocol = 0;
@@ -825,6 +825,11 @@ void tcpip_client_task(){
                                     utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
                                     send(sock, "*URL-OK#", strlen("*URL-OK#"), 0);
                                     tx_event_pending = 1;
+                                }
+                                else if(strncmp(rx_buffer, "*URL?#", 6) == 0){
+                                sprintf(payload, "*URL,%s#",FOTA_URL); 
+                                send(sock, payload, strlen(payload), 0);
+                                tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*FOTA#", 6) == 0){
                                     send(sock, "*FOTA-OK#", strlen("*FOTA-OK#"), 0);
                                     send(sock,FOTA_URL,strlen(FOTA_URL),0);
