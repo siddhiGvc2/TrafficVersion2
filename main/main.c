@@ -14,6 +14,11 @@ wifi/server disconnection to be tested
 
 1445 - started working. picked up simple task
 
+230524
+INH saved in memory
+*MAC: when KP Server
+*MAC, when GVC Server
+
 200521
 adding commands to set and read INH status
 *INH:0# or *INH:1# 
@@ -205,6 +210,7 @@ int sock = -1;
 #define ESP_MAXIMUM_RETRY       10
 #define ESP_RETRY_GAP           2000
 #define Production          1
+#define NVS_INH_KEY           "INH"
 #define NVS_SSID_1_KEY        "SSID1"
 #define NVS_PASS_1_KEY        "PASS1"
 #define NVS_SSID_2_KEY        "SSID2"
@@ -232,10 +238,10 @@ int sock = -1;
 #define DEFAULT_SSID2  "GVCSYS2"
 #define DEFAULT_PASS2  "GVC3065V"
 #define DEFAULT_SERVER_IP_ADDR_TRY "165.232.180.111"
-#define DEFAULT_SERVER_IP_ADDR "134.209.19.213"
+#define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
 #define DEFAULT_SERVER_PORT    6666
-#define DEFAULT_FOTA_URL  "http://165.232.180.111/esp/firmware.bin"
-#define FWVersion "*Kwikpay-20MAY24URL#"
+#define DEFAULT_FOTA_URL  "http://vending-iot/com/kp/firmware.bin"
+#define FWVersion "Kwikpay-23MAY24"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -549,6 +555,29 @@ void load_settings_nvs(){
         utils_nvs_set_int(NVS_SERVER_PORT_KEY, server_port);
     }
 
+    if(utils_nvs_get_int(NVS_INH_KEY, &INHOutputValue) == ESP_OK){
+        if (INHOutputValue != 0)
+            INHInputValue = 1;
+        ESP_LOGI(TAG, "*INH Value is %d#", INHOutputValue);
+    }else{
+        strcpy(server_ip_addr, DEFAULT_SERVER_IP_ADDR);
+        ESP_LOGI(TAG, "*Default INH Output Value is 1#" );
+        utils_nvs_set_int(NVS_INH_KEY, 1);
+        INHOutputValue = 1;
+    }
+    if (INHOutputValue != 0)
+    {
+        INHOutputValue = 1;
+        gpio_set_level(CINHO, 0);
+    }
+    else
+    {
+        gpio_set_level(CINHO, 1);
+    }
+
+
+
+
     if(utils_nvs_get_str(NVS_SERVER_IP_KEY, server_ip_addr, 100) == ESP_OK){
         ESP_LOGI(TAG, "*Server IP From NVS %s#", server_ip_addr);
     }else{
@@ -679,14 +708,19 @@ void tcpip_client_task(){
                     close(sock);
                     sock = -1;
                 }else{
-                    ESP_LOGI(TAG, "*Successfully connected#");  
-                    ESP_LOGI(TAG, "*MAC Address,%s#", MAC_ADDRESS_ESP) ;
                
                     set_led_state(EVERYTHING_OK_LED); 
+                    if (gpio_get_level(JUMPER) == 0)
+                        sprintf(payload, "*MAC,%s#", MAC_ADDRESS_ESP);  // for GVC use ,
+                    else
+                        sprintf(payload, "*MAC:%s#", MAC_ADDRESS_ESP);  // for KP use :
 
-                    sprintf(payload, "*MAC,%s#", MAC_ADDRESS_ESP); //actual when in production
-//                    sprintf(payload, "*MAC:84:0D:8E:0E:F8:F2#"); //hard coded for tested 
                     int err = send(sock, payload, strlen(payload), 0);
+                    ESP_LOGI(TAG, "*Successfully connected#");  
+                    if (gpio_get_level(JUMPER) == 0)
+                        ESP_LOGI(TAG, "*MAC,%s#", MAC_ADDRESS_ESP) ;
+                    else
+                        ESP_LOGI(TAG, "*MAC:%s#", MAC_ADDRESS_ESP) ;
 
                     sprintf(payload, "*WiFi,%d#", WiFiNumber); //actual when in production
                     err = send(sock, payload, strlen(payload), 0);
@@ -755,7 +789,7 @@ void tcpip_client_task(){
                                         if (INHInputValue !=0)
                                             INHInputValue = 1;
                                         ESP_LOGI(TAG, "INH Values @ numValue %d ",INHInputValue);
-                                        sprintf(payload, "*INH,%d#",INHInputValue); 
+                                        sprintf(payload, "*INH-IN,%d,%d#",INHInputValue,INHOutputValue); 
                                         send(sock, payload, strlen(payload), 0);
                                  }
                                 else if(strncmp(rx_buffer, "*INH:", 5) == 0){
@@ -2091,9 +2125,9 @@ void app_main(void)
       ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
-    ESP_LOGI(TAG, "=========================================================");
-    ESP_LOGI(TAG, "            *20MAY24T1 FOTA#                             ");
-    ESP_LOGI(TAG, "=========================================================");
+    ESP_LOGI(TAG, "================================");
+    ESP_LOGI(TAG, "*FW:%s#",FWVersion);
+    ESP_LOGI(TAG, "================================");
     utils_nvs_init();
     status_leds_init();
     console_uart_init();
