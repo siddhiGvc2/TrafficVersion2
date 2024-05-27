@@ -14,58 +14,6 @@ wifi/server disconnection to be tested
 
 1445 - started working. picked up simple task
 
-270524
-add erase function when BOOT switch pressed for 2 seconds
-boot is IO0
-
-
-
-
-230524
-INH saved in memory
-*MAC: when KP Server
-*MAC, when GVC Server
-
-200521
-adding commands to set and read INH status
-*INH:0# or *INH:1# 
-reply *INH-DONE,x#
-save value in INHPOutputValue
-ESP IO 14 is CINHO (reverse polarity)
-demo done
-while doing fota also send FOTA URL to server 
-display*FOTA-OVER# at end
-
-
-
-*INH?#
-reply *INH,0# or *INH,1#
-display from INHInputValue
-IO23 is INHInput
-
-160524T1
-FOTA commands * and # added
-
-110524T1
-copied WiFi code from example 
-ESP_RETRY_GAP added
-When socket connected send *WiFi X# where x is wifi number
-
-090525T1
-
-080524T4
-
-0805T3
-retry wifiif disconnected, not working
-saved 
-
-0805T2
-if wifi disconnected - do not try socket connection
-
-0805T1
-
-added * and # on SSID commands
-
 0705T3
 working and socket connected
 
@@ -197,11 +145,6 @@ also data sent from server is received and displayed on ESP_LOGI
 #include "esp_netif.h"
 #include "rom/ets_sys.h"
 
-
-int INHInputValue = 0;
-int INHOutputValue = 0;
-int PreviousINHValue = 0;
-#define INHIBITLevel 1
 char WIFI_SSID_1[64];
 char WIFI_PASS_1[64];
 char WIFI_SSID_2[64];
@@ -214,10 +157,8 @@ int jumperPort;
 int16_t caValue;
 int16_t cashValue;
 int sock = -1;
-#define ESP_MAXIMUM_RETRY       10
-#define ESP_RETRY_GAP           2000
+
 #define Production          1
-#define NVS_INH_KEY           "INH"
 #define NVS_SSID_1_KEY        "SSID1"
 #define NVS_PASS_1_KEY        "PASS1"
 #define NVS_SSID_2_KEY        "SSID2"
@@ -240,22 +181,21 @@ int sock = -1;
 
 
 
-#define DEFAULT_SSID1  "GVCSYS1"
-#define DEFAULT_PASS1  "GVC3065V"
-#define DEFAULT_SSID2  "GVCSYS2"
+#define DEFAULT_SSID1  "SSID1"
+#define DEFAULT_PASS1  "PASS1234"
+#define DEFAULT_SSID2  "GVCSYS1"
 #define DEFAULT_PASS2  "GVC3065V"
 #define DEFAULT_SERVER_IP_ADDR_TRY "165.232.180.111"
-#define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
+#define DEFAULT_SERVER_IP_ADDR "134.209.19.213"
 #define DEFAULT_SERVER_PORT    6666
-#define DEFAULT_FOTA_URL  "http://vending-iot/com/kp/firmware.bin"
-#define FWVersion "Kwikpay-27MAY24"
+#define DEFAULT_FOTA_URL  "http://vending-iot.com/esp/firmware.bin"
+#define FWVersion "*Kwikpay-05MAY24#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
 
 #define JUMPER  15
 
-#define ErasePin 0
 #define ICH1    33
 #define ICH2    32
 #define ICH3    35
@@ -280,10 +220,6 @@ int sock = -1;
 
 #define SDA     21
 #define SCL     22
-
-// values used in erase pin
-bool ErasePinStatus,LastErasePinStatus;
-int ErasePinDebounce;
 
 // valuses used in CA command
 int numValue=0;
@@ -361,7 +297,6 @@ typedef enum TCPIP_SOCKET_STATE{
 Led_State_t led_state = STANDBY_LED;
 TCPIP_Socket_State socket_state;
 bool connected_to_wifi_and_internet = false;
-int WiFiNumber = 0;
 
 
 int tcp_sock = -1;
@@ -388,7 +323,6 @@ int tx_event_pending = 0;
 
 void Out4094 (unsigned char);
 
-void WiFiConnection (void);
 
 #define LED_ACTIVE_HIGH
 void led_set_level(gpio_num_t gpio_num, int state){
@@ -399,43 +333,23 @@ void led_set_level(gpio_num_t gpio_num, int state){
     #endif
 }
 
-static int FirstWiFiConnection = 0;
 static void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
 {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
         esp_wifi_connect();
-    } 
-    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
-            ESP_LOGI(TAG, "*WiFi Connected %d#",WiFiNumber);
-            s_retry_num = 0;
-            FirstWiFiConnection = 1;
-            connected_to_wifi_and_internet = true;
- 
-    }    
-    
-    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        connected_to_wifi_and_internet = false;
-        set_led_state(SEARCH_FOR_WIFI);
-        vTaskDelay(ESP_RETRY_GAP);
-        if (s_retry_num < ESP_MAXIMUM_RETRY) {
+    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
+        if (s_retry_num < CONFIG_ESP_MAXIMUM_RETRY) {
             esp_wifi_connect();
             s_retry_num++;
-            ESP_LOGI(TAG, "*retry to connect to the AP  %d#",s_retry_num);
+            ESP_LOGI(TAG, "retry to connect to the AP");
         } else {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
-            ESP_LOGI(TAG, "*WiFi failed bit set %d#",WiFiNumber);
-            if ((FirstWiFiConnection == 1) || (WiFiNumber == 2))
-            {
-                ESP_LOGI(TAG, "*restarting after 2 seconds#");
-                vTaskDelay(2000/portTICK_PERIOD_MS);
-                esp_restart();
-            }
-    }
-        ESP_LOGI(TAG,"*connect to the AP fail#");
+        }
+        ESP_LOGI(TAG,"connect to the AP fail");
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
-        ESP_LOGI(TAG, "*got ip:*" IPSTR, IP2STR(&event->ip_info.ip));
+        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
@@ -468,19 +382,19 @@ bool connect_to_wifi(char * ssid, char * psk){
             portMAX_DELAY);
 
     if (bits & WIFI_CONNECTED_BIT) {
-        ESP_LOGI(TAG, "*connected to ap ssid:%s password:%s \r\n#", ssid, psk);
+        ESP_LOGI(TAG, "connected to ap ssid:%s password:%s \r\n", ssid, psk);
         wifi_connected = true;
     } else if (bits & WIFI_FAIL_BIT) {
-        ESP_LOGI(TAG, "*failed to connect to ssid:%s, password:%s \r\n#", ssid, psk);
+        ESP_LOGI(TAG, "failed to connect to ssid:%s, password:%s \r\n", ssid, psk);
     } else {
-        ESP_LOGE(TAG, "*unexpected event#");
+        ESP_LOGE(TAG, "unexpected event");
     }
 
     xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT);
-    ESP_LOGI(TAG,"*returning from connect 2 wifi#");
+
     return wifi_connected;
 }
- 
+
 nvs_handle_t utils_nvs_handle;
 
 void utils_nvs_init(){
@@ -535,67 +449,43 @@ void utils_nvs_set_int(const char * key , int16_t val){
 
 void load_settings_nvs(){
     
-    ESP_LOGI(TAG, "*NVS Reading Started#");
     if(utils_nvs_get_str(NVS_SSID_1_KEY, WIFI_SSID_1, 64) == ESP_OK){
         utils_nvs_get_str(NVS_PASS_1_KEY, WIFI_PASS_1, 64);
-        ESP_LOGI(TAG, "*WIFI 1 Credentials %s|%s#", WIFI_SSID_1, WIFI_PASS_1);
+        ESP_LOGI(TAG, "WIFI 1 Credentials %s|%s", WIFI_SSID_1, WIFI_PASS_1);
     }else{
-        ESP_LOGI(TAG, "*Could not get Wifi 1 Credentials From NVS#");
+        ESP_LOGI(TAG, "Could not get Wifi 1 Credentials From NVS");
         strcpy(WIFI_SSID_1, DEFAULT_SSID1);
         strcpy(WIFI_PASS_1, DEFAULT_PASS1);
-        ESP_LOGI(TAG, "*Default WIFI 1 Credentials %s|%s#", WIFI_SSID_1, WIFI_PASS_1);
+        ESP_LOGI(TAG, "Default WIFI 1 Credentials %s|%s", WIFI_SSID_1, WIFI_PASS_1);
         utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
         utils_nvs_set_str(NVS_PASS_1_KEY, WIFI_PASS_1);
     }
 
-    if(utils_nvs_get_str(NVS_SSID_2_KEY, WIFI_SSID_2, 64) == ESP_OK){
-        utils_nvs_get_str(NVS_PASS_2_KEY, WIFI_PASS_2, 64);
-        ESP_LOGI(TAG, "*WIFI 2 Credentials %s|%s#", WIFI_SSID_2, WIFI_PASS_2);
-    }else{
-        ESP_LOGI(TAG, "*Could not get Wifi 2 Credentials From NVS#");
+    // if(utils_nvs_get_str(NVS_SSID_2_KEY, WIFI_SSID_2, 64) == ESP_OK){
+    //     utils_nvs_get_str(NVS_PASS_2_KEY, WIFI_PASS_2, 64);
+    //     ESP_LOGI(TAG, "WIFI 2 Credentials %s|%s", WIFI_SSID_2, WIFI_PASS_2);
+    // }else{
+    //     ESP_LOGI(TAG, "Could not get Wifi 2 Credentials From NVS");
         strcpy(WIFI_SSID_2, DEFAULT_SSID2);
         strcpy(WIFI_PASS_2, DEFAULT_PASS2);
-        ESP_LOGI(TAG, "*Default WIFI 2 Credentials %s|%s#", WIFI_SSID_2, WIFI_PASS_2);
+        ESP_LOGI(TAG, "Default WIFI 2 Credentials %s|%s", WIFI_SSID_2, WIFI_PASS_2);
         utils_nvs_set_str(NVS_SSID_2_KEY, WIFI_SSID_2);
         utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
-    }
+    // }
 
     if(utils_nvs_get_int(NVS_SERVER_PORT_KEY, &server_port) == ESP_OK){
-        ESP_LOGI(TAG, "*Server Port From NVS %d#", server_port);
+        ESP_LOGI(TAG, "Server Port From NVS %d", server_port);
     }else{
         server_port = DEFAULT_SERVER_PORT;
-        ESP_LOGI(TAG, "*Default Server Port %d#", server_port);
+        ESP_LOGI(TAG, "Default Server Port %d", server_port);
         utils_nvs_set_int(NVS_SERVER_PORT_KEY, server_port);
     }
 
-    if(utils_nvs_get_int(NVS_INH_KEY, &INHOutputValue) == ESP_OK){
-        if (INHOutputValue != 0)
-            INHInputValue = 1;
-        ESP_LOGI(TAG, "*INH Value is %d#", INHOutputValue);
-    }else{
-        strcpy(server_ip_addr, DEFAULT_SERVER_IP_ADDR);
-        ESP_LOGI(TAG, "*Default INH Output Value is 0#" );
-        utils_nvs_set_int(NVS_INH_KEY, 0);
-        INHOutputValue = 0;
-    }
-    if (INHOutputValue != 0)
-    {
-        INHOutputValue = 1;
-        gpio_set_level(CINHO, 0);
-    }
-    else
-    {
-        gpio_set_level(CINHO, 1);
-    }
-
-
-
-
     if(utils_nvs_get_str(NVS_SERVER_IP_KEY, server_ip_addr, 100) == ESP_OK){
-        ESP_LOGI(TAG, "*Server IP From NVS %s#", server_ip_addr);
+        ESP_LOGI(TAG, "Server IP From NVS %s", server_ip_addr);
     }else{
         strcpy(server_ip_addr, DEFAULT_SERVER_IP_ADDR);
-        ESP_LOGI(TAG, "*Default Server IP : %s#", server_ip_addr);
+        ESP_LOGI(TAG, "Default Server IP : %s", server_ip_addr);
         utils_nvs_set_str(NVS_SERVER_IP_KEY, server_ip_addr);
     }
 
@@ -605,10 +495,9 @@ void load_settings_nvs(){
     {        
         strcpy(server_ip_addr, DEFAULT_SERVER_IP_ADDR_TRY);
         ESP_LOGI(TAG, "***************************");
-        ESP_LOGI(TAG, "*JUMPER SENSED AT POWER ON#");
-        ESP_LOGI(TAG, "*Server IP ADDRESS is %s#",server_ip_addr);
+        ESP_LOGI(TAG, "JUMPER SENSED AT POWER ON");
         if(utils_nvs_get_int(NVS_SERVER_PORT_KEY_JUMPER, &jumperPort) == ESP_OK){
-               ESP_LOGI(TAG, "*JUMPER Port is %d#",jumperPort);
+               ESP_LOGI(TAG, "JUMPER Port is %d",jumperPort);
                server_port = jumperPort; 
         }
         
@@ -650,10 +539,10 @@ void load_settings_nvs(){
 
 
     if(utils_nvs_get_str(NVS_OTA_URL_KEY, FOTA_URL, 256) == ESP_OK){
-        ESP_LOGI(TAG, "*FOTA URL From NVS %s#", FOTA_URL);
+        ESP_LOGI(TAG, "FOTA URL From NVS %s", FOTA_URL);
     }else{
         strcpy(FOTA_URL, DEFAULT_FOTA_URL);
-        ESP_LOGI(TAG, "*Default FOTA URL : %s#", FOTA_URL);
+        ESP_LOGI(TAG, "Default FOTA URL : %s", FOTA_URL);
         utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
     }
 
@@ -690,7 +579,7 @@ bool extractSubstring(const char* str, char* result) {
 }
 
 void tcpip_client_task(){
-    char payload[270];
+    char payload[100];
     char rx_buffer[128];
     int addr_family = 0;
     int ip_protocol = 0;
@@ -721,27 +610,12 @@ void tcpip_client_task(){
                     close(sock);
                     sock = -1;
                 }else{
-               
-                    set_led_state(EVERYTHING_OK_LED); 
-                    if (gpio_get_level(JUMPER) == 0)
-                        sprintf(payload, "*MAC,%s#", MAC_ADDRESS_ESP);  // for GVC use ,
-                    else
-                        sprintf(payload, "*MAC:%s#", MAC_ADDRESS_ESP);  // for KP use :
-
-                    int err = send(sock, payload, strlen(payload), 0);
                     ESP_LOGI(TAG, "*Successfully connected#");  
-                    if (gpio_get_level(JUMPER) == 0)
-                        ESP_LOGI(TAG, "*MAC,%s#", MAC_ADDRESS_ESP) ;
-                    else
-                        ESP_LOGI(TAG, "*MAC:%s#", MAC_ADDRESS_ESP) ;
-
-                    sprintf(payload, "*WiFi,%d#", WiFiNumber); //actual when in production
-                    err = send(sock, payload, strlen(payload), 0);
-
-                    ESP_LOGI(TAG, "*%s#",FWVersion);
-                    err = send(sock, FWVersion, strlen(FWVersion), 0);
-
-
+                    ESP_LOGI(TAG, "*MAC Address:%s#", MAC_ADDRESS_ESP) ;
+                    set_led_state(EVERYTHING_OK_LED); 
+                    sprintf(payload, "*MAC:%s#", MAC_ADDRESS_ESP); //actual when in production
+//                    sprintf(payload, "*MAC:84:0D:8E:0E:F8:F2#"); //hard coded for tested 
+                    int err = send(sock, payload, strlen(payload), 0);
                     if (err < 0) {
                         ESP_LOGE(TAG, "*Error occurred during sending: errno %d#", errno);
                         shutdown(sock, 0);
@@ -797,31 +671,6 @@ void tcpip_client_task(){
                                         sprintf(payload, "*CA-OK,%d,%d#",pulseWitdh,SignalPolarity); //actual when in production
                                         send(sock, payload, strlen(payload), 0);
                                  }
-
-                                else if(strncmp(rx_buffer, "*INH?#",6) == 0){
-                                        if (INHInputValue !=0)
-                                            INHInputValue = 1;
-                                        ESP_LOGI(TAG, "INH Values @ numValue %d ",INHInputValue);
-                                        sprintf(payload, "*INH-IN,%d,%d#",INHInputValue,INHOutputValue); 
-                                        send(sock, payload, strlen(payload), 0);
-                                 }
-                                else if(strncmp(rx_buffer, "*INH:", 5) == 0){
-                                        sscanf(rx_buffer, "*INH:%d#", &INHOutputValue);
-                                        if (INHOutputValue != 0)
-                                        {
-                                            INHOutputValue = 1;
-                                            gpio_set_level(CINHO, 0);
-                                        }
-                                        else
-                                        {
-                                              gpio_set_level(CINHO, 1);
-                                        }
-                                        ESP_LOGI (TAG, "Set INH Output as %d",INHOutputValue);
-                                        sprintf(payload, "*INH-DONE,%d#",INHOutputValue); //actual when in production
-                                        send(sock, payload, strlen(payload), 0);
-                                }    
-
-
                                 else if(strncmp(rx_buffer, "*SP:", 4) == 0){
                                         sscanf(rx_buffer, "*SP:%d#", &jumperPort);
                                         sprintf(payload, "*SP-OK,%d#",jumperPort); //actual when in production
@@ -872,14 +721,8 @@ void tcpip_client_task(){
                                     utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
                                     send(sock, "*URL-OK#", strlen("*URL-OK#"), 0);
                                     tx_event_pending = 1;
-                                }
-                                else if(strncmp(rx_buffer, "*URL?#", 6) == 0){
-                                sprintf(payload, "*URL,%s#",FOTA_URL); 
-                                send(sock, payload, strlen(payload), 0);
-                                tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*FOTA#", 6) == 0){
                                     send(sock, "*FOTA-OK#", strlen("*FOTA-OK#"), 0);
-                                    send(sock,FOTA_URL,strlen(FOTA_URL),0);
                                     tx_event_pending = 1;
                                     http_fota();
                                 }else if(strncmp(rx_buffer, "*SIP:", 5) == 0){
@@ -928,13 +771,7 @@ void tcpip_client_task(){
                                     if (edges == 0) 
                                     {
                                         sscanf(rx_buffer, "*V:%d:%d:%d#", &TID,&pin,&pulses);
-                                        if (INHInputValue == INHIBITLevel)
-                                        {
-                                          ESP_LOGI(TAG, "*UNIT DISABLED#");
-                                          send(sock, "*VEND DISABLED#", strlen("*VEND DISABLED#"), 0);
-                                            
-                                        }
-                                        else if (TID != LastTID)
+                                        if (TID != LastTID)
                                         {
                                             edges = pulses*2;  // doubled edges
                                             // strcpy(WIFI_PASS_2, buf);
@@ -1055,74 +892,11 @@ void tcpip_client_task(){
     }
 }
 
-// void WiFiConnection (void)
-// {
-//         set_led_state(SEARCH_FOR_WIFI);
-//         bool connected_to_wifi = false;
-//         int WiFiRetryCount = 0;
-//         while (connected_to_wifi == 0)
-//         {
-//             if (WiFiRetryCount >= 3) 
-//             {
-//                 ESP_LOGI(TAG, "*Restarting as WiFi Not Sensed#");
-//                 vTaskDelay(500);
-//                 esp_restart();                
-//             }   
-//             if (WiFiNumber != 1)
-//             {
-//                 ESP_LOGI(TAG, "*Trying to connect to SSID1 %s %s#",WIFI_SSID_1, WIFI_PASS_1);
-//                 if(!connect_to_wifi(WIFI_SSID_1, WIFI_PASS_1)){
-//                     s_retry_num = 0;
-//                     WiFiNumber = 1;
-//                     ESP_LOGI(TAG, "*Failed to Connect SSID1#");
-//                     WiFiRetryCount++;
-//                 }else{
-//                     ESP_LOGI(TAG, "*Connected To WiFi1#");
-//                     connected_to_wifi = true;
-//                     WiFiNumber = 1;
-//                 }
-//             }
-
-//             else
-//             {
-//                 ESP_LOGI(TAG, "*Trying to connect to SSID2 %s %s#",WIFI_SSID_2, WIFI_PASS_2);
-//                 if(!connect_to_wifi(WIFI_SSID_2, WIFI_PASS_2)){
-//                     s_retry_num = 0;
-//                     WiFiNumber = 2;
-//                     ESP_LOGI(TAG, "*Failed to Connect SSID2#");
-//                     WiFiRetryCount++;
-//                 }else{
-//                     ESP_LOGI(TAG, "*Connected To WiFi2#");
-//                     connected_to_wifi = true;
-//                     WiFiNumber = 2;
-//                 }
-//             }
-//         }
-
-//     if(connected_to_wifi){
-//              connected_to_wifi_and_internet = true;
-//         // esp_http_client_config_t config = {
-//         //     .url = "http://www.google.com",  
-//         // };
-//         // esp_http_client_handle_t client = esp_http_client_init(&config);
-//         // esp_err_t err = esp_http_client_perform(client);
-//         // if (err == ESP_OK) {
-//         //     ESP_LOGI(TAG, "*Internet connection test successful#");
-//         //     connected_to_wifi_and_internet = true;
-//         // } else {
-//         //     ESP_LOGI(TAG,"*Internet connection test failed: %s#", esp_err_to_name(err));
-//         //     set_led_state(WIFI_FOUND_NO_INTERNET);
-//         // }
-//         // esp_http_client_cleanup(client);
-//     }
-
-
-// }
-
 void wifi_init_sta(void)
 {
-
     load_settings_nvs();
+
+
     s_wifi_event_group = xEventGroupCreate();
 
     ESP_ERROR_CHECK(esp_netif_init());
@@ -1145,45 +919,43 @@ void wifi_init_sta(void)
                                                         &event_handler,
                                                         NULL,
                                                         &instance_got_ip));
-    set_led_state(SEARCH_FOR_WIFI);
-    bool connected_to_wifi = false;
-    //ESP_LOGI(TAG, "Trying to connect to SSID1 %s | %s",DEFAULT_SSID1,DEFAULT_PASS1);
-    ESP_LOGI(TAG, "*Trying to connect to SSID1#");
-    WiFiNumber = 1;
-    if(!connect_to_wifi(WIFI_SSID_1, WIFI_PASS_1)){
-        //ESP_LOGI(TAG, "Trying to connect to SSID2 %S | %S",DEFAULT_SSID2, DEFAULT_PASS1);
-        ESP_LOGI(TAG, "*Trying to connect to SSID2# ");
-        WiFiNumber = 2;
-        s_retry_num = 0;
-        if(!connect_to_wifi(WIFI_SSID_2, WIFI_PASS_2)){
-            ESP_LOGI(TAG, "Could not connect to SSID2. Restarting....");
-            ESP_LOGI(TAG, "*restarting after 2 seconds#");
-            vTaskDelay(2000/portTICK_PERIOD_MS);
-            esp_restart();
+
+    WIFI_CONNECTION:
+        set_led_state(SEARCH_FOR_WIFI);
+        bool connected_to_wifi = false;
+        ESP_LOGI(TAG, "Trying to connect to SSID1");
+        if(!connect_to_wifi(WIFI_SSID_1, WIFI_PASS_1)){
+            ESP_LOGI(TAG, "Trying to connect to SSID2");
+            s_retry_num = 0;
+            if(!connect_to_wifi(WIFI_SSID_2, WIFI_PASS_2)){
+                ESP_LOGI(TAG, "Could not connect to SSID2. Restarting Process....");
+                s_retry_num = 0;
+                vTaskDelay(2000/portTICK_PERIOD_MS);
+                goto WIFI_CONNECTION;
+                //esp_restart();
+            }else{
+                ESP_LOGI(TAG, "Connected To WiFi2");
+                connected_to_wifi = true;
+            }
         }else{
-            ESP_LOGI(TAG, "*Connected To WiFi2#");
+            ESP_LOGI(TAG, "Connected To WiFi1");
             connected_to_wifi = true;
         }
-    }else{
-        ESP_LOGI(TAG, "*Connected To WiFi1#");
-        connected_to_wifi = true;
-    }
-  
+
     if(connected_to_wifi){
-        connected_to_wifi_and_internet = true;
-        // esp_http_client_config_t config = {
-        //     .url = "http://www.google.com",  
-        // };
-        // esp_http_client_handle_t client = esp_http_client_init(&config);
-        // esp_err_t err = esp_http_client_perform(client);
-        // if (err == ESP_OK) {
-        //     ESP_LOGI(TAG, "Internet connection test successful\n");
-        //     set_led_state(WIFI_AND_INTERNET_NO_SERVER);
-        // } else {
-        //     ESP_LOGI(TAG,"Internet connection test failed: %s\n", esp_err_to_name(err));
-        //     set_led_state(WIFI_FOUND_NO_INTERNET);
-        // }
-        // esp_http_client_cleanup(client);
+        esp_http_client_config_t config = {
+            .url = "http://www.google.com",  
+        };
+        esp_http_client_handle_t client = esp_http_client_init(&config);
+        esp_err_t err = esp_http_client_perform(client);
+        if (err == ESP_OK) {
+            ESP_LOGI(TAG, "Internet connection test successful\n");
+            connected_to_wifi_and_internet = true;
+        } else {
+            ESP_LOGI(TAG,"Internet connection test failed: %s\n", esp_err_to_name(err));
+            set_led_state(WIFI_FOUND_NO_INTERNET);
+        }
+        esp_http_client_cleanup(client);
     }
 
 }
@@ -1246,7 +1018,7 @@ void http_fota( void ){
 
     update_partition = esp_ota_get_next_update_partition(NULL);
     if (update_partition == NULL) {
-        printf("Failed to get OTA partition.\n#");
+        printf("Failed to get OTA partition.\n");
         //esp_http_client_cleanup(client);
         set_led_state(prev_state);
         return;
@@ -1279,14 +1051,13 @@ void http_fota( void ){
     */
     
     if ((err = esp_http_client_open(client, 0)) != ESP_OK) {
-        ESP_LOGE(TAG, "*Failed to open HTTP connection: %s#", esp_err_to_name(err));
-        send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
+        ESP_LOGE(TAG, "Failed to open HTTP connection: %s", esp_err_to_name(err));
         esp_http_client_cleanup(client);
         set_led_state(prev_state);
         return;
     }
 
-    ESP_LOGI(TAG, "*esp_http_client_open#");
+    ESP_LOGI(TAG, "esp_http_client_open");
 
     /*
     int read_bytes = 0;
@@ -1313,18 +1084,16 @@ void http_fota( void ){
         while (total_read_len < content_length ) {
             read_len = esp_http_client_read(client, data, MAX_HTTP_RECV_BUFFER);
             if (read_len <= 0) {
-                ESP_LOGI(TAG, "*Error read data#");
-                send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
+                ESP_LOGI(TAG, "Error read data");
             }
             //ESP_LOGI(TAG, "read_len = %d", read_len);
             total_read_len += read_len;
             err = esp_ota_write(ota_handle, (const void *)data, read_len);
             if (err != ESP_OK) {
                 printf("Failed to write OTA data: %s\n", esp_err_to_name(err));
-                send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
                 esp_http_client_cleanup(client);
             }else{
-                ESP_LOGI(TAG, "*OTA Percent : %d#", ((total_read_len*100)/content_length) );
+                ESP_LOGI(TAG, "OTA Percent : %d", ((total_read_len*100)/content_length) );
             }
         }
     }
@@ -1337,34 +1106,30 @@ void http_fota( void ){
         return;
     }
 
-    ESP_LOGI(TAG, "*ota data written#");
+    ESP_LOGI(TAG, "ota data written");
 
     err = esp_ota_end(ota_handle);
     if (err != ESP_OK) {
-        printf("*OTA update failed: %s\n#", esp_err_to_name(err));
-        send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
+        printf("OTA update failed: %s\n", esp_err_to_name(err));
         esp_http_client_cleanup(client);
         set_led_state(prev_state);
         return;
     }
 
-    ESP_LOGI(TAG, "*esp_ota_end#");
+    ESP_LOGI(TAG, "esp_ota_end");
 
     err = esp_ota_set_boot_partition(update_partition);
     if (err != ESP_OK) {
         printf("Failed to set boot partition: %s\n", esp_err_to_name(err));
-        send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
         esp_http_client_cleanup(client);
         set_led_state(prev_state);
         return;
     }
 
-    ESP_LOGI(TAG, "*esp_ota_set_boot_partition#");
+    ESP_LOGI(TAG, "esp_ota_set_boot_partition");
     
     esp_http_client_cleanup(client);
-    printf("*OTA update successful! Restarting...\n#");
-    send(sock, "*FOTA-OVER#", strlen("*FOTA-OVER#"), 0);
-    
+    printf("OTA update successful! Restarting...\n");
     vTaskDelay(2000/portTICK_PERIOD_MS);
     esp_restart();
     set_led_state(prev_state);
@@ -1647,8 +1412,8 @@ void sendHBT (void)
 {
     char payload[100];
     for (;;) {
-        ESP_LOGI(TAG, "*HBT,%s#", MAC_ADDRESS_ESP);
-        sprintf(payload, "*HBT,%s#", MAC_ADDRESS_ESP); //actual when in production
+        ESP_LOGI(TAG, "*HBT:%s#", MAC_ADDRESS_ESP);
+        sprintf(payload, "*HBT:%s#", MAC_ADDRESS_ESP); //actual when in production
         int err = send(sock, payload, strlen(payload), 0);
         // gpio_set_level(LedHBT, 1);
         // vTaskDelay(200/portTICK_PERIOD_MS);
@@ -1695,71 +1460,6 @@ static void gpio_read_n_act(void* arg)
     char payload[100];
     for (;;)
     {
-        if (gpio_get_level(ErasePin) == 0)
-        {
-            if (LastErasePinStatus == 1)    
-            {
-                ErasePinDebounce = 2000;        
-                LastErasePinStatus = 0;
-                ESP_LOGI(TAG,"*Eraseing Sense Started#");
-            }
-            else
-            {
-                if (ErasePinDebounce)
-                { 
-                    ErasePinDebounce = ErasePinDebounce-1;
-                    if (ErasePinDebounce == 0)
-                    {
-                        ErasePinStatus = 0;
-                        ESP_LOGI(TAG,"*Eraseing All Parameters#");
-                        send(sock, "*ERASE-LOCAL#", strlen("*ERASE-LOCAL#"), 0);
-                        utils_nvs_erase_all();
-                        ESP_LOGI(TAG, "**************Restarting after 3 second******#");
-                        send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
-                        ESP_LOGI(TAG, "*RST-OK#");
-                        vTaskDelay(3000/portTICK_PERIOD_MS);
-                        esp_restart();
-                    }
-                }
-
-            }
-        }
-        else
-        {
-            if (LastErasePinStatus == 0)
-            {
-                ErasePinDebounce = 200; 
-                LastErasePinStatus = 0;
-            }
-            else
-            {
-                if (ErasePinDebounce)
-                { 
-                    ErasePinDebounce = ErasePinDebounce-1;
-                    if (ErasePinDebounce == 0)
-                        ErasePinStatus = 1;
-                }
-
-            }
-        }
-        if (gpio_get_level(CINHI) == 0)
-        {
-            INHInputValue = 0;        
-        }
-        else
-        {
-            INHInputValue = 1;        
-            
-        }
-        if (PreviousINHValue != INHInputValue)
-        {
-            PreviousINHValue = INHInputValue;
-            // if (gpio_get_level(JUMPER) == 0)
-            // {
-                sprintf(payload, "*INH,%d#",INHInputValue); 
-                send(sock, payload, strlen(payload), 0);
-            // }
-        }
         InputPin = 0;
         if (gpio_get_level(ICH1) == 0)
         {
@@ -1962,7 +1662,7 @@ void ICH_init()
     //set as input mode
     io_conf.mode = GPIO_MODE_INPUT;
     //bit mask of the pins that you want to set
-    io_conf.pin_bit_mask = 1ULL << ErasePin | 1ULL << JUMPER | 1ULL << CINHI | 1ULL << INH | 1ULL << ICH1 | 1ULL << ICH2 | 1ULL << ICH3 | 1ULL << ICH4 | 1ULL << ICH5 | 1ULL << ICH6| 1ULL << ICH7;
+    io_conf.pin_bit_mask = 1ULL << JUMPER | 1ULL << CINHI | 1ULL << INH | 1ULL << ICH1 | 1ULL << ICH2 | 1ULL << ICH3 | 1ULL << ICH4 | 1ULL << ICH5 | 1ULL << ICH6| 1ULL << ICH7;
     //disable pull-down mode
     io_conf.pull_down_en = 0;
     //enable pull-up mode
@@ -2160,7 +1860,7 @@ void s2p_init(){
     gpio_set_level(L3, 0);
     
     Test4094Count = 0;
-    ESP_LOGI(TAG, "4094 IOs,RGB initialised");  
+    ESP_LOGI("S2P", "4094 IOs,RGB initialised");  
     xTaskCreate(GeneratePulsesInBackGround, "GeneratePulsesInBackGround", 2048, NULL, 6, NULL);
 
 }
@@ -2185,22 +1885,18 @@ void app_main(void)
       ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
-    ESP_LOGI(TAG, "================================");
-    ESP_LOGI(TAG, "*FW:%s#",FWVersion);
-    ESP_LOGI(TAG, "================================");
+    ESP_LOGI(TAG, "=========================================================");
+    ESP_LOGI(TAG, "                 *07MAY24                                ");
+    ESP_LOGI(TAG, "=========================================================");
     utils_nvs_init();
     status_leds_init();
     console_uart_init();
     read_mac_address();
     xTaskCreate(tcpip_client_task, "tcpip_client_task", 4096, NULL, 6, NULL);
-   
-    ESP_LOGI(TAG, "*Starting ICH#");
-    ICH_init();
     ESP_LOGI(TAG, "*Starting WiFi#");
     wifi_init_sta();
-    ESP_LOGI(TAG, "*Starting S2P#");
+    ICH_init();
     s2p_init();
-    ESP_LOGI(TAG, "*Clearing 4094 Output#");
     Out4094(0x00);; // set all outputs inactive
     xTaskCreate(sendHBT, "sendHBT", 2048, NULL, 10, NULL);
     xTaskCreate(BlinkLED, "BlinkLED", 2048, NULL, 10, NULL);
