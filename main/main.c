@@ -291,6 +291,9 @@ int polarity=0;
 int pulseWitdh=0;
 int SignalPolarity=0;
 
+char dateTime[100];
+char userName[100];
+
 
 unsigned char  SwitchStatus,PreviousSwitchStatus,DebounceCount;
 int16_t x;
@@ -784,7 +787,7 @@ void tcpip_client_task(){
                                 char buf[len+1];
 
                                 if(strncmp(rx_buffer, "*SS:", 4) == 0){
-                                    sscanf(rx_buffer, "*SS:%[^#]", buf);
+                                    sscanf(rx_buffer, "*SS:%s:%s%[^#]",dateTime,userName, buf);
                                     strcpy(WIFI_SSID_1, buf);
                                     utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
                                     send(sock, "*SS-OK#", strlen("*SS-OK#"), 0);
@@ -806,7 +809,7 @@ void tcpip_client_task(){
                                         send(sock, payload, strlen(payload), 0);
                                  }
                                 else if(strncmp(rx_buffer, "*INH:", 5) == 0){
-                                        sscanf(rx_buffer, "*INH:%d#", &INHOutputValue);
+                                        sscanf(rx_buffer, "*INH:%s:%s:%d#",dateTime,userName, &INHOutputValue);
                                         if (INHOutputValue != 0)
                                         {
                                             INHOutputValue = 1;
@@ -817,22 +820,22 @@ void tcpip_client_task(){
                                               gpio_set_level(CINHO, 1);
                                         }
                                         ESP_LOGI (TAG, "Set INH Output as %d",INHOutputValue);
-                                        sprintf(payload, "*INH-DONE,%d#",INHOutputValue); //actual when in production
+                                        sprintf(payload, "*INH-DONE,%s,%s,%d#",dateTime,userName,INHOutputValue); //actual when in production
                                         send(sock, payload, strlen(payload), 0);
                                 }    
 
 
                                 else if(strncmp(rx_buffer, "*SP:", 4) == 0){
-                                        sscanf(rx_buffer, "*SP:%d#", &jumperPort);
-                                        sprintf(payload, "*SP-OK,%d#",jumperPort); //actual when in production
+                                        sscanf(rx_buffer, "*SP:%s:%s:%d#",dateTime,userName, &jumperPort);
+                                        sprintf(payload, "*SP-OK,%s,%s,%d#",dateTime,userName,jumperPort); //actual when in production
                                         send(sock, payload, strlen(payload), 0);
                                         utils_nvs_set_int(NVS_SERVER_PORT_KEY_JUMPER, jumperPort);
  
                                 }        
                                 else if(strncmp(rx_buffer, "*CA:", 4) == 0){
-                                        sscanf(rx_buffer, "*CA:%d:%d#", &numValue,&polarity);
+                                        sscanf(rx_buffer, "*CA:%s:%s:%d:%d#",dateTime,userName, &numValue,&polarity);
                                         ESP_LOGI(TAG, "Generate @ numValue %d polarity %d",numValue,polarity);
-                                        sprintf(payload, "*CA-OK,%d,%d#",numValue,polarity); //actual when in production
+                                        sprintf(payload, "*CA-OK,%s,%s,%d,%d#",dateTime,userName,numValue,polarity); //actual when in production
                                         send(sock, payload, strlen(payload), 0);
                                         // valid values are between 25 and 100
                                         if (numValue<10)
@@ -849,25 +852,25 @@ void tcpip_client_task(){
                                         utils_nvs_set_int(NVS_CA_KEY, numValue*2+polarity);
                                 }
                                 else if(strncmp(rx_buffer, "*SS1:", 5) == 0){
-                                    sscanf(rx_buffer, "*SS1:%[^#]", buf);
+                                    sscanf(rx_buffer, "*SS1:%s:%s:%[^#]",dateTime,userName, buf);
                                     strcpy(WIFI_SSID_2, buf);
                                     utils_nvs_set_str(NVS_SSID_2_KEY, WIFI_SSID_2);
                                     send(sock, "*SS1-OK#", strlen("*SS1-OK#"), 0);
                                     tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*PW:", 4) == 0){
-                                    sscanf(rx_buffer, "*PW:%[^#]", buf);
+                                    sscanf(rx_buffer, "*PW:%s:%s:%[^#]",dateTime,userName, buf);
                                     strcpy(WIFI_PASS_1, buf);
                                     utils_nvs_set_str(NVS_PASS_1_KEY, WIFI_PASS_1);
                                     send(sock, "*PW-OK#", strlen("*PW-OK#"), 0);
                                     tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*PW1:", 5) == 0){
-                                    sscanf(rx_buffer, "*PW1:%[^#]", buf);
+                                    sscanf(rx_buffer, "*PW1:%s:%s:%[^#]",dateTime,userName, buf);
                                     strcpy(WIFI_PASS_2, buf);
                                     utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
                                     send(sock, "*PW1-OK#", strlen("*PW1-OK#"), 0);
                                     tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*URL:", 5) == 0){
-                                    sscanf(rx_buffer, "*URL:%[^#]", buf);
+                                    sscanf(rx_buffer, "*URL:%s:%s:%[^#]",dateTime,userName, buf);
                                     strcpy(FOTA_URL, buf);
                                     utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
                                     send(sock, "*URL-OK#", strlen("*URL-OK#"), 0);
@@ -885,7 +888,7 @@ void tcpip_client_task(){
                                 }else if(strncmp(rx_buffer, "*SIP:", 5) == 0){
                                     int ip_octet[4];
                                     int sp_port;
-                                    sscanf(rx_buffer, "*SIP:%d.%d.%d.%d:%d#", &ip_octet[0],
+                                    sscanf(rx_buffer, "*SIP:%s:%s:%d.%d.%d.%d:%d#",dateTime,userName, &ip_octet[0],
                                         &ip_octet[1],
                                         &ip_octet[2],
                                         &ip_octet[3],
@@ -927,7 +930,7 @@ void tcpip_client_task(){
                                 else if(strncmp(rx_buffer, "*V:", 3) == 0){
                                     if (edges == 0) 
                                     {
-                                        sscanf(rx_buffer, "*V:%d:%d:%d#", &TID,&pin,&pulses);
+                                        sscanf(rx_buffer, "*V:%s:%s:%d:%d:%d#",dateTime,userName, &TID,&pin,&pulses);
                                         if (INHInputValue == INHIBITLevel)
                                         {
                                           ESP_LOGI(TAG, "*UNIT DISABLED#");
@@ -939,12 +942,12 @@ void tcpip_client_task(){
                                             edges = pulses*2;  // doubled edges
                                             // strcpy(WIFI_PASS_2, buf);
                                             // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
-                                            ESP_LOGI(TAG, "*V-OK,%d,%d,%d#",TID,pin,pulses);
-                                            sprintf(payload, "*V-OK,%d,%d,%d#", TID,pin,pulses); //actual when in production
+                                            ESP_LOGI(TAG, "*V-OK,%s,%s,%d,%d,%d#",dateTime,userName,TID,pin,pulses);
+                                            sprintf(payload, "*V-OK,%s,%s,%d,%d,%d#",dateTime,userName, TID,pin,pulses); //actual when in production
                                             send(sock, payload, strlen(payload), 0);
                                             vTaskDelay(1000/portTICK_PERIOD_MS);
-                                            sprintf(payload, "*T-OK,%d,%d,%d#", TID,pin,pulses); //actual when in production
-                                            ESP_LOGI(TAG, "*T-OK,%d,%d,%d#",TID,pin,pulses);
+                                            sprintf(payload, "*T-OK,%s,%s,%d,%d,%d#",dateTime,userName, TID,pin,pulses); //actual when in production
+                                            ESP_LOGI(TAG, "*T-OK,%s,%s,%d,%d,%d#",dateTime,userName,TID,pin,pulses);
                                             send(sock, payload, strlen(payload), 0);
                                             tx_event_pending = 1;
                                             Totals[pin-1] += pulses;
@@ -964,7 +967,7 @@ void tcpip_client_task(){
                                 else if(strncmp(rx_buffer, "*SL:", 4) == 0){
                                     if (edges == 0)
                                     {
-                                        sscanf(rx_buffer, "*SL:%d:%d#", &ledpin,&ledstatus);
+                                        sscanf(rx_buffer, "*SL:%s:%s:%d:%d#",dateTime,userName, &ledpin,&ledstatus);
                                         // strcpy(WIFI_PASS_2, buf);
                                         // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
                                         ESP_LOGI(TAG, "Set LED @ Pin %d Status %d",ledpin,ledstatus);
@@ -1472,32 +1475,32 @@ void process_uart_packet(const char *pkt){
     rx_event_pending = 1;
     char buf[100];
     if(strncmp(pkt, "*SS:", 4) == 0){
-        sscanf(pkt, "*SS:%[^#]", buf);
+        sscanf(pkt, "*SS:%s:%s:%[^#]",dateTime,userName, buf);
         //uart_write_string_ln(buf);
         strcpy(WIFI_SSID_1, buf);
         utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
         uart_write_string_ln("*SS-OK#");
         tx_event_pending = 1;
     }else if(strncmp(pkt, "*SS1:", 5) == 0){
-        sscanf(pkt, "*SS1:%[^#]", buf);
+        sscanf(pkt, "*SS1:%s:%s:%[^#]",dateTime,userName, buf);
         strcpy(WIFI_SSID_2, buf);
         utils_nvs_set_str(NVS_SSID_2_KEY, WIFI_SSID_2);
         uart_write_string_ln("*SS1-OK#");
         tx_event_pending = 1;
     }else if(strncmp(pkt, "*PW:", 4) == 0){
-        sscanf(pkt, "*PW:%[^#]", buf);
+        sscanf(pkt, "*PW:%s:%s:%[^#]",dateTime,userName, buf);
         strcpy(WIFI_PASS_1, buf);
         utils_nvs_set_str(NVS_PASS_1_KEY, WIFI_PASS_1);
         uart_write_string_ln("*PW-OK#");
         tx_event_pending = 1;
     }else if(strncmp(pkt, "*PW1:", 5) == 0){
-        sscanf(pkt, "*PW1:%[^#]", buf);
+        sscanf(pkt, "*PW1:%s:%s:%[^#]",dateTime,userName, buf);
         strcpy(WIFI_PASS_2, buf);
         utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
         uart_write_string_ln("*PW1-OK#");
         tx_event_pending = 1;
     }else if(strncmp(pkt, "*URL:", 5) == 0){
-        sscanf(pkt, "*URL:%[^#]", buf);
+        sscanf(pkt, "*URL:%s:%s:%[^#]",dateTime,userName, buf);
         strcpy(FOTA_URL, buf);
         utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
         uart_write_string_ln("*URL-OK#");
@@ -1509,7 +1512,7 @@ void process_uart_packet(const char *pkt){
     }else if(strncmp(pkt, "*SIP:", 5) == 0){
         int ip_octet[4];
         int sp_port;
-        sscanf(pkt, "*SIP:%d.%d.%d.%d:%d#", &ip_octet[0],
+        sscanf(pkt, "*SIP:%s:%s:%d.%d.%d.%d:%d#",dateTime,userName, &ip_octet[0],
             &ip_octet[1],
             &ip_octet[2],
             &ip_octet[3],
