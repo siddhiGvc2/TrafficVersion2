@@ -787,7 +787,7 @@ void tcpip_client_task(){
                                 char buf[len+1];
 
                                 if(strncmp(rx_buffer, "*SS:", 4) == 0){
-                                    sscanf(rx_buffer, "*SS:%s:%s%[^#]",dateTime,userName, buf);
+                                    sscanf(rx_buffer, "*SS:%s:%s:%[^#]",dateTime,userName, buf);
                                     strcpy(WIFI_SSID_1, buf);
                                     utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
                                     send(sock, "*SS-OK#", strlen("*SS-OK#"), 0);
@@ -930,7 +930,7 @@ void tcpip_client_task(){
                                 else if(strncmp(rx_buffer, "*V:", 3) == 0){
                                     if (edges == 0) 
                                     {
-                                        sscanf(rx_buffer, "*V:%s:%s:%d:%d:%d#",dateTime,userName, &TID,&pin,&pulses);
+                                        sscanf(rx_buffer, "*V:%d:%d:%d#",&TID,&pin,&pulses);
                                         if (INHInputValue == INHIBITLevel)
                                         {
                                           ESP_LOGI(TAG, "*UNIT DISABLED#");
@@ -942,12 +942,12 @@ void tcpip_client_task(){
                                             edges = pulses*2;  // doubled edges
                                             // strcpy(WIFI_PASS_2, buf);
                                             // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
-                                            ESP_LOGI(TAG, "*V-OK,%s,%s,%d,%d,%d#",dateTime,userName,TID,pin,pulses);
-                                            sprintf(payload, "*V-OK,%s,%s,%d,%d,%d#",dateTime,userName, TID,pin,pulses); //actual when in production
+                                            ESP_LOGI(TAG, "*V-OK,%d,%d,%d#",TID,pin,pulses);
+                                            sprintf(payload, "*V-OK,%d,%d,%d#", TID,pin,pulses); //actual when in production
                                             send(sock, payload, strlen(payload), 0);
                                             vTaskDelay(1000/portTICK_PERIOD_MS);
-                                            sprintf(payload, "*T-OK,%s,%s,%d,%d,%d#",dateTime,userName, TID,pin,pulses); //actual when in production
-                                            ESP_LOGI(TAG, "*T-OK,%s,%s,%d,%d,%d#",dateTime,userName,TID,pin,pulses);
+                                            sprintf(payload, "*T-OK,%d,%d,%d#",TID,pin,pulses); //actual when in production
+                                            ESP_LOGI(TAG, "*T-OK,%d,%d,%d#",TID,pin,pulses);
                                             send(sock, payload, strlen(payload), 0);
                                             tx_event_pending = 1;
                                             Totals[pin-1] += pulses;
