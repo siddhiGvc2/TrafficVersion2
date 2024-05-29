@@ -880,7 +880,7 @@ void tcpip_client_task(){
                                 sprintf(payload, "*URL,%s#",FOTA_URL); 
                                 send(sock, payload, strlen(payload), 0);
                                 tx_event_pending = 1;
-                                }else if(strncmp(rx_buffer, "*FOTA#", 6) == 0){
+                                }else if(strncmp(rx_buffer, "*FOTA:", 6) == 0){
                                     send(sock, "*FOTA-OK#", strlen("*FOTA-OK#"), 0);
                                     send(sock,FOTA_URL,strlen(FOTA_URL),0);
                                     tx_event_pending = 1;
@@ -997,7 +997,7 @@ void tcpip_client_task(){
                                         ESP_LOGI(TAG, "*TC,%d,%d,%d,%d,%d,%d,%d#", CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6] );
                                         
                                 }
-                                else if(strncmp(rx_buffer, "*CC#", 4) == 0){
+                                else if(strncmp(rx_buffer, "*CC:", 4) == 0){
                                         ESP_LOGI(TAG, "*CC-OK#");
                                         sprintf(payload, "*CC-OK#"); //actual when in production
                                         send(sock, payload, strlen(payload), 0);
@@ -1027,7 +1027,7 @@ void tcpip_client_task(){
                                         if (ledpin == 3)
                                             gpio_set_level(L3, ledstatus);
                                     }
-                                else if(strncmp(rx_buffer, "*RST#", 5) == 0){
+                                else if(strncmp(rx_buffer, "*RST:", 5) == 0){
                                         ESP_LOGI(TAG, "**************Restarting after 3 second*******");
                                         send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
                                         ESP_LOGI(TAG, "*RST-OK#");
