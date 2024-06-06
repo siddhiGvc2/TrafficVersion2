@@ -14,6 +14,11 @@ wifi/server disconnection to be tested
 
 1445 - started working. picked up simple task
 
+060624
+UART2 some correction made
+UART2 Working
+FOTA Working
+
 270524
 add erase function when BOOT switch pressed for 2 seconds
 boot is IO0
@@ -182,7 +187,7 @@ also data sent from server is received and displayed on ESP_LOGI
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_mac.h"
-#include "esp_event.h"
+#include "esp_event.h"   
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "driver/gpio.h"
@@ -248,7 +253,7 @@ int sock = -1;
 #define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://vending-iot/com/kp/firmware.bin"
-#define FWVersion "*Kwikpay-29MAY24T4#"
+#define FWVersion "*GVCSYS-06JUNE24#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -280,6 +285,11 @@ int sock = -1;
 
 #define SDA     21
 #define SCL     22
+
+#define MKM_IC_UART UART_NUM_2
+#define MKM_IC_UART_TX 17
+#define MKM_IC_UART_RX 16
+
 
 // values used in erase pin
 bool ErasePinStatus,LastErasePinStatus;
@@ -669,6 +679,7 @@ void tcp_ip_client_send_str(const char * str){
     strcpy(tcp_packet, str);
     if(sock != -1){
         ESP_LOGI(TAG, "Sending packet to TCP socket : %s", str);
+        uart_write_string(tcp_packet);
         int err = send(sock, tcp_packet, strlen(tcp_packet), 0);
         if (err < 0) {
             ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
@@ -1626,7 +1637,8 @@ void console_uart_init(){
 
     uart_driver_install(EX_UART_NUM, BUF_SIZE * 2, BUF_SIZE * 2, 20, &uart0_queue, 0);
     uart_param_config(EX_UART_NUM, &uart_config);
-    uart_set_pin(EX_UART_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    uart_set_pin(MKM_IC_UART, MKM_IC_UART_TX, MKM_IC_UART_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+//    uart_set_pin(EX_UART_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
     xTaskCreate(uart_event_task, "uart_event_task", 4096, NULL, 3, NULL);
 }
 
@@ -2194,6 +2206,7 @@ void app_main(void)
     utils_nvs_init();
     status_leds_init();
     console_uart_init();
+    uart_write_string(FWVersion);
     read_mac_address();
     xTaskCreate(tcpip_client_task, "tcpip_client_task", 4096, NULL, 6, NULL);
    
