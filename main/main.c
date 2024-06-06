@@ -1486,32 +1486,32 @@ void process_uart_packet(const char *pkt){
     rx_event_pending = 1;
     char buf[100];
     if(strncmp(pkt, "*SS:", 4) == 0){
-        sscanf(pkt, "*SS:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
+        sscanf(pkt, "*SS:%[^#]#",buf);
         //uart_write_string_ln(buf);
         strcpy(WIFI_SSID_1, buf);
         utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
         uart_write_string_ln("*SS-OK#");
         tx_event_pending = 1;
     }else if(strncmp(pkt, "*SS1:", 5) == 0){
-        sscanf(pkt, "*SS1:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
+        sscanf(pkt, "*SS1:%[^#]#", buf);
         strcpy(WIFI_SSID_2, buf);
         utils_nvs_set_str(NVS_SSID_2_KEY, WIFI_SSID_2);
         uart_write_string_ln("*SS1-OK#");
         tx_event_pending = 1;
     }else if(strncmp(pkt, "*PW:", 4) == 0){
-        sscanf(pkt, "*PW:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
+        sscanf(pkt, "*PW:%[^#]#", buf);
         strcpy(WIFI_PASS_1, buf);
         utils_nvs_set_str(NVS_PASS_1_KEY, WIFI_PASS_1);
         uart_write_string_ln("*PW-OK#");
         tx_event_pending = 1;
     }else if(strncmp(pkt, "*PW1:", 5) == 0){
-        sscanf(pkt, "*PW1:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
+        sscanf(pkt, "*PW1:%[^#]#", buf);
         strcpy(WIFI_PASS_2, buf);
         utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
         uart_write_string_ln("*PW1-OK#");
         tx_event_pending = 1;
     }else if(strncmp(pkt, "*URL:", 5) == 0){
-        sscanf(pkt, "*URL:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
+        sscanf(pkt, "*URL:%[^#]#", buf);
         strcpy(FOTA_URL, buf);
         utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
         uart_write_string_ln("*URL-OK#");
@@ -1520,10 +1520,35 @@ void process_uart_packet(const char *pkt){
         uart_write_string_ln("*FOTA-OK#");
         tx_event_pending = 1;
         http_fota();
-    }else if(strncmp(pkt, "*SIP:", 5) == 0){
+    }else if(strncmp(pkt, "*URL?#", 6) == 0){
+        uart_write_string_ln(FOTA_URL);
+        tx_event_pending = 1;
+        http_fota();
+    }
+    else if(strncmp(pkt, "*TC?#", 5) == 0){
+        char buffer[100]; 
+        sprintf(buffer, "*TC,%d,%d,%d,%d,%d,%d,%d#", 
+             CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]);
+
+   
+        uart_write_string_ln(buffer);
+        tx_event_pending = 1;
+        http_fota();
+    }
+    else if(strncmp(pkt, "*TV?#", 5) == 0){
+        char buffer[100]; 
+        sprintf(buffer, "*TV,%d,%d,%d,%d,%d,%d,%d#", 
+            Totals[0], Totals[1], Totals[2], Totals[3], Totals[4], Totals[5], Totals[6]);
+
+   
+        uart_write_string_ln(buffer);
+        tx_event_pending = 1;
+        http_fota();
+    }
+    else if(strncmp(pkt, "*SIP:", 5) == 0){
         int ip_octet[4];
         int sp_port;
-        sscanf(pkt, "*SIP:%[^:]:%[^:]:%d.%d.%d.%d:%d#",userName,dateTime, &ip_octet[0],
+        sscanf(pkt, "*SIP:%d.%d.%d.%d:%d#",&ip_octet[0],
             &ip_octet[1],
             &ip_octet[2],
             &ip_octet[3],
