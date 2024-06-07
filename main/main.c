@@ -14,6 +14,10 @@ wifi/server disconnection to be tested
 
 1445 - started working. picked up simple task
 
+070624T1
+added following commands to uart
+*CC# , *FW?# ,*V: , *SL: , *CA?# , *CA: ,*FOTA#
+
 060624
 UART2 some correction made
 UART2 Working
@@ -253,7 +257,7 @@ int sock = -1;
 #define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://vending-iot/com/kp/firmware.bin"
-#define FWVersion "*GVCSYS-06JUNE24#"
+#define FWVersion "*GVCSYS-07JUNE24T1#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -1485,7 +1489,131 @@ void uart_write_string_ln(const char * str){
 void process_uart_packet(const char *pkt){
     rx_event_pending = 1;
     char buf[100];
-    if(strncmp(pkt, "*SS:", 4) == 0){
+      if(strncmp(pkt, "*CA?#", 5) == 0){
+         char buffer[100]; 
+        sprintf(buffer,  "*CA-OK,%d,%d#",pulseWitdh,SignalPolarity);
+
+       uart_write_string_ln(buffer);
+        tx_event_pending = 1;
+    }else if(strncmp(pkt, "*CC:", 4) == 0){
+         for (int i = 0 ; i < 7 ; i++)
+        {
+            Totals[i] = 0;
+            CashTotals[i] = 0;
+        } 
+        utils_nvs_set_int(NVS_CASH1_KEY, CashTotals[0]);
+        utils_nvs_set_int(NVS_CASH2_KEY, CashTotals[1]);
+        utils_nvs_set_int(NVS_CASH3_KEY, CashTotals[2]);
+        utils_nvs_set_int(NVS_CASH4_KEY, CashTotals[3]);
+        utils_nvs_set_int(NVS_CASH5_KEY, CashTotals[4]);
+        utils_nvs_set_int(NVS_CASH6_KEY, CashTotals[5]);
+        utils_nvs_set_int(NVS_CASH7_KEY, CashTotals[6]);
+
+      
+        uart_write_string_ln("*CC-OK#");
+        tx_event_pending = 1;
+    }
+     else if(strncmp(pkt, "*SL:", 4) == 0){
+        if(edges==0)
+        {
+        sscanf(pkt, "*SL:%[^:]:%[^:]:%d:%d#",userName,dateTime, &ledpin,&ledstatus);
+        if (ledpin == 1)
+            gpio_set_level(L1, ledstatus);
+        if (ledpin == 2)
+            gpio_set_level(L2, ledstatus);
+        if (ledpin == 3)
+            gpio_set_level(L3, ledstatus);
+      
+        uart_write_string_ln("*SL-OK#");
+        tx_event_pending = 1;
+        }
+    }
+    else if(strncmp(pkt, "*CA:", 4) == 0){
+        sscanf(pkt, "*CA:%[^:]:%[^:]:%d:%d#",userName,dateTime, &numValue,&polarity);
+         char buffer[100]; 
+        sprintf(buffer,"*CA-OK,%d,%d#",numValue,polarity);
+
+       uart_write_string_ln(buffer);
+        tx_event_pending = 1;
+    }
+     else if(strncmp(pkt, "*FOTA:", 6) == 0){
+    
+         char buffer[100]; 
+        sprintf(buffer,"*FOTA-OK#");
+     
+
+       uart_write_string_ln(buffer);
+       uart_write_string_ln(FOTA_URL);
+       http_fota();
+        tx_event_pending = 1;
+    }
+     else if(strncmp(pkt, "*RST:", 5) == 0){
+    
+         char buffer[100]; 
+        sprintf(buffer, "*RST-OK#");
+        uart_write_string_ln(buffer);
+        vTaskDelay(3000/portTICK_PERIOD_MS);
+        esp_restart();
+    
+      
+    }
+    else if(strncmp(pkt, "*V:", 3) == 0){
+        if(edges==0)
+        {
+           sscanf(pkt, "*V:%d:%d:%d#",&TID,&pin,&pulses);
+            if (INHInputValue == INHIBITLevel)
+            {
+                ESP_LOGI(TAG, "*UNIT DISABLED#");
+                char buffer[100]; 
+                sprintf(buffer, "*VEND DISABLED#");
+                uart_write_string_ln(buffer);
+                
+            }
+             else if (TID != LastTID)
+            {
+                edges = pulses*2;  // doubled edges
+                // strcpy(WIFI_PASS_2, buf);
+                // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
+                ESP_LOGI(TAG, "*V-OK,%d,%d,%d#",TID,pin,pulses);
+                 char buffer[100]; 
+                sprintf(buffer, "*V-OK,%d,%d,%d#", TID,pin,pulses); //actual when in production
+                uart_write_string_ln(buffer);
+                vTaskDelay(1000/portTICK_PERIOD_MS);
+                sprintf(buffer, "*T-OK,%d,%d,%d#",TID,pin,pulses); //actual when in production
+                ESP_LOGI(TAG, "*T-OK,%d,%d,%d#",TID,pin,pulses);
+                uart_write_string_ln(buffer);
+                tx_event_pending = 1;
+                Totals[pin-1] += pulses;
+                LastTID = TID;
+            }
+            else
+            {
+                ESP_LOGI(TAG, "Duplicate TID");
+           
+                 char buffer[100]; 
+                sprintf(buffer,  "*DUP TID#");
+                uart_write_string_ln(buffer);
+            }  
+      
+      
+        }
+    
+      
+    }
+      else if(strncmp(pkt, "*FW?#", 5) == 0){
+         ESP_LOGI(TAG, "*%s#",FWVersion);
+       
+         uart_write_string_ln(FWVersion);
+      
+        tx_event_pending = 1;
+        if (ledpin == 1)
+            gpio_set_level(L1, ledstatus);
+        if (ledpin == 2)
+            gpio_set_level(L2, ledstatus);
+        if (ledpin == 3)
+            gpio_set_level(L3, ledstatus);
+    }
+    else if(strncmp(pkt, "*SS:", 4) == 0){
         sscanf(pkt, "*SS:%[^#]#",buf);
         //uart_write_string_ln(buf);
         strcpy(WIFI_SSID_1, buf);
@@ -1523,7 +1651,7 @@ void process_uart_packet(const char *pkt){
     }else if(strncmp(pkt, "*URL?#", 6) == 0){
         uart_write_string_ln(FOTA_URL);
         tx_event_pending = 1;
-        http_fota();
+    
     }
     else if(strncmp(pkt, "*TC?#", 5) == 0){
         char buffer[100]; 
@@ -1533,7 +1661,6 @@ void process_uart_packet(const char *pkt){
    
         uart_write_string_ln(buffer);
         tx_event_pending = 1;
-        http_fota();
     }
     else if(strncmp(pkt, "*TV?#", 5) == 0){
         char buffer[100]; 
@@ -1543,7 +1670,7 @@ void process_uart_packet(const char *pkt){
    
         uart_write_string_ln(buffer);
         tx_event_pending = 1;
-        http_fota();
+    
     }
     else if(strncmp(pkt, "*SIP:", 5) == 0){
         int ip_octet[4];
