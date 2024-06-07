@@ -256,7 +256,7 @@ int sock = -1;
 #define DEFAULT_SERVER_IP_ADDR_TRY "165.232.180.111"
 #define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
 #define DEFAULT_SERVER_PORT    6666
-#define DEFAULT_FOTA_URL  "http://vending-iot/com/kp/firmware.bin"
+#define DEFAULT_FOTA_URL  "http://165.232.180.111/esp/firmware.bin"
 #define FWVersion "*GVCSYS-07JUNE24T1#"
 #define HBTDelay    300000
 #define LEDR    13
