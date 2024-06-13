@@ -1322,11 +1322,23 @@ void wifi_init_sta(void)
         WiFiNumber = 2;
         s_retry_num = 0;
         if(!connect_to_wifi(WIFI_SSID_2, WIFI_PASS_2)){
-            ESP_LOGI(TAG, "Could not connect to SSID2. Restarting....");
-            ESP_LOGI(TAG, "*restarting after 2 seconds#");
-            vTaskDelay(2000/portTICK_PERIOD_MS);
-            esp_restart();
-        }else{
+
+            ESP_LOGI(TAG, "*Trying to connect to SSID3# ");
+            WiFiNumber = 3;
+            s_retry_num = 0;
+            
+             if(!connect_to_wifi(WIFI_SSID_3, WIFI_PASS_3)){
+                ESP_LOGI(TAG, "Could not connect to SSID3. Restarting....");
+                ESP_LOGI(TAG, "*restarting after 2 seconds#");
+                vTaskDelay(2000/portTICK_PERIOD_MS);
+                esp_restart();
+             }
+             else{
+            ESP_LOGI(TAG, "*Connected To WiFi3#");
+            connected_to_wifi = true;
+        }
+        }
+          else{
             ESP_LOGI(TAG, "*Connected To WiFi2#");
             connected_to_wifi = true;
         }
