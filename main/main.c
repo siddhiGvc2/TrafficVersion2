@@ -18,6 +18,7 @@ wifi/server disconnection to be tested
 2. When ssid and password detected then save in NVRAM
 3. Rest exmaple code copied
 4. Able to scan and save ESP TOUCH SSID and PASSWORD and save in memory
+4. Trying to connect ssid3
 
 120624T1
 added ESP-TOUCH
@@ -279,7 +280,7 @@ int sock = -1;
 #define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://165.232.180.111/esp/firmware.bin"
-#define FWVersion "*GVCSYS-07JUNE24T1#"
+#define FWVersion "*GVCSYS-07JUNE24T2#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -1326,7 +1327,7 @@ void wifi_init_sta(void)
             ESP_LOGI(TAG, "*Trying to connect to SSID3# ");
             WiFiNumber = 3;
             s_retry_num = 0;
-            
+
              if(!connect_to_wifi(WIFI_SSID_3, WIFI_PASS_3)){
                 ESP_LOGI(TAG, "Could not connect to SSID3. Restarting....");
                 ESP_LOGI(TAG, "*restarting after 2 seconds#");
