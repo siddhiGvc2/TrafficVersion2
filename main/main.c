@@ -13,6 +13,17 @@ wifi/server disconnection to be tested
 5. Add logs
 
 1445 - started working. picked up simple task
+130624T1
+1. Start Smartconfig if Jumper2 is pressed else continue as normal
+2. When ssid and password detected then save in NVRAM
+3. Rest exmaple code copied
+4. Able to scan and save ESP TOUCH SSID and PASSWORD and save in memory
+
+120624T1
+added ESP-TOUCH
+to be called only in Test Mode
+SSID 1/2 were already there. Now 3 also added
+
 
 070624T1
 added following commands to uart
@@ -205,6 +216,8 @@ also data sent from server is received and displayed on ESP_LOGI
 #include "driver/uart.h"
 #include "esp_netif.h"
 #include "rom/ets_sys.h"
+#include "esp_smartconfig.h"
+
 
 
 int INHInputValue = 0;
@@ -215,6 +228,9 @@ char WIFI_SSID_1[64];
 char WIFI_PASS_1[64];
 char WIFI_SSID_2[64];
 char WIFI_PASS_2[64];
+char WIFI_SSID_3[64];
+char WIFI_PASS_3[64];
+
 char server_ip_addr[100];
 char MAC_ADDRESS_ESP[40];
 char FOTA_URL[256];
@@ -231,6 +247,9 @@ int sock = -1;
 #define NVS_PASS_1_KEY        "PASS1"
 #define NVS_SSID_2_KEY        "SSID2"
 #define NVS_PASS_2_KEY        "PASS2"
+#define NVS_SSID_3_KEY        "SSID3"
+#define NVS_PASS_3_KEY        "PASS3"
+
 #define NVS_SERVER_IP_KEY     "SERVER"
 #define NVS_SERVER_PORT_KEY   "PORT"
 #define NVS_SERVER_PORT_KEY_JUMPER "JUMPERPORT" 
@@ -253,6 +272,9 @@ int sock = -1;
 #define DEFAULT_PASS1  "GVC3065V"
 #define DEFAULT_SSID2  "GVCSYS2"
 #define DEFAULT_PASS2  "GVC3065V"
+#define DEFAULT_SSID3  "GVCSYS3"
+#define DEFAULT_PASS3  "GVC3065V"
+
 #define DEFAULT_SERVER_IP_ADDR_TRY "165.232.180.111"
 #define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
 #define DEFAULT_SERVER_PORT    6666
@@ -263,6 +285,8 @@ int sock = -1;
 #define LEDG    12
 
 #define JUMPER  15
+#define JUMPER2  18
+
 
 #define ErasePin 0
 #define ICH1    33
@@ -364,6 +388,7 @@ static QueueHandle_t uart0_queue;
 typedef enum LED_STATES{
     STANDBY_LED,
     SEARCH_FOR_WIFI,
+    SEARCH_FOR_ESPTOUCH,
     WIFI_FOUND_NO_INTERNET,
     WIFI_AND_INTERNET_NO_SERVER,
     EVERYTHING_OK_LED,
@@ -396,6 +421,10 @@ static EventGroupHandle_t s_wifi_event_group;
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
 
+static const int CONNECTED_BIT = BIT2;
+static const int ESPTOUCH_DONE_BIT = BIT3;
+
+
 static const char *TAG = "main";
 
 static int s_retry_num = 0;
@@ -408,6 +437,17 @@ void Out4094 (unsigned char);
 void WiFiConnection (void);
 
 #define LED_ACTIVE_HIGH
+
+nvs_handle_t utils_nvs_handle;
+
+void utils_nvs_set_str(const char * key , const char * val){
+    if(utils_nvs_handle){
+        nvs_set_str(utils_nvs_handle, key, val);
+        nvs_commit(utils_nvs_handle);
+    }
+}
+
+
 void led_set_level(gpio_num_t gpio_num, int state){
     #ifdef LED_ACTIVE_HIGH
         gpio_set_level(gpio_num, state);
@@ -416,12 +456,40 @@ void led_set_level(gpio_num_t gpio_num, int state){
     #endif
 }
 
+
+
 static int FirstWiFiConnection = 0;
+
+static void smartconfig_example_task(void * parm)
+{
+    EventBits_t uxBits;
+    ESP_ERROR_CHECK( esp_smartconfig_set_type(SC_TYPE_ESPTOUCH) );
+    smartconfig_start_config_t cfg = SMARTCONFIG_START_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK( esp_smartconfig_start(&cfg) );
+    while (1) {
+        uxBits = xEventGroupWaitBits(s_wifi_event_group, CONNECTED_BIT | ESPTOUCH_DONE_BIT, true, false, portMAX_DELAY);
+        if(uxBits & CONNECTED_BIT) {
+            ESP_LOGI(TAG, "WiFi Connected to ap");
+        }
+        if(uxBits & ESPTOUCH_DONE_BIT) {
+            ESP_LOGI(TAG, "smartconfig over");
+            esp_smartconfig_stop();
+            vTaskDelete(NULL);
+        }
+    }
+}
+
+
+
+
 static void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
 {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
-        esp_wifi_connect();
+         if (gpio_get_level(JUMPER2) == 0)
+             xTaskCreate(smartconfig_example_task, "smartconfig_example_task", 4096, NULL, 3, NULL);
+         else
+             esp_wifi_connect();
     } 
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
             ESP_LOGI(TAG, "*WiFi Connected %d#",WiFiNumber);
@@ -455,6 +523,50 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         ESP_LOGI(TAG, "*got ip:*" IPSTR, IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+    }
+    else if (event_base == SC_EVENT && event_id == SC_EVENT_SCAN_DONE) {
+        ESP_LOGI(TAG, "Scan done");
+    } else if (event_base == SC_EVENT && event_id == SC_EVENT_FOUND_CHANNEL) {
+        ESP_LOGI(TAG, "Found channel");
+    } else if (event_base == SC_EVENT && event_id == SC_EVENT_GOT_SSID_PSWD) {
+        ESP_LOGI(TAG, "Got SSID and password");
+
+        smartconfig_event_got_ssid_pswd_t *evt = (smartconfig_event_got_ssid_pswd_t *)event_data;
+        wifi_config_t wifi_config;
+        char ssid[33] = { 0 };
+        char password[65] = { 0 };
+        uint8_t rvd_data[33] = { 0 };
+
+        bzero(&wifi_config, sizeof(wifi_config_t));
+        memcpy(wifi_config.sta.ssid, evt->ssid, sizeof(wifi_config.sta.ssid));
+        memcpy(wifi_config.sta.password, evt->password, sizeof(wifi_config.sta.password));
+        wifi_config.sta.bssid_set = evt->bssid_set;
+        if (wifi_config.sta.bssid_set == true) {
+            memcpy(wifi_config.sta.bssid, evt->bssid, sizeof(wifi_config.sta.bssid));
+        }
+
+        memcpy(ssid, evt->ssid, sizeof(evt->ssid));
+        memcpy(password, evt->password, sizeof(evt->password));
+        ESP_LOGI(TAG, "SSID3:%s", ssid);
+        ESP_LOGI(TAG, "PASSWORD3:%s", password);
+        // memorise in NV RAM
+        utils_nvs_set_str(NVS_SSID_3_KEY, ssid);
+        utils_nvs_set_str(NVS_PASS_3_KEY, password);
+
+        if (evt->type == SC_TYPE_ESPTOUCH_V2) {
+            ESP_ERROR_CHECK( esp_smartconfig_get_rvd_data(rvd_data, sizeof(rvd_data)) );
+            ESP_LOGI(TAG, "RVD_DATA:");
+            for (int i=0; i<33; i++) {
+                printf("%02x ", rvd_data[i]);
+            }
+            printf("\n");
+        }
+
+        ESP_ERROR_CHECK( esp_wifi_disconnect() );
+        ESP_ERROR_CHECK( esp_wifi_set_config(WIFI_IF_STA, &wifi_config) );
+        esp_wifi_connect();
+    } else if (event_base == SC_EVENT && event_id == SC_EVENT_SEND_ACK_DONE) {
+        xEventGroupSetBits(s_wifi_event_group, ESPTOUCH_DONE_BIT);
     }
 }
 
@@ -498,7 +610,6 @@ bool connect_to_wifi(char * ssid, char * psk){
     return wifi_connected;
 }
  
-nvs_handle_t utils_nvs_handle;
 
 void utils_nvs_init(){
     esp_err_t err = nvs_open("storage", NVS_READWRITE, &utils_nvs_handle);
@@ -509,12 +620,6 @@ void utils_nvs_init(){
     }
 }
 
-void utils_nvs_set_str(const char * key , const char * val){
-    if(utils_nvs_handle){
-        nvs_set_str(utils_nvs_handle, key, val);
-        nvs_commit(utils_nvs_handle);
-    }
-}
 
 esp_err_t utils_nvs_get_str(const char * key , char * val, size_t max_length){
     esp_err_t ret = ESP_FAIL;
@@ -577,6 +682,21 @@ void load_settings_nvs(){
         utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
     }
 
+    if(utils_nvs_get_str(NVS_SSID_3_KEY, WIFI_SSID_3, 64) == ESP_OK){
+        utils_nvs_get_str(NVS_PASS_3_KEY, WIFI_PASS_3, 64);
+        ESP_LOGI(TAG, "*WIFI 3 Credentials %s|%s#", WIFI_SSID_3, WIFI_PASS_3);
+    }else{
+        ESP_LOGI(TAG, "*Could not get Wifi 3 Credentials From NVS#");
+        strcpy(WIFI_SSID_3, DEFAULT_SSID3);
+        strcpy(WIFI_PASS_3, DEFAULT_PASS3);
+        ESP_LOGI(TAG, "*Default WIFI 3 Credentials %s|%s#", WIFI_SSID_3, WIFI_PASS_3);
+        utils_nvs_set_str(NVS_SSID_3_KEY, WIFI_SSID_3);
+        utils_nvs_set_str(NVS_PASS_3_KEY, WIFI_PASS_3);
+    }
+
+
+
+
     if(utils_nvs_get_int(NVS_SERVER_PORT_KEY, &server_port) == ESP_OK){
         ESP_LOGI(TAG, "*Server Port From NVS %d#", server_port);
     }else{
@@ -615,6 +735,7 @@ void load_settings_nvs(){
         ESP_LOGI(TAG, "*Default Server IP : %s#", server_ip_addr);
         utils_nvs_set_str(NVS_SERVER_IP_KEY, server_ip_addr);
     }
+
 
 
 // if jumper set server address and server port as jumperPort
@@ -872,6 +993,13 @@ void tcpip_client_task(){
                                     utils_nvs_set_str(NVS_SSID_2_KEY, WIFI_SSID_2);
                                     send(sock, "*SS1-OK#", strlen("*SS1-OK#"), 0);
                                     tx_event_pending = 1;
+                                }
+                                else if(strncmp(rx_buffer, "*SS2:", 5) == 0){
+                                    sscanf(rx_buffer, "*SS2:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
+                                    strcpy(WIFI_SSID_3, buf);
+                                    utils_nvs_set_str(NVS_SSID_3_KEY, WIFI_SSID_3);
+                                    send(sock, "*SS2-OK#", strlen("*SS2-OK#"), 0);
+                                    tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*PW:", 4) == 0){
                                     sscanf(rx_buffer, "*PW:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
                                     strcpy(WIFI_PASS_1, buf);
@@ -884,12 +1012,23 @@ void tcpip_client_task(){
                                     utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
                                     send(sock, "*PW1-OK#", strlen("*PW1-OK#"), 0);
                                     tx_event_pending = 1;
+                                }else if(strncmp(rx_buffer, "*PW2:", 5) == 0){
+                                    sscanf(rx_buffer, "*PW2:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
+                                    strcpy(WIFI_PASS_3, buf);
+                                    utils_nvs_set_str(NVS_PASS_3_KEY, WIFI_PASS_3);
+                                    send(sock, "*PW2-OK#", strlen("*PW2-OK#"), 0);
+                                    tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*URL:", 5) == 0){
                                     sscanf(rx_buffer, "*URL:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
                                     strcpy(FOTA_URL, buf);
                                     utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
                                     send(sock, "*URL-OK#", strlen("*URL-OK#"), 0);
                                     tx_event_pending = 1;
+                                }
+                                else if (strncmp(rx_buffer, "*SSID?#", 7) == 0){
+                                sprintf(payload, "*SSID,%s,%s,%s#",WIFI_SSID_1,WIFI_SSID_2,WIFI_SSID_3); 
+                                send(sock, payload, strlen(payload), 0);
+                                tx_event_pending = 1;
                                 }
                                 else if(strncmp(rx_buffer, "*URL?#", 6) == 0){
                                 sprintf(payload, "*URL,%s#",FOTA_URL); 
@@ -1153,6 +1292,12 @@ void wifi_init_sta(void)
 
     esp_event_handler_instance_t instance_any_id;
     esp_event_handler_instance_t instance_got_ip;
+
+    /*
+    ESP_ERROR_CHECK( esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL) );
+    ESP_ERROR_CHECK( esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL) );
+    ESP_ERROR_CHECK( esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL) );*/
+
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
                                                         ESP_EVENT_ANY_ID,
                                                         &event_handler,
@@ -1163,6 +1308,9 @@ void wifi_init_sta(void)
                                                         &event_handler,
                                                         NULL,
                                                         &instance_got_ip));
+
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL, &instance_any_id) );
+    
     set_led_state(SEARCH_FOR_WIFI);
     bool connected_to_wifi = false;
     //ESP_LOGI(TAG, "Trying to connect to SSID1 %s | %s",DEFAULT_SSID1,DEFAULT_PASS1);
@@ -1638,6 +1786,12 @@ void process_uart_packet(const char *pkt){
         utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
         uart_write_string_ln("*PW1-OK#");
         tx_event_pending = 1;
+    }else if(strncmp(pkt, "*PW2:", 5) == 0){
+        sscanf(pkt, "*PW2:%[^#]#", buf);
+        strcpy(WIFI_PASS_3, buf);
+        utils_nvs_set_str(NVS_PASS_3_KEY, WIFI_PASS_3);
+        uart_write_string_ln("*PW2-OK#");
+        tx_event_pending = 1;
     }else if(strncmp(pkt, "*URL:", 5) == 0){
         sscanf(pkt, "*URL:%[^#]#", buf);
         strcpy(FOTA_URL, buf);
@@ -1653,6 +1807,19 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
     
     }
+//    WIFI_SSID_1,WIFI_SSID_2,WIFI_SSID_3
+    else if(strncmp(pkt, "*SSID?#", 7) == 0){
+        uart_write_string("SSID 1/2/3 are - ");
+        uart_write_string(WIFI_SSID_1);
+        uart_write_string(" , ");
+        uart_write_string(WIFI_SSID_2);
+        uart_write_string(" , ");
+        uart_write_string_ln(WIFI_SSID_3);
+
+        tx_event_pending = 1;
+    
+    }
+    
     else if(strncmp(pkt, "*TC?#", 5) == 0){
         char buffer[100]; 
         sprintf(buffer, "*TC,%d,%d,%d,%d,%d,%d,%d#", 
@@ -2129,7 +2296,7 @@ void ICH_init()
     //set as input mode
     io_conf.mode = GPIO_MODE_INPUT;
     //bit mask of the pins that you want to set
-    io_conf.pin_bit_mask = 1ULL << ErasePin | 1ULL << JUMPER | 1ULL << CINHI | 1ULL << INH | 1ULL << ICH1 | 1ULL << ICH2 | 1ULL << ICH3 | 1ULL << ICH4 | 1ULL << ICH5 | 1ULL << ICH6| 1ULL << ICH7;
+    io_conf.pin_bit_mask = 1ULL << ErasePin | 1ULL << JUMPER | 1ULL << JUMPER2 |1ULL << CINHI | 1ULL << INH | 1ULL << ICH1 | 1ULL << ICH2 | 1ULL << ICH3 | 1ULL << ICH4 | 1ULL << ICH5 | 1ULL << ICH6| 1ULL << ICH7;
     //disable pull-down mode
     io_conf.pull_down_en = 0;
     //enable pull-up mode
