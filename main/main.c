@@ -283,9 +283,9 @@ int sp_port;
 #define DEFAULT_PASS3  "GVC3065V"
 
 #define DEFAULT_SERVER_IP_ADDR_TRY "http://gvc.co.in"
-#define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
+#define DEFAULT_SERVER_IP_ADDR "http://gvc.co.in"
 #define DEFAULT_SERVER_PORT    6666
-#define DEFAULT_FOTA_URL  "http://165.232.180.111/esp/firmware.bin"
+#define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
 #define FWVersion "*GVCSYS-17JUNE24T3#"
 #define HBTDelay    300000
 #define LEDR    13
