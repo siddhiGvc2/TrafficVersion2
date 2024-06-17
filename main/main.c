@@ -200,6 +200,8 @@ also data sent from server is received and displayed on ESP_LOGI
 020324C - working 4094 test mode 020324C
 
 */
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -222,6 +224,11 @@ also data sent from server is received and displayed on ESP_LOGI
 #include "esp_netif.h"
 #include "rom/ets_sys.h"
 #include "esp_smartconfig.h"
+#include <sys/socket.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+
 
 
 
@@ -840,6 +847,45 @@ bool extractSubstring(const char* str, char* result) {
     return false;
 }
 
+void resolve_hostname(const char *hostname) {
+    struct addrinfo hints, *res;
+    int status;
+    char ipstr[INET6_ADDRSTRLEN];
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC; // AF_INET for IPv4, AF_INET6 for IPv6
+    hints.ai_socktype = SOCK_STREAM;
+
+    if ((status = getaddrinfo(hostname, NULL, &hints, &res)) != 0) {
+        // Corrected here: use gai_strerror instead of strerror
+        fprintf(stderr, "getaddrinfo: %s\n", strerror(status));
+        return;
+    }
+
+    printf("IP addresses for %s:\n\n", hostname);
+
+    struct addrinfo *p;
+    for (p = res; p != NULL; p = p->ai_next) {
+        void *addr;
+        char *ipver;
+
+        if (p->ai_family == AF_INET) { // IPv4
+            struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
+            addr = &(ipv4->sin_addr);
+            ipver = "IPv4";
+        } else { // IPv6
+            struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
+            addr = &(ipv6->sin6_addr);
+            ipver = "IPv6";
+        }
+
+        inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
+        printf("%s: %s\n", ipver, ipstr);
+    }
+
+    freeaddrinfo(res); // free the linked list
+}
+
 void tcpip_client_task(){
     char payload[270];
     char rx_buffer[128];
@@ -849,6 +895,7 @@ void tcpip_client_task(){
     for(;;){
         if(connected_to_wifi_and_internet){ //continously check for wifi
             //if wifi connected try to connect to tcp server
+             resolve_hostname(server_ip_addr);
             struct sockaddr_in dest_addr;
             dest_addr.sin_addr.s_addr = inet_addr(server_ip_addr);
             dest_addr.sin_family = AF_INET;
