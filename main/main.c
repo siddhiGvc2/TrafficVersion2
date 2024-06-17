@@ -244,6 +244,8 @@ char WIFI_SSID_3[64];
 char WIFI_PASS_3[64];
 
 char server_ip_addr[100];
+char ipstr[100]; // host mapped
+
 char MAC_ADDRESS_ESP[40];
 char FOTA_URL[256];
 int16_t server_port;
@@ -850,7 +852,8 @@ bool extractSubstring(const char* str, char* result) {
 void resolve_hostname(const char *hostname) {
     struct addrinfo hints, *res;
     int status;
-    char ipstr[INET6_ADDRSTRLEN];
+    // char ipstr[100];
+    char payload[200];
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC; // AF_INET for IPv4, AF_INET6 for IPv6
@@ -862,8 +865,8 @@ void resolve_hostname(const char *hostname) {
         return;
     }
 
-    printf("IP addresses for %s:\n\n", hostname);
-
+    printf("*IP addresses for %s:\n\n#", hostname);
+    ESP_LOGI(TAG,"*IP addresses for %s:\n\n#", hostname);
     struct addrinfo *p;
     for (p = res; p != NULL; p = p->ai_next) {
         void *addr;
@@ -880,7 +883,10 @@ void resolve_hostname(const char *hostname) {
         }
 
         inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
-        printf("%s: %s\n", ipver, ipstr);
+        sprintf(payload,"*IP VER - %s: IP STR - %s#", ipver, ipstr);
+        uart_write_string(payload);
+//        ESP_LOGI(TAG,payload);
+
     }
 
     freeaddrinfo(res); // free the linked list
@@ -897,7 +903,7 @@ void tcpip_client_task(){
             //if wifi connected try to connect to tcp server
              resolve_hostname(server_ip_addr);
             struct sockaddr_in dest_addr;
-            dest_addr.sin_addr.s_addr = inet_addr(server_ip_addr);
+            dest_addr.sin_addr.s_addr = inet_addr(ipstr);
             dest_addr.sin_family = AF_INET;
             dest_addr.sin_port = htons(server_port);
             addr_family = AF_INET;
@@ -910,7 +916,7 @@ void tcpip_client_task(){
                 shutdown(sock, 0);
                 close(sock);
             }else{
-                ESP_LOGI(TAG, "*Socket created, connecting to %s:%d#", server_ip_addr, server_port);
+                ESP_LOGI(TAG, "*Socket created, connecting to %s:%s:%d#", server_ip_addr,ipstr, server_port);
                 int err = connect(sock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_in6));
                 if (err != 0) {
                     ESP_LOGE(TAG, "*Socket unable to connect: errno %d#", errno);
