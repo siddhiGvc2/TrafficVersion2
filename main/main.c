@@ -244,6 +244,8 @@ int jumperPort;
 int16_t caValue;
 int16_t cashValue;
 int sock = -1;
+int ip_octet[4];
+int sp_port;
 #define ESP_MAXIMUM_RETRY       2
 #define ESP_RETRY_GAP           2000
 #define Production          1
@@ -284,7 +286,7 @@ int sock = -1;
 #define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://165.232.180.111/esp/firmware.bin"
-#define FWVersion "*GVCSYS-17JUNE24T2#"
+#define FWVersion "*GVCSYS-17JUNE24T3#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -1050,8 +1052,7 @@ void tcpip_client_task(){
                                     tx_event_pending = 1;
                                     http_fota();
                                 }else if(strncmp(rx_buffer, "*SIP:", 5) == 0){
-                                    int ip_octet[4];
-                                    int sp_port;
+                                  
                                     sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%d.%d.%d.%d:%d#",userName,dateTime, &ip_octet[0],
                                         &ip_octet[1],
                                         &ip_octet[2],
@@ -1162,9 +1163,17 @@ void tcpip_client_task(){
                                         
                                 }
                                   else if(strncmp(rx_buffer, "*SIP?#", 6) == 0){
-                                        sprintf(payload,  "*SIP:%s:%d#",server_ip_addr,server_port ); //actual when in production
+                                        sprintf(payload, "*SIP:%d.%d.%d.%d:%d#", ip_octet[0],
+                                        ip_octet[1],
+                                        ip_octet[2],
+                                        ip_octet[3],
+                                        sp_port ); //actual when in production
                                         send(sock, payload, strlen(payload), 0);
-                                        ESP_LOGI(TAG,  "*SIP:%s:%d#",server_ip_addr,server_port);
+                                        ESP_LOGI(TAG,  "*SIP:%d.%d.%d.%d:%d#",ip_octet[0],
+                                        ip_octet[1],
+                                        ip_octet[2],
+                                        ip_octet[3],
+                                        sp_port);
                                         
                                 }
                                 else if(strncmp(rx_buffer, "*CC:", 4) == 0){
@@ -1902,8 +1911,7 @@ void process_uart_packet(const char *pkt){
     
     }
     else if(strncmp(pkt, "*SIP:", 5) == 0){
-        int ip_octet[4];
-        int sp_port;
+      
         sscanf(pkt, "*SIP:%d.%d.%d.%d:%d#",&ip_octet[0],
             &ip_octet[1],
             &ip_octet[2],
@@ -1921,7 +1929,11 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
     } else if(strncmp(pkt, "*SIP?#", 6) == 0){
         char buffer[150]; 
-        sprintf(buffer, "*SIP:%s:%d#",server_ip_addr,server_port);
+        sprintf(buffer, "*SIP:%d.%d.%d.%d:%d#", ip_octet[0],
+                                        ip_octet[1],
+                                        ip_octet[2],
+                                        ip_octet[3],
+                                        sp_port);
 
    
         uart_write_string_ln(buffer);
