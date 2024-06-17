@@ -284,7 +284,7 @@ int sock = -1;
 #define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://165.232.180.111/esp/firmware.bin"
-#define FWVersion "*GVCSYS-17JUNE24T1#"
+#define FWVersion "*GVCSYS-17JUNE24T2#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -1161,6 +1161,12 @@ void tcpip_client_task(){
                                         ESP_LOGI(TAG, "*TC,%d,%d,%d,%d,%d,%d,%d#", CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6] );
                                         
                                 }
+                                  else if(strncmp(rx_buffer, "*SIP?#", 6) == 0){
+                                        sprintf(payload,  "*SIP:%s:%s#",NVS_SERVER_IP_KEY, NVS_SERVER_PORT_KEY); //actual when in production
+                                        send(sock, payload, strlen(payload), 0);
+                                        ESP_LOGI(TAG,  "*SIP:%s:%s#",NVS_SERVER_IP_KEY,NVS_SERVER_PORT_KEY);
+                                        
+                                }
                                 else if(strncmp(rx_buffer, "*CC:", 4) == 0){
                                         ESP_LOGI(TAG, "*CC-OK#");
                                         sprintf(payload, "*CC-OK#"); //actual when in production
@@ -1913,7 +1919,17 @@ void process_uart_packet(const char *pkt){
         utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
         uart_write_string_ln("*SIP-OK#");
         tx_event_pending = 1;
-    }else if (strncmp(pkt, "*ERASE#", 7) == 0){
+    } else if(strncmp(pkt, "*SIP?#", 6) == 0){
+        char buffer[100]; 
+        sprintf(buffer, "*SIP:%s:%s#",NVS_SERVER_IP_KEY,
+            NVS_SERVER_PORT_KEY);
+
+   
+        uart_write_string_ln(buffer);
+        tx_event_pending = 1;
+    
+    }
+    else if (strncmp(pkt, "*ERASE#", 7) == 0){
         utils_nvs_erase_all();
         uart_write_string("*ERASE:OK#");
     }else if(strncmp(pkt, "*RESTART#", 9) == 0){
