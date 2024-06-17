@@ -244,7 +244,7 @@ int jumperPort;
 int16_t caValue;
 int16_t cashValue;
 int sock = -1;
-int ip_octet[4];
+
 int sp_port;
 #define ESP_MAXIMUM_RETRY       2
 #define ESP_RETRY_GAP           2000
@@ -1053,16 +1053,10 @@ void tcpip_client_task(){
                                     http_fota();
                                 }else if(strncmp(rx_buffer, "*SIP:", 5) == 0){
                                   
-                                    sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%d.%d.%d.%d:%d#",userName,dateTime, &ip_octet[0],
-                                        &ip_octet[1],
-                                        &ip_octet[2],
-                                        &ip_octet[3],
+                                    sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%[^:]:%d#",userName,dateTime,server_ip_addr,
                                         &sp_port);
-                                    char buf[40];
-                                    sprintf(buf, "%d.%d.%d.%d", ip_octet[0],
-                                        ip_octet[1],
-                                        ip_octet[2],
-                                        ip_octet[3]);
+                                    char buf[100];
+                                    sprintf(buf, "%s",server_ip_addr);
                                     
                                     utils_nvs_set_str(NVS_SERVER_IP_KEY, buf);
                                     utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
@@ -1163,17 +1157,11 @@ void tcpip_client_task(){
                                         
                                 }
                                   else if(strncmp(rx_buffer, "*SIP?#", 6) == 0){
-                                        sprintf(payload, "*SIP:%d.%d.%d.%d:%d#", ip_octet[0],
-                                        ip_octet[1],
-                                        ip_octet[2],
-                                        ip_octet[3],
+                                        sprintf(payload, "*SIP:%s:%d#",server_ip_addr,
                                         sp_port ); //actual when in production
                                         send(sock, payload, strlen(payload), 0);
-                                        ESP_LOGI(TAG,  "*SIP:%d.%d.%d.%d:%d#",ip_octet[0],
-                                        ip_octet[1],
-                                        ip_octet[2],
-                                        ip_octet[3],
-                                        sp_port);
+                                        ESP_LOGI(TAG, "*SIP:%s:%d#",server_ip_addr,
+                                        sp_port );
                                         
                                 }
                                 else if(strncmp(rx_buffer, "*CC:", 4) == 0){
@@ -1912,16 +1900,10 @@ void process_uart_packet(const char *pkt){
     }
     else if(strncmp(pkt, "*SIP:", 5) == 0){
       
-        sscanf(pkt, "*SIP:%d.%d.%d.%d:%d#",&ip_octet[0],
-            &ip_octet[1],
-            &ip_octet[2],
-            &ip_octet[3],
-            &sp_port);
-        char buf[40];
-        sprintf(buf, "%d.%d.%d.%d", ip_octet[0],
-            ip_octet[1],
-            ip_octet[2],
-            ip_octet[3]);
+        sscanf(pkt, "*SIP:%[^:]:%[^:]:%[^:]:%d#",userName,dateTime,server_ip_addr,
+                                        &sp_port);
+        char buf[100];
+        sprintf(buf, "%s", server_ip_addr);
         
         utils_nvs_set_str(NVS_SERVER_IP_KEY, buf);
         utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
@@ -1929,11 +1911,8 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
     } else if(strncmp(pkt, "*SIP?#", 6) == 0){
         char buffer[150]; 
-        sprintf(buffer, "*SIP:%d.%d.%d.%d:%d#", ip_octet[0],
-                                        ip_octet[1],
-                                        ip_octet[2],
-                                        ip_octet[3],
-                                        sp_port);
+        sprintf(buffer, "*SIP:%s:%d#",server_ip_addr,
+                                        sp_port );
 
    
         uart_write_string_ln(buffer);
