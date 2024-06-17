@@ -13,6 +13,10 @@ wifi/server disconnection to be tested
 5. Add logs
 
 1445 - started working. picked up simple task
+170624T1
+when pulses received - recreate again. added in GPIO_read_n_act
+checked and demoed to siddhi
+
 130624T1
 1. Start Smartconfig if Jumper2 is pressed else continue as normal
 2. When ssid and password detected then save in NVRAM
@@ -240,7 +244,7 @@ int jumperPort;
 int16_t caValue;
 int16_t cashValue;
 int sock = -1;
-#define ESP_MAXIMUM_RETRY       10
+#define ESP_MAXIMUM_RETRY       2
 #define ESP_RETRY_GAP           2000
 #define Production          1
 #define NVS_INH_KEY           "INH"
@@ -280,7 +284,7 @@ int sock = -1;
 #define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://165.232.180.111/esp/firmware.bin"
-#define FWVersion "*GVCSYS-07JUNE24T2#"
+#define FWVersion "*GVCSYS-17JUNE24T1#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -488,7 +492,11 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
          if (gpio_get_level(JUMPER2) == 0)
+         {
              xTaskCreate(smartconfig_example_task, "smartconfig_example_task", 4096, NULL, 3, NULL);
+            set_led_state(SEARCH_FOR_ESPTOUCH);
+            ESP_LOGI(TAG,"*Start Looking for ESP TOUCH#");
+         }
          else
              esp_wifi_connect();
     } 
@@ -503,6 +511,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         connected_to_wifi_and_internet = false;
         set_led_state(SEARCH_FOR_WIFI);
+        ESP_LOGI(TAG,"*Connect WiFi after disconnection#");
         vTaskDelay(ESP_RETRY_GAP);
         if (s_retry_num < ESP_MAXIMUM_RETRY) {
             esp_wifi_connect();
@@ -511,7 +520,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         } else {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
             ESP_LOGI(TAG, "*WiFi failed bit set %d#",WiFiNumber);
-            if ((FirstWiFiConnection == 1) || (WiFiNumber == 2))
+            if ((FirstWiFiConnection == 1) || (WiFiNumber == 3))
             {
                 ESP_LOGI(TAG, "*restarting after 2 seconds#");
                 vTaskDelay(2000/portTICK_PERIOD_MS);
@@ -526,11 +535,11 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
     else if (event_base == SC_EVENT && event_id == SC_EVENT_SCAN_DONE) {
-        ESP_LOGI(TAG, "Scan done");
+        ESP_LOGI(TAG, "*Scan done#");
     } else if (event_base == SC_EVENT && event_id == SC_EVENT_FOUND_CHANNEL) {
-        ESP_LOGI(TAG, "Found channel");
+        ESP_LOGI(TAG, "*Found channel#");
     } else if (event_base == SC_EVENT && event_id == SC_EVENT_GOT_SSID_PSWD) {
-        ESP_LOGI(TAG, "Got SSID and password");
+        ESP_LOGI(TAG, "*Got SSID and password#");
 
         smartconfig_event_got_ssid_pswd_t *evt = (smartconfig_event_got_ssid_pswd_t *)event_data;
         wifi_config_t wifi_config;
@@ -548,19 +557,19 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 
         memcpy(ssid, evt->ssid, sizeof(evt->ssid));
         memcpy(password, evt->password, sizeof(evt->password));
-        ESP_LOGI(TAG, "SSID3:%s", ssid);
-        ESP_LOGI(TAG, "PASSWORD3:%s", password);
+        ESP_LOGI(TAG, "*SSID3:%s#", ssid);
+        ESP_LOGI(TAG, "*PASSWORD3:%s#", password);
         // memorise in NV RAM
         utils_nvs_set_str(NVS_SSID_3_KEY, ssid);
         utils_nvs_set_str(NVS_PASS_3_KEY, password);
 
         if (evt->type == SC_TYPE_ESPTOUCH_V2) {
             ESP_ERROR_CHECK( esp_smartconfig_get_rvd_data(rvd_data, sizeof(rvd_data)) );
-            ESP_LOGI(TAG, "RVD_DATA:");
+            ESP_LOGI(TAG, "*RVD_DATA:");
             for (int i=0; i<33; i++) {
                 printf("%02x ", rvd_data[i]);
             }
-            printf("\n");
+            printf("\n#");
         }
 
         ESP_ERROR_CHECK( esp_wifi_disconnect() );
@@ -607,7 +616,7 @@ bool connect_to_wifi(char * ssid, char * psk){
     }
 
     xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT);
-    ESP_LOGI(TAG,"*returning from connect 2 wifi#");
+    ESP_LOGI(TAG,"*returning from connecting 2 wifi#");
     return wifi_connected;
 }
  
@@ -1027,7 +1036,7 @@ void tcpip_client_task(){
                                     tx_event_pending = 1;
                                 }
                                 else if (strncmp(rx_buffer, "*SSID?#", 7) == 0){
-                                sprintf(payload, "*SSID,%s,%s,%s#",WIFI_SSID_1,WIFI_SSID_2,WIFI_SSID_3); 
+                                sprintf(payload, "*SSID,%d,%s,%s,%s#",WiFiNumber,WIFI_SSID_1,WIFI_SSID_2,WIFI_SSID_3); 
                                 send(sock, payload, strlen(payload), 0);
                                 tx_event_pending = 1;
                                 }
@@ -1313,6 +1322,7 @@ void wifi_init_sta(void)
     ESP_ERROR_CHECK(esp_event_handler_instance_register(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL, &instance_any_id) );
     
     set_led_state(SEARCH_FOR_WIFI);
+    ESP_LOGI(TAG,"*Connect WiFi at Power On#");
     bool connected_to_wifi = false;
     //ESP_LOGI(TAG, "Trying to connect to SSID1 %s | %s",DEFAULT_SSID1,DEFAULT_PASS1);
     ESP_LOGI(TAG, "*Trying to connect to SSID1#");
@@ -1559,6 +1569,15 @@ void leds_update_task(){
         {
             ticks_100 = 0;
          }    
+        if (led_state == SEARCH_FOR_ESPTOUCH)
+        {
+            current_interval = 0;
+            if(led2_gpio_state == 1){
+                led2_gpio_state = 0;
+                led_set_level(LEDG, led2_gpio_state);
+            }
+            
+        }
         if(led_state == STANDBY_LED){
             current_interval = 0;
             if(led1_gpio_state == 1){
@@ -1594,15 +1613,27 @@ void leds_update_task(){
         //     //     vTaskDelay(50/portTICK_PERIOD_MS);
         //     // }
 
-        // }else if (led_state == OTA_IN_PROGRESS){
-        //     led2_gpio_state = !led2_gpio_state;
-        //     led_set_level(LEDG, led2_gpio_state);
         // }
+           else if (led_state == OTA_IN_PROGRESS){
+            led2_gpio_state = !led2_gpio_state;
+            led_set_level(LEDG, led2_gpio_state);
+        }
 
         if (numberOfPulses>ticks_100)
         {
-            led1_gpio_state = !led1_gpio_state;
-            led_set_level(LEDR, led1_gpio_state);
+            // if (led_state == SEARCH_FOR_ESPTOUCH)
+            // {
+            //     led2_gpio_state = !led2_gpio_state;
+            //     led_set_level(LEDG, led2_gpio_state);
+            //     led_set_level(LEDR, 0);
+
+            // }
+            // else
+            // {
+                led1_gpio_state = !led1_gpio_state;
+                led_set_level(LEDR, led1_gpio_state);
+                led_set_level(LEDG, 0);
+            // }
         }
         else
         {
@@ -1636,6 +1667,16 @@ void status_leds_init(){
     led_set_level(LEDR, 0);
     led_set_level(LEDG, 0);
     xTaskCreate(leds_update_task, "leds_update_task", 2048, NULL, 6, NULL);
+}
+
+void uart_write_number(uint8_t number){
+    char str[5];
+    if (number<10)
+    {
+         str[0] = number+'0';
+         str[1] = 0x00;
+    }   
+    uart_write_bytes(EX_UART_NUM, str, 1);
 }
 
 void uart_write_string(const char * str){
@@ -1822,7 +1863,9 @@ void process_uart_packet(const char *pkt){
     }
 //    WIFI_SSID_1,WIFI_SSID_2,WIFI_SSID_3
     else if(strncmp(pkt, "*SSID?#", 7) == 0){
-        uart_write_string("SSID 1/2/3 are - ");
+        uart_write_string("SSID Current/1/2/3 are - ");
+        uart_write_number(WiFiNumber);
+        uart_write_string(" , ");
         uart_write_string(WIFI_SSID_1);
         uart_write_string(" , ");
         uart_write_string(WIFI_SSID_2);
@@ -2170,7 +2213,11 @@ static void gpio_read_n_act(void* arg)
                         sprintf(payload, "*RP,%d,%d#",LastInputPin,TotalPulses); 
                         send(sock, payload, strlen(payload), 0);
                    }
+                   // create same pules on same output pin 17-06-24
+                   edges = TotalPulses * 2;
+                   pin = LastInputPin;
                    sprintf(payload, "*RP,%d,%d#",LastInputPin,TotalPulses); 
+                   uart_write_string(payload);
                    ESP_LOGI(TAG,"*RP,%d,%d#",LastInputPin,TotalPulses);
 
                    TotalPulses = 0;
