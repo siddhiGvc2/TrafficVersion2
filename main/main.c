@@ -295,7 +295,7 @@ int sp_port;
 #define DEFAULT_SERVER_IP_ADDR "http://gvc.co.in"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
-#define FWVersion "*GVCSYS-17JUNE24T3#"
+#define FWVersion "*GVCSYS-17JUNE24T4#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
