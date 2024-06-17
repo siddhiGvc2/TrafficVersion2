@@ -1162,9 +1162,9 @@ void tcpip_client_task(){
                                         
                                 }
                                   else if(strncmp(rx_buffer, "*SIP?#", 6) == 0){
-                                        sprintf(payload,  "*SIP:%s:%s#",NVS_SERVER_IP_KEY, NVS_SERVER_PORT_KEY); //actual when in production
+                                        sprintf(payload,  "*SIP:%s:%d#",server_ip_addr,server_port ); //actual when in production
                                         send(sock, payload, strlen(payload), 0);
-                                        ESP_LOGI(TAG,  "*SIP:%s:%s#",NVS_SERVER_IP_KEY,NVS_SERVER_PORT_KEY);
+                                        ESP_LOGI(TAG,  "*SIP:%s:%d#",server_ip_addr,server_port);
                                         
                                 }
                                 else if(strncmp(rx_buffer, "*CC:", 4) == 0){
@@ -1920,9 +1920,8 @@ void process_uart_packet(const char *pkt){
         uart_write_string_ln("*SIP-OK#");
         tx_event_pending = 1;
     } else if(strncmp(pkt, "*SIP?#", 6) == 0){
-        char buffer[100]; 
-        sprintf(buffer, "*SIP:%s:%s#",NVS_SERVER_IP_KEY,
-            NVS_SERVER_PORT_KEY);
+        char buffer[150]; 
+        sprintf(buffer, "*SIP:%s:%d#",server_ip_addr,server_port);
 
    
         uart_write_string_ln(buffer);
