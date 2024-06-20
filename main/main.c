@@ -291,11 +291,11 @@ int sp_port;
 #define DEFAULT_SSID3  "GVCSYS3"
 #define DEFAULT_PASS3  "GVC3065V"
 
-#define DEFAULT_SERVER_IP_ADDR_TRY "http://gvc.co.in"
-#define DEFAULT_SERVER_IP_ADDR "http://gvc.co.in"
+#define DEFAULT_SERVER_IP_ADDR_TRY "gvc.co.in"
+#define DEFAULT_SERVER_IP_ADDR "gvc.co.in"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
-#define FWVersion "*GVCSYS-17JUNE24T4#"
+#define FWVersion "*GVCSYS-20JUNE24T1#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -728,7 +728,7 @@ void load_settings_nvs(){
 
     if(utils_nvs_get_int(NVS_INH_KEY, &INHOutputValue) == ESP_OK){
         if (INHOutputValue != 0)
-            INHInputValue = 1;
+            INHOutputValue = 1;
         ESP_LOGI(TAG, "*INH Value is %d#", INHOutputValue);
     }else{
         strcpy(server_ip_addr, DEFAULT_SERVER_IP_ADDR);
@@ -1023,6 +1023,7 @@ void tcpip_client_task(){
                                         ESP_LOGI (TAG, "Set INH Output as %d",INHOutputValue);
                                         sprintf(payload, "*INH-DONE,%d#",INHOutputValue); //actual when in production
                                         send(sock, payload, strlen(payload), 0);
+                                        utils_nvs_set_int(NVS_INH_KEY, INHOutputValue);
                                 }    
 
 
@@ -2607,10 +2608,19 @@ void s2p_init(){
     gpio_set_level(STRB, 0);
     gpio_set_level(CLK, 0);
     gpio_set_level(DAT, 0);
-    gpio_set_level(CINHO, 0);
     gpio_set_level(L1, 0);
     gpio_set_level(L2, 0);
     gpio_set_level(L3, 0);
+    if (INHOutputValue != 0)
+    {
+        INHOutputValue = 1;
+        gpio_set_level(CINHO, 0);
+    }
+    else
+    {
+        gpio_set_level(CINHO, 1);
+    }
+
     
     Test4094Count = 0;
     ESP_LOGI(TAG, "4094 IOs,RGB initialised");  
