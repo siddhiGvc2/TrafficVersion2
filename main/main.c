@@ -295,7 +295,7 @@ int sp_port;
 #define DEFAULT_SERVER_IP_ADDR "gvc.co.in"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
-#define FWVersion "*GVCSYS-20JUNE24T1#"
+#define FWVersion "*GVCSYS-24JUNE24T1#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -893,7 +893,7 @@ void resolve_hostname(const char *hostname) {
 }
 
 void tcpip_client_task(){
-    char payload[270];
+    char payload[400];
     char rx_buffer[128];
     int addr_family = 0;
     int ip_protocol = 0;
