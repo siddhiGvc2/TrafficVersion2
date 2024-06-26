@@ -329,7 +329,7 @@ int sp_port;
 #define DEFAULT_SERVER_IP_ADDR "gvc.co.in"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
-#define FWVersion "*GVCSYS-26JUNE24T3#"
+#define FWVersion "*GVCSYS-26JUNE24T4#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -1884,9 +1884,10 @@ void process_uart_packet(const char *pkt){
         utils_nvs_set_int(NVS_CASH5_KEY, CashTotals[4]);
         utils_nvs_set_int(NVS_CASH6_KEY, CashTotals[5]);
         utils_nvs_set_int(NVS_CASH7_KEY, CashTotals[6]);
-
+         char buffer[150]; 
+        snprintf(buffer, "*CC-OK,%s,%s#",CCuserName,CCdateTime);
       
-        uart_write_string_ln("*CC-OK#");
+        uart_write_string_ln(buffer);
         tx_event_pending = 1;
     }
      else if(strncmp(pkt, "*SL:", 4) == 0){
@@ -2032,7 +2033,9 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
         http_fota();
     }else if(strncmp(pkt, "*URL?#", 6) == 0){
-        uart_write_string_ln(FOTA_URL);
+         char buffer[150]; 
+        snprintf(buffer,"*%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL);
+        uart_write_string_ln(buffer);
         tx_event_pending = 1;
     
     }
@@ -2086,7 +2089,7 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
     } else if(strncmp(pkt, "*SIP?#", 6) == 0){
         char buffer[150]; 
-        sprintf(buffer, "*SIP:%s:%d#",server_ip_addr,
+        snprintf(buffer, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
                                         sp_port );
 
    
