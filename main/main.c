@@ -288,47 +288,48 @@ int sp_port;
 #define DEFAULT_SSID3  "GVCSYS3"
 #define DEFAULT_PASS3  "GVC3065V"
 
-#define NVS_SIP_USERNAME     "USERNAME"
-#define NVS_SIP_DATETIME   "DATETIME"
 
-#define NVS_CA_USERNAME     "USERNAME"
-#define NVS_CA_DATETIME   "DATETIME"
+#define NVS_SIP_USERNAME     "USERNAME_SIP"
+#define NVS_SIP_DATETIME   "DATETIME_SIP"
 
-#define NVS_CC_USERNAME     "USERNAME"
-#define NVS_CC_DATETIME   "DATETIME"
+#define NVS_CA_USERNAME     "USERNAME_CA"
+#define NVS_CA_DATETIME   "DATETIME_CA"
 
-#define NVS_URL_USERNAME     "USERNAME"
-#define NVS_URL_DATETIME   "DATETIME"
+#define NVS_CC_USERNAME     "USERNAME_CC"
+#define NVS_CC_DATETIME   "DATETIME_CC"
 
-#define NVS_FOTA_USERNAME     "USERNAME"
-#define NVS_FOTA_DATETIME   "DATETIME"
+#define NVS_URL_USERNAME     "USERNAME_URL"
+#define NVS_URL_DATETIME   "DATETIME_URL"
 
-#define NVS_RST_USERNAME     "USERNAME"
-#define NVS_RST_DATETIME   "DATETIME"
+#define NVS_FOTA_USERNAME     "USERNAME_FOTA"
+#define NVS_FOTA_DATETIME   "DATETIME_FOTA"
 
-#define NVS_SS_USERNAME     "USERNAME"
-#define NVS_SS_DATETIME   "DATETIME"
+#define NVS_RST_USERNAME     "USERNAME_RST"
+#define NVS_RST_DATETIME   "DATETIME_RST"
 
-#define NVS_PW_USERNAME     "USERNAME"
-#define NVS_PW_DATETIME   "DATETIME"
+#define NVS_SS_USERNAME     "USERNAME_SS"
+#define NVS_SS_DATETIME   "DATETIME_SS"
 
-#define NVS_SS1_USERNAME     "USERNAME"
-#define NVS_SS1_DATETIME   "DATETIME"
+#define NVS_PW_USERNAME     "USERNAME_PW"
+#define NVS_PW_DATETIME   "DATETIME_PW"
 
-#define NVS_PW1_USERNAME     "USERNAME"
-#define NVS_PW1_DATETIME   "DATETIME"
+#define NVS_SS1_USERNAME     "USERNAME_SS1"
+#define NVS_SS1_DATETIME   "DATETIME_SS1"
 
-#define NVS_INH_USERNAME     "USERNAME"
-#define NVS_INH_DATETIME   "DATETIME"
+#define NVS_PW1_USERNAME     "USERNAME_PW1"
+#define NVS_PW1_DATETIME   "DATETIME_PW1"
 
-#define NVS_SP_USERNAME     "USERNAME"
-#define NVS_SP_DATETIME   "DATETIME"
+#define NVS_INH_USERNAME     "USERNAME_INH"
+#define NVS_INH_DATETIME   "DATETIME_INH"
+
+#define NVS_SP_USERNAME     "USERNAME_SP"
+#define NVS_SP_DATETIME   "DATETIME_SP"
 
 #define DEFAULT_SERVER_IP_ADDR_TRY "gvc.co.in"
 #define DEFAULT_SERVER_IP_ADDR "gvc.co.in"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
-#define FWVersion "*GVCSYS-26JUNE24T2#"
+#define FWVersion "*GVCSYS-26JUNE24T3#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -1201,7 +1202,7 @@ void tcpip_client_task(){
                                 tx_event_pending = 1;
                                 }
                                 else if(strncmp(rx_buffer, "*URL?#", 6) == 0){
-                                sprintf(payload, "*URL,%s#",FOTA_URL); 
+                                snprintf(payload, "*URL,%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL); 
                                 send(sock, payload, strlen(payload), 0);
                                 tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*FOTA:", 6) == 0){
@@ -1322,10 +1323,10 @@ void tcpip_client_task(){
                                         
                                 }
                                   else if(strncmp(rx_buffer, "*SIP?#", 6) == 0){
-                                        sprintf(payload, "*SIP:%s:%d#",server_ip_addr,
+                                        sprintf(payload, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
                                         sp_port ); //actual when in production
                                         send(sock, payload, strlen(payload), 0);
-                                        ESP_LOGI(TAG, "*SIP:%s:%d#",server_ip_addr,
+                                        ESP_LOGI(TAG, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
                                         sp_port );
                                         
                                 }
