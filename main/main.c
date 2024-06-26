@@ -281,15 +281,48 @@ int sp_port;
 #define NVS_CASH6_KEY   "CASH6"
 #define NVS_CASH7_KEY   "CASH7"
 
-
-
-
 #define DEFAULT_SSID1  "GVCSYS1"
 #define DEFAULT_PASS1  "GVC3065V"
 #define DEFAULT_SSID2  "GVCSYS2"
 #define DEFAULT_PASS2  "GVC3065V"
 #define DEFAULT_SSID3  "GVCSYS3"
 #define DEFAULT_PASS3  "GVC3065V"
+
+#define NVS_SIP_USERNAME     "USERNAME"
+#define NVS_SIP_DATETIME   "DATETIME"
+
+#define NVS_CA_USERNAME     "USERNAME"
+#define NVS_CA_DATETIME   "DATETIME"
+
+#define NVS_CC_USERNAME     "USERNAME"
+#define NVS_CC_DATETIME   "DATETIME"
+
+#define NVS_URL_USERNAME     "USERNAME"
+#define NVS_URL_DATETIME   "DATETIME"
+
+#define NVS_FOTA_USERNAME     "USERNAME"
+#define NVS_FOTA_DATETIME   "DATETIME"
+
+#define NVS_RST_USERNAME     "USERNAME"
+#define NVS_RST_DATETIME   "DATETIME"
+
+#define NVS_SS_USERNAME     "USERNAME"
+#define NVS_SS_DATETIME   "DATETIME"
+
+#define NVS_PW_USERNAME     "USERNAME"
+#define NVS_PW_DATETIME   "DATETIME"
+
+#define NVS_SS1_USERNAME     "USERNAME"
+#define NVS_SS1_DATETIME   "DATETIME"
+
+#define NVS_PW1_USERNAME     "USERNAME"
+#define NVS_PW1_DATETIME   "DATETIME"
+
+#define NVS_INH_USERNAME     "USERNAME"
+#define NVS_INH_DATETIME   "DATETIME"
+
+#define NVS_SP_USERNAME     "USERNAME"
+#define NVS_SP_DATETIME   "DATETIME"
 
 #define DEFAULT_SERVER_IP_ADDR_TRY "gvc.co.in"
 #define DEFAULT_SERVER_IP_ADDR "gvc.co.in"
@@ -344,9 +377,48 @@ int numValue=0;
 int polarity=0;
 int pulseWitdh=0;
 int SignalPolarity=0;
-
 char dateTime[100];
 char userName[100];
+
+char SIPdateTime[100];
+char SIPuserName[100];
+
+char CAdateTime[100];
+char CAuserName[100];
+
+char CCdateTime[100];
+char CCuserName[100];
+
+char URLdateTime[100];
+char URLuserName[100];
+
+char FOTAdateTime[100];
+char FOTAuserName[100];
+
+char RSTdateTime[100];
+char RSTuserName[100];
+
+char SSdateTime[100];
+char SSuserName[100];
+
+char PWdateTime[100];
+char PWuserName[100];
+
+char SS1dateTime[100];
+char SS1userName[100];
+
+char PW1dateTime[100];
+char PW1userName[100];
+
+char INHdateTime[100];
+char INHuserName[100];
+
+char SPdateTime[100];
+char SPuserName[100];
+
+
+
+
 
 
 unsigned char  SwitchStatus,PreviousSwitchStatus,DebounceCount;
@@ -988,10 +1060,14 @@ void tcpip_client_task(){
                                 char buf[len+1];
 
                                 if(strncmp(rx_buffer, "*SS:", 4) == 0){
-                                    sscanf(rx_buffer, "*SS:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
+                                    sscanf(rx_buffer, "*SS:%[^:]:%[^:]:%[^#]#",SSuserName,SSdateTime, buf);
                                     strcpy(WIFI_SSID_1, buf);
                                     utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
-                                    send(sock, "*SS-OK#", strlen("*SS-OK#"), 0);
+                                    utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
+                                    sprintf(payload, "*SS-OK,%s,%s#",SSuserName,SSdateTime);
+                                    utils_nvs_set_str(NVS_SS_USERNAME, SSuserName);
+                                    utils_nvs_set_str(NVS_SS_DATETIME, SSdateTime);
+                                    send(sock, payload, strlen(payload), 0);
                                     tx_event_pending = 1;
                                 }
                                 // done by siddhi
@@ -1010,7 +1086,7 @@ void tcpip_client_task(){
                                         send(sock, payload, strlen(payload), 0);
                                  }
                                 else if(strncmp(rx_buffer, "*INH:", 5) == 0){
-                                        sscanf(rx_buffer, "*INH:%[^:]:%[^:]:%d#",userName,dateTime, &INHOutputValue);
+                                        sscanf(rx_buffer, "*INH:%[^:]:%[^:]:%d#",INHuserName,INHdateTime, &INHOutputValue);
                                         if (INHOutputValue != 0)
                                         {
                                             INHOutputValue = 1;
@@ -1021,24 +1097,36 @@ void tcpip_client_task(){
                                               gpio_set_level(CINHO, 1);
                                         }
                                         ESP_LOGI (TAG, "Set INH Output as %d",INHOutputValue);
-                                        sprintf(payload, "*INH-DONE,%d#",INHOutputValue); //actual when in production
+                                        sprintf(payload, "*INH-DONE,%s,%s,%d#",SSuserName,SSdateTime,INHOutputValue);
+                                        utils_nvs_set_str(NVS_INH_USERNAME, INHuserName);
+                                        utils_nvs_set_str(NVS_INH_DATETIME, INHdateTime);
                                         send(sock, payload, strlen(payload), 0);
+                                        // sprintf(payload, "*INH-DONE,%d#",INHOutputValue); //actual when in production
+                                        // send(sock, payload, strlen(payload), 0);
                                         utils_nvs_set_int(NVS_INH_KEY, INHOutputValue);
                                 }    
 
 
                                 else if(strncmp(rx_buffer, "*SP:", 4) == 0){
-                                        sscanf(rx_buffer, "*SP:%[^:]:%[^:]:%d#",userName,dateTime, &jumperPort);
-                                        sprintf(payload, "*SP-OK,%d#",jumperPort); //actual when in production
+                                        sscanf(rx_buffer, "*SP:%[^:]:%[^:]:%d#",SPuserName,SPdateTime, &jumperPort);
+                                         sprintf(payload, "*SP-OK,%s,%s,%d#",SPuserName,SPdateTime,jumperPort);
+                                        utils_nvs_set_str(NVS_SP_USERNAME, SPuserName);
+                                        utils_nvs_set_str(NVS_SP_DATETIME, SPdateTime);
                                         send(sock, payload, strlen(payload), 0);
+                                        // sprintf(payload, "*SP-OK,%d#",jumperPort); //actual when in production
+                                        // send(sock, payload, strlen(payload), 0);
                                         utils_nvs_set_int(NVS_SERVER_PORT_KEY_JUMPER, jumperPort);
  
                                 }        
                                 else if(strncmp(rx_buffer, "*CA:", 4) == 0){
-                                        sscanf(rx_buffer, "*CA:%[^:]:%[^:]:%d:%d#",userName,dateTime, &numValue,&polarity);
+                                        sscanf(rx_buffer, "*CA:%[^:]:%[^:]:%d:%d#",CAuserName,CAdateTime, &numValue,&polarity);
                                         ESP_LOGI(TAG, "Generate @ numValue %d polarity %d",numValue,polarity);
-                                        sprintf(payload, "*CA-OK,%d,%d#",numValue,polarity); //actual when in production
+                                        sprintf(payload, "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,numValue,polarity);
+                                        utils_nvs_set_str(NVS_CA_USERNAME, CAuserName);
+                                        utils_nvs_set_str(NVS_CA_DATETIME, CAdateTime);
                                         send(sock, payload, strlen(payload), 0);
+                                        // sprintf(payload, "*CA-OK,%d,%d#",numValue,polarity); //actual when in production
+                                        // send(sock, payload, strlen(payload), 0);
                                         // valid values are between 25 and 100
                                         if (numValue<10)
                                             numValue = 25;
@@ -1054,10 +1142,14 @@ void tcpip_client_task(){
                                         utils_nvs_set_int(NVS_CA_KEY, numValue*2+polarity);
                                 }
                                 else if(strncmp(rx_buffer, "*SS1:", 5) == 0){
-                                    sscanf(rx_buffer, "*SS1:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
+                                    sscanf(rx_buffer, "*SS1:%[^:]:%[^:]:%[^#]#",SS1userName,SS1dateTime, buf);
                                     strcpy(WIFI_SSID_2, buf);
                                     utils_nvs_set_str(NVS_SSID_2_KEY, WIFI_SSID_2);
-                                    send(sock, "*SS1-OK#", strlen("*SS1-OK#"), 0);
+                                     sprintf(payload, "*SS1-OK,%s,%s#",SS1userName,SS1dateTime);
+                                    utils_nvs_set_str(NVS_SS1_USERNAME, SS1userName);
+                                    utils_nvs_set_str(NVS_SS1_DATETIME, SS1dateTime);
+                                    send(sock, payload, strlen(payload), 0);
+                                    // send(sock, "*SS1-OK#", strlen("*SS1-OK#"), 0);
                                     tx_event_pending = 1;
                                 }
                                 else if(strncmp(rx_buffer, "*SS2:", 5) == 0){
@@ -1067,16 +1159,24 @@ void tcpip_client_task(){
                                     send(sock, "*SS2-OK#", strlen("*SS2-OK#"), 0);
                                     tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*PW:", 4) == 0){
-                                    sscanf(rx_buffer, "*PW:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
+                                    sscanf(rx_buffer, "*PW:%[^:]:%[^:]:%[^#]#",PWuserName,PWdateTime, buf);
                                     strcpy(WIFI_PASS_1, buf);
                                     utils_nvs_set_str(NVS_PASS_1_KEY, WIFI_PASS_1);
-                                    send(sock, "*PW-OK#", strlen("*PW-OK#"), 0);
+                                      sprintf(payload, "*PW-OK,%s,%s#",PWuserName,PWdateTime);
+                                    utils_nvs_set_str(NVS_PW_USERNAME, PWuserName);
+                                    utils_nvs_set_str(NVS_PW_DATETIME, PWdateTime);
+                                    send(sock, payload, strlen(payload), 0);
+                                    // send(sock, "*PW-OK#", strlen("*PW-OK#"), 0);
                                     tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*PW1:", 5) == 0){
-                                    sscanf(rx_buffer, "*PW1:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
+                                    sscanf(rx_buffer, "*PW1:%[^:]:%[^:]:%[^#]#",PW1userName,PW1dateTime, buf);
                                     strcpy(WIFI_PASS_2, buf);
                                     utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
-                                    send(sock, "*PW1-OK#", strlen("*PW1-OK#"), 0);
+                                      sprintf(payload, "*PW1-OK,%s,%s#",PW1userName,PW1dateTime);
+                                    utils_nvs_set_str(NVS_PW1_USERNAME, PW1userName);
+                                    utils_nvs_set_str(NVS_PW1_DATETIME, PW1dateTime);
+                                    send(sock, payload, strlen(payload), 0);
+                                    // send(sock, "*PW1-OK#", strlen("*PW1-OK#"), 0);
                                     tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*PW2:", 5) == 0){
                                     sscanf(rx_buffer, "*PW2:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
@@ -1085,10 +1185,14 @@ void tcpip_client_task(){
                                     send(sock, "*PW2-OK#", strlen("*PW2-OK#"), 0);
                                     tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*URL:", 5) == 0){
-                                    sscanf(rx_buffer, "*URL:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
+                                    sscanf(rx_buffer, "*URL:%[^:]:%[^:]:%[^#]#",URLuserName,URLdateTime, buf);
                                     strcpy(FOTA_URL, buf);
                                     utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
-                                    send(sock, "*URL-OK#", strlen("*URL-OK#"), 0);
+                                      sprintf(payload, "*URL-OK,%s,%s#",URLuserName,URLdateTime);
+                                    utils_nvs_set_str(NVS_URL_USERNAME, URLuserName);
+                                    utils_nvs_set_str(NVS_URL_DATETIME, URLdateTime);
+                                    send(sock, payload, strlen(payload), 0);
+                                    // send(sock, "*URL-OK#", strlen("*URL-OK#"), 0);
                                     tx_event_pending = 1;
                                 }
                                 else if (strncmp(rx_buffer, "*SSID?#", 7) == 0){
@@ -1102,19 +1206,26 @@ void tcpip_client_task(){
                                 tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*FOTA:", 6) == 0){
                                     send(sock, "*FOTA-OK#", strlen("*FOTA-OK#"), 0);
+                                  
                                     send(sock,FOTA_URL,strlen(FOTA_URL),0);
                                     tx_event_pending = 1;
                                     http_fota();
                                 }else if(strncmp(rx_buffer, "*SIP:", 5) == 0){
                                   
-                                    sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%[^:]:%d#",userName,dateTime,server_ip_addr,
+                                    sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%[^:]:%d#",SIPuserName,SIPdateTime,server_ip_addr,
                                         &sp_port);
                                     char buf[100];
+                                    sprintf(payload, "*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
                                     sprintf(buf, "%s",server_ip_addr);
-                                    
+                                  
+
                                     utils_nvs_set_str(NVS_SERVER_IP_KEY, buf);
                                     utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
-                                    send(sock, "*SIP-OK#", strlen("*SIP-OK#"), 0);
+                                    utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
+                                    utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
+                                    
+                                    
+                                    send(sock, payload, strlen(payload), 0);
                                     tx_event_pending = 1;
                                 }else if (strncmp(rx_buffer, "*ERASE#", 7) == 0){
                                     utils_nvs_erase_all();
@@ -1219,9 +1330,14 @@ void tcpip_client_task(){
                                         
                                 }
                                 else if(strncmp(rx_buffer, "*CC:", 4) == 0){
+                                    sscanf(rx_buffer, "*CC:%[^:]:%[^#]#",CCuserName,CCdateTime);
                                         ESP_LOGI(TAG, "*CC-OK#");
-                                        sprintf(payload, "*CC-OK#"); //actual when in production
-                                        send(sock, payload, strlen(payload), 0);
+                                        // sprintf(payload, "*CC-OK#"); //actual when in production
+                                          sprintf(payload, "*CC-OK,%s,%s#",CCuserName,CCdateTime);
+                                    utils_nvs_set_str(NVS_CC_USERNAME, CCuserName);
+                                    utils_nvs_set_str(NVS_CC_DATETIME, CCdateTime);
+                                    send(sock, payload, strlen(payload), 0);
+                                        // send(sock, payload, strlen(payload), 0);
                                         for (int i = 0 ; i < 7 ; i++)
                                         {
                                             Totals[i] = 0;
@@ -1788,10 +1904,11 @@ void process_uart_packet(const char *pkt){
         }
     }
     else if(strncmp(pkt, "*CA:", 4) == 0){
-        sscanf(pkt, "*CA:%[^:]:%[^:]:%d:%d#",userName,dateTime, &numValue,&polarity);
+        sscanf(pkt, "*CA:%[^:]:%[^:]:%d:%d#",CAuserName,CAdateTime, &numValue,&polarity);
          char buffer[100]; 
         sprintf(buffer,"*CA-OK,%d,%d#",numValue,polarity);
-
+        utils_nvs_set_str(NVS_CA_USERNAME, CAuserName);
+        utils_nvs_set_str(NVS_CA_DATETIME, CAdateTime);
        uart_write_string_ln(buffer);
         tx_event_pending = 1;
     }
@@ -1954,13 +2071,16 @@ void process_uart_packet(const char *pkt){
     }
     else if(strncmp(pkt, "*SIP:", 5) == 0){
       
-        sscanf(pkt, "*SIP:%[^:]:%[^:]:%[^:]:%d#",userName,dateTime,server_ip_addr,
+        sscanf(pkt, "*SIP:%[^:]:%[^:]:%[^:]:%d#",SIPuserName,SIPdateTime,server_ip_addr,
                                         &sp_port);
         char buf[100];
         sprintf(buf, "%s", server_ip_addr);
         
         utils_nvs_set_str(NVS_SERVER_IP_KEY, buf);
         utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
+
+         utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
+        utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
         uart_write_string_ln("*SIP-OK#");
         tx_event_pending = 1;
     } else if(strncmp(pkt, "*SIP?#", 6) == 0){
