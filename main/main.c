@@ -336,7 +336,7 @@ int sp_port;
 #define DEFAULT_SERVER_IP_ADDR "gvc.co.in"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
-#define FWVersion "*GVCSYS-27JUNE24T3#"
+#define FWVersion "*GVCSYS-27JUNE24T4#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -1219,6 +1219,7 @@ void tcpip_client_task(){
                                 tx_event_pending = 1;
                                 }
                                 else if(strncmp(rx_buffer, "*URL?#", 6) == 0){
+                                    ESP_LOGI(TAG,"URL RECEIVED, %s,%s,%s",URLuserName,URLdateTime,FOTA_URL);
                                 snprintf(payload, "*URL,%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL); 
                                 send(sock, payload, strlen(payload), 0);
                                 tx_event_pending = 1;
