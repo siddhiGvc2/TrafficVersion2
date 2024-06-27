@@ -1219,9 +1219,10 @@ void tcpip_client_task(){
                                 tx_event_pending = 1;
                                 }
                                 else if(strncmp(rx_buffer, "*URL?#", 6) == 0){
-                                    ESP_LOGI(TAG,"URL RECEIVED, %s,%s,%s",URLuserName,URLdateTime,FOTA_URL);
-                                sprintf(payload,sizeof(payload),"*URL,%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL); 
-                                send(sock, payload, strlen(payload), 0);
+                                    ESP_LOGI(TAG,"URL RECEIVED,%s,%s,%s",URLuserName,URLdateTime,FOTA_URL);
+                                 char msg[600];
+                                sprintf(msg,"*URL,%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL); 
+                                send(sock, msg, strlen(msg), 0);
                                 tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*FOTA:", 6) == 0){
                                     send(sock, "*FOTA-OK#", strlen("*FOTA-OK#"), 0);
@@ -1884,8 +1885,8 @@ void process_uart_packet(const char *pkt){
     rx_event_pending = 1;
     char buf[100];
       if(strncmp(pkt, "*CA?#", 5) == 0){
-         char buffer[100]; 
-       sprintf(buffer, sizeof(buffer),"*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity);
+         char buffer[300]; 
+       sprintf(buffer,"*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity);
 
        uart_write_string_ln(buffer);
         tx_event_pending = 1;
@@ -2058,8 +2059,8 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
         http_fota();
     }else if(strncmp(pkt, "*URL?#", 6) == 0){
-         char buffer[150]; 
-       sprintf(buffer,sizeof(buffer),"*%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL);
+         char buffer[650]; 
+       sprintf(buffer,"*%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL);
         uart_write_string_ln(buffer);
         tx_event_pending = 1;
     
@@ -2115,8 +2116,8 @@ void process_uart_packet(const char *pkt){
         uart_write_string_ln("*SIP-OK#");
         tx_event_pending = 1;
     } else if(strncmp(pkt, "*SIP?#", 6) == 0){
-        char buffer[150]; 
-       sprintf(buffer,sizeof(buffer), "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
+        char buffer[350]; 
+       sprintf(buffer,"*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
                                         sp_port );
 
    
