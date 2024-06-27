@@ -336,7 +336,7 @@ int sp_port;
 #define DEFAULT_SERVER_IP_ADDR "gvc.co.in"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
-#define FWVersion "*GVCSYS-27JUNE24T1#"
+#define FWVersion "*GVCSYS-27JUNE24T2#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -1010,14 +1010,14 @@ void tcpip_client_task(){
                     if (gpio_get_level(JUMPER) == 0)
                         sprintf(payload, "*MAC,%s#", MAC_ADDRESS_ESP);  // for GVC use ,
                     else
-                        sprintf(payload, "*MAC:%s#", MAC_ADDRESS_ESP);  // for KP use :
+                        sprintf(payload, "*MAC,%s#", MAC_ADDRESS_ESP);  // for KP use :
 
                     int err = send(sock, payload, strlen(payload), 0);
                     ESP_LOGI(TAG, "*Successfully connected#");  
                     if (gpio_get_level(JUMPER) == 0)
                         ESP_LOGI(TAG, "*MAC,%s#", MAC_ADDRESS_ESP) ;
                     else
-                        ESP_LOGI(TAG, "*MAC:%s#", MAC_ADDRESS_ESP) ;
+                        ESP_LOGI(TAG, "*MAC,%s#", MAC_ADDRESS_ESP) ;
 
                     sprintf(payload, "*WiFi,%d#", WiFiNumber); //actual when in production
                     err = send(sock, payload, strlen(payload), 0);
@@ -2796,7 +2796,7 @@ void app_main(void)
     console_uart_init();
     uart_write_string(FWVersion);
     read_mac_address();
-    xTaskCreate(tcpip_client_task, "tcpip_client_task", 4096, NULL, 6, NULL);
+    xTaskCreate(tcpip_client_task, "tcpip_client_task", 8192, NULL, 6, NULL);
    
     ESP_LOGI(TAG, "*Starting ICH#");
     ICH_init();
