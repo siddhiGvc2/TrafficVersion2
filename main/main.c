@@ -6,6 +6,13 @@ UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
 
+27062024
+1.Ensure that all query commands are replied with username as date in same as received in last command.
+2.UART query replies with username and date as in TCP query.
+3.In UART setting, user name and date is not required, but save user name as “LOCAL” and date as localdate variable  for example
+
+
+
 1. Retry in case of wifi error
 2. Retry in case of server disconnection
 3. Send data to UART2 for debugging
@@ -329,7 +336,7 @@ int sp_port;
 #define DEFAULT_SERVER_IP_ADDR "gvc.co.in"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
-#define FWVersion "*GVCSYS-26JUNE24T4#"
+#define FWVersion "*GVCSYS-27JUNE24T1#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -1075,7 +1082,7 @@ void tcpip_client_task(){
                                 // totPolarity
                                 else if(strncmp(rx_buffer, "*CA?#", 5) == 0){
                                         ESP_LOGI(TAG, "CA Values @ numValue %d polarity %d",pulseWitdh,polarity);
-                                        sprintf(payload, "*CA-OK,%d,%d#",pulseWitdh,SignalPolarity); //actual when in production
+                                        sprintf(payload, "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity); //actual when in production
                                         send(sock, payload, strlen(payload), 0);
                                  }
 
@@ -1083,7 +1090,7 @@ void tcpip_client_task(){
                                         if (INHInputValue !=0)
                                             INHInputValue = 1;
                                         ESP_LOGI(TAG, "INH Values @ numValue %d ",INHInputValue);
-                                        sprintf(payload, "*INH-IN,%d,%d#",INHInputValue,INHOutputValue); 
+                                        sprintf(payload, "*INH-IN,%s,%s,%d,%d#",INHuserName,INHdateTime,INHInputValue,INHOutputValue); 
                                         send(sock, payload, strlen(payload), 0);
                                  }
                                 else if(strncmp(rx_buffer, "*INH:", 5) == 0){
@@ -1867,7 +1874,7 @@ void process_uart_packet(const char *pkt){
     char buf[100];
       if(strncmp(pkt, "*CA?#", 5) == 0){
          char buffer[100]; 
-        sprintf(buffer,  "*CA-OK,%d,%d#",pulseWitdh,SignalPolarity);
+        snprintf(buffer,  "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity);
 
        uart_write_string_ln(buffer);
         tx_event_pending = 1;
@@ -1885,7 +1892,7 @@ void process_uart_packet(const char *pkt){
         utils_nvs_set_int(NVS_CASH6_KEY, CashTotals[5]);
         utils_nvs_set_int(NVS_CASH7_KEY, CashTotals[6]);
          char buffer[150]; 
-        snprintf(buffer, "*CC-OK,%s,%s#",CCuserName,CCdateTime);
+        sprintf(buffer, "*CC-OK#");
       
         uart_write_string_ln(buffer);
         tx_event_pending = 1;
@@ -1893,7 +1900,7 @@ void process_uart_packet(const char *pkt){
      else if(strncmp(pkt, "*SL:", 4) == 0){
         if(edges==0)
         {
-        sscanf(pkt, "*SL:%[^:]:%[^:]:%d:%d#",userName,dateTime, &ledpin,&ledstatus);
+        sscanf(pkt, "*SL:%d:%d#", &ledpin,&ledstatus);
         if (ledpin == 1)
             gpio_set_level(L1, ledstatus);
         if (ledpin == 2)
@@ -1906,7 +1913,9 @@ void process_uart_packet(const char *pkt){
         }
     }
     else if(strncmp(pkt, "*CA:", 4) == 0){
-        sscanf(pkt, "*CA:%[^:]:%[^:]:%d:%d#",CAuserName,CAdateTime, &numValue,&polarity);
+        sscanf(pkt, "*CA:%d:%d#",&numValue,&polarity);
+        strcpy(CAuserName,"LOCAL");
+        strcpy(CAdateTime,"00/00/00");
          char buffer[100]; 
         sprintf(buffer,"*CA-OK,%d,%d#",numValue,polarity);
         utils_nvs_set_str(NVS_CA_USERNAME, CAuserName);
@@ -2025,7 +2034,12 @@ void process_uart_packet(const char *pkt){
     }else if(strncmp(pkt, "*URL:", 5) == 0){
         sscanf(pkt, "*URL:%[^#]#", buf);
         strcpy(FOTA_URL, buf);
+        strcpy(URLuserName,"LOCAL");
+        strcpy(URLdateTime,"00/00/00");
         utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
+        utils_nvs_set_str(NVS_URL_USERNAME, URLuserName);
+        utils_nvs_set_str(NVS_URL_DATETIME, URLdateTime);
+
         uart_write_string_ln("*URL-OK#");
         tx_event_pending = 1;
     }else if(strncmp(pkt, "*FOTA#", 6) == 0){
@@ -2075,15 +2089,17 @@ void process_uart_packet(const char *pkt){
     }
     else if(strncmp(pkt, "*SIP:", 5) == 0){
       
-        sscanf(pkt, "*SIP:%[^:]:%[^:]:%[^:]:%d#",SIPuserName,SIPdateTime,server_ip_addr,
+        sscanf(pkt, "*SIP:%[^:]:%d#",server_ip_addr,
                                         &sp_port);
+        strcpy(SIPuserName,"LOCAL");
+        strcpy(SIPdateTime,"00/00/00");
         char buf[100];
         sprintf(buf, "%s", server_ip_addr);
         
         utils_nvs_set_str(NVS_SERVER_IP_KEY, buf);
         utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
 
-         utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
+        utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
         utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
         uart_write_string_ln("*SIP-OK#");
         tx_event_pending = 1;
