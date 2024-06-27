@@ -336,7 +336,7 @@ int sp_port;
 #define DEFAULT_SERVER_IP_ADDR "gvc.co.in"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
-#define FWVersion "*GVCSYS-27JUNE24T2#"
+#define FWVersion "*GVCSYS-27JUNE24T3#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -759,6 +759,13 @@ void utils_nvs_set_int(const char * key , int16_t val){
 void load_settings_nvs(){
     
     ESP_LOGI(TAG, "*NVS Reading Started#");
+    if (utils_nvs_get_str(NVS_CA_USERNAME, CAuserName, sizeof(CAuserName)) == ESP_OK) {
+    if (strcmp(CAuserName, "Siddhi Gvc") == 0) {
+        utils_nvs_get_str(NVS_CA_DATETIME, CAdateTime, sizeof(CAdateTime));
+        ESP_LOGI(TAG, "*CA values %s|%s#", CAuserName, CAdateTime);
+    }
+    }
+
     if(utils_nvs_get_str(NVS_SSID_1_KEY, WIFI_SSID_1, 64) == ESP_OK){
         utils_nvs_get_str(NVS_PASS_1_KEY, WIFI_PASS_1, 64);
         ESP_LOGI(TAG, "*WIFI 1 Credentials %s|%s#", WIFI_SSID_1, WIFI_PASS_1);
@@ -1081,7 +1088,8 @@ void tcpip_client_task(){
                                 // done by siddhi
                                 // totPolarity
                                 else if(strncmp(rx_buffer, "*CA?#", 5) == 0){
-                                        ESP_LOGI(TAG, "CA Values @ numValue %d polarity %d",pulseWitdh,polarity);
+                                        ESP_LOGI(TAG, "CA Values @ numValue %d polarity %d username %s dateTime %s",pulseWitdh,polarity,CAuserName,CAdateTime);
+                                        
                                         sprintf(payload, "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity); //actual when in production
                                         send(sock, payload, strlen(payload), 0);
                                  }
@@ -1132,7 +1140,9 @@ void tcpip_client_task(){
                                         sprintf(payload, "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,numValue,polarity);
                                         utils_nvs_set_str(NVS_CA_USERNAME, CAuserName);
                                         utils_nvs_set_str(NVS_CA_DATETIME, CAdateTime);
+                                        ESP_LOGI(TAG,"CA Values Saved %s,%s",CAuserName,CAdateTime);
                                         send(sock, payload, strlen(payload), 0);
+                                        
                                         // sprintf(payload, "*CA-OK,%d,%d#",numValue,polarity); //actual when in production
                                         // send(sock, payload, strlen(payload), 0);
                                         // valid values are between 25 and 100
