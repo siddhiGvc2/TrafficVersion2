@@ -254,7 +254,7 @@ char server_ip_addr[100];
 char ipstr[100]; // host mapped
 
 char MAC_ADDRESS_ESP[40];
-char FOTA_URL[256];
+char FOTA_URL[356];
 int16_t server_port;
 int jumperPort;
 int16_t caValue;
@@ -336,7 +336,7 @@ int sp_port;
 #define DEFAULT_SERVER_IP_ADDR "gvc.co.in"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
-#define FWVersion "*GVCSYS-27JUNE24T4#"
+#define FWVersion "*GVCSYS-27JUNE24T5#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
@@ -1220,7 +1220,7 @@ void tcpip_client_task(){
                                 }
                                 else if(strncmp(rx_buffer, "*URL?#", 6) == 0){
                                     ESP_LOGI(TAG,"URL RECEIVED, %s,%s,%s",URLuserName,URLdateTime,FOTA_URL);
-                                snprintf(payload, "*URL,%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL); 
+                                sprintf(payload,sizeof(payload),"*URL,%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL); 
                                 send(sock, payload, strlen(payload), 0);
                                 tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*FOTA:", 6) == 0){
@@ -1885,7 +1885,7 @@ void process_uart_packet(const char *pkt){
     char buf[100];
       if(strncmp(pkt, "*CA?#", 5) == 0){
          char buffer[100]; 
-        snprintf(buffer,  "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity);
+       sprintf(buffer, sizeof(buffer),"*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity);
 
        uart_write_string_ln(buffer);
         tx_event_pending = 1;
@@ -2059,7 +2059,7 @@ void process_uart_packet(const char *pkt){
         http_fota();
     }else if(strncmp(pkt, "*URL?#", 6) == 0){
          char buffer[150]; 
-        snprintf(buffer,"*%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL);
+       sprintf(buffer,sizeof(buffer),"*%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL);
         uart_write_string_ln(buffer);
         tx_event_pending = 1;
     
@@ -2116,7 +2116,7 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
     } else if(strncmp(pkt, "*SIP?#", 6) == 0){
         char buffer[150]; 
-        snprintf(buffer, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
+       sprintf(buffer,sizeof(buffer), "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
                                         sp_port );
 
    
