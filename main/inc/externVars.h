@@ -222,3 +222,7 @@ extern  QueueHandle_t uart0_queue;
 
 
 extern nvs_handle_t utils_nvs_handle;
+
+extern int WiFiNumber;
+extern int rx_event_pending;
+extern int tx_event_pending;
