@@ -1,0 +1,473 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/event_groups.h"
+#include "esp_system.h"
+#include "esp_wifi.h"
+#include "esp_mac.h"
+#include "esp_event.h"   
+#include "esp_log.h"
+#include "nvs_flash.h"
+#include "driver/gpio.h"
+#include "lwip/err.h"
+#include "lwip/sys.h"
+#include "lwip/sockets.h"
+#include "esp_http_client.h"
+#include "esp_https_ota.h"
+#include "esp_timer.h"
+#include "esp_ota_ops.h"
+#include "driver/uart.h"
+#include "esp_netif.h"
+#include "rom/ets_sys.h"
+#include "esp_smartconfig.h"
+#include <sys/socket.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+
+#include "externVars.h"
+#include "calls.h"
+
+
+
+static const char *TAG = "TCP";
+
+void tcpip_client_task(void);
+
+void tcpip_client_task(){
+    char payload[400];
+    char rx_buffer[128];
+    int addr_family = 0;
+    int ip_protocol = 0;
+    uint32_t lastPrint = 0;
+    for(;;){
+        if(connected_to_wifi_and_internet){ //continously check for wifi
+            //if wifi connected try to connect to tcp server
+             resolve_hostname(server_ip_addr);
+            struct sockaddr_in dest_addr;
+            dest_addr.sin_addr.s_addr = inet_addr(ipstr);
+            dest_addr.sin_family = AF_INET;
+            dest_addr.sin_port = htons(server_port);
+            addr_family = AF_INET;
+            ip_protocol = IPPROTO_IP;
+            ESP_LOGI(TAG, "*Trying to connect to TCP Server#");
+            set_led_state(WIFI_AND_INTERNET_NO_SERVER);
+            sock =  socket(addr_family, SOCK_STREAM, ip_protocol);
+            if (sock < 0) {
+                ESP_LOGE(TAG, "*Unable to create socket: errno %d#", errno);
+                shutdown(sock, 0);
+                close(sock);
+            }else{
+                ESP_LOGI(TAG, "*Socket created, connecting to %s:%s:%d#", server_ip_addr,ipstr, server_port);
+                int err = connect(sock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_in6));
+                if (err != 0) {
+                    ESP_LOGE(TAG, "*Socket unable to connect: errno %d#", errno);
+                    ESP_LOGE(TAG, "*Shutting down socket and restarting...#");
+                    shutdown(sock, 0);
+                    close(sock);
+                    sock = -1;
+                }else{
+               
+                    set_led_state(EVERYTHING_OK_LED); 
+                    if (gpio_get_level(JUMPER) == 0)
+                        sprintf(payload, "*MAC,%s#", MAC_ADDRESS_ESP);  // for GVC use ,
+                    else
+                        sprintf(payload, "*MAC,%s#", MAC_ADDRESS_ESP);  // for KP use :
+
+                    int err = send(sock, payload, strlen(payload), 0);
+                    ESP_LOGI(TAG, "*Successfully connected#");  
+                    if (gpio_get_level(JUMPER) == 0)
+                        ESP_LOGI(TAG, "*MAC,%s#", MAC_ADDRESS_ESP) ;
+                    else
+                        ESP_LOGI(TAG, "*MAC,%s#", MAC_ADDRESS_ESP) ;
+
+                    sprintf(payload, "*WiFi,%d#", WiFiNumber); //actual when in production
+                    err = send(sock, payload, strlen(payload), 0);
+
+                    ESP_LOGI(TAG, "*%s#",FWVersion);
+                    err = send(sock, FWVersion, strlen(FWVersion), 0);
+
+
+                    if (err < 0) {
+                        ESP_LOGE(TAG, "*Error occurred during sending: errno %d#", errno);
+                        shutdown(sock, 0);
+                        close(sock);
+                        sock = -1;
+                    }else{
+                        while(1){
+                            /*
+                            if(pending_tcp_packet){
+                                pending_tcp_packet = false;
+                                ESP_LOGI(TAG, "Sending to TCP Socket : %s", tcp_packet);
+                                
+                            }
+                            */
+
+                            int len = recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
+                            // Error occurred during receiving
+                            if (len < 0) {
+                                ESP_LOGE(TAG, "*recv failed: errno %d#", errno);
+                                ESP_LOGE(TAG, "*Shutting down socket and restarting...#");
+                                shutdown(sock, 0);
+                                close(sock);
+                                sock  = -1;
+                                break;
+                            }
+                            else if(len == 0){
+                                //No Data
+                                if(millis() - lastPrint > 5000){
+                                    lastPrint = millis();
+                                    ESP_LOGI(TAG, "*Waiting For Data On TCP Port#");
+                                }
+                            }
+                            // Data received
+                            else {
+                                blinkLEDNumber = 1;
+                                rx_event_pending = 1;
+                                rx_buffer[len] = 0; // Null-terminate whatever we received and treat like a string
+                                ESP_LOGI(TAG, "Received %d bytes from %s Pulses %d:", len, server_ip_addr,pulses);
+                                ESP_LOGI(TAG, "%s", rx_buffer);
+                                char buf[len+1];
+
+                                if(strncmp(rx_buffer, "*SS:", 4) == 0){
+                                    sscanf(rx_buffer, "*SS:%[^:]:%[^:]:%[^#]#",SSuserName,SSdateTime, buf);
+                                    strcpy(WIFI_SSID_1, buf);
+                                    utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
+                                    utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
+                                    sprintf(payload, "*SS-OK,%s,%s#",SSuserName,SSdateTime);
+                                    utils_nvs_set_str(NVS_SS_USERNAME, SSuserName);
+                                    utils_nvs_set_str(NVS_SS_DATETIME, SSdateTime);
+                                    send(sock, payload, strlen(payload), 0);
+                                    tx_event_pending = 1;
+                                }
+                                // done by siddhi
+                                // totPolarity
+                                else if(strncmp(rx_buffer, "*CA?#", 5) == 0){
+                                        ESP_LOGI(TAG, "CA Values @ numValue %d polarity %d username %s dateTime %s",pulseWitdh,polarity,CAuserName,CAdateTime);
+                                        
+                                        sprintf(payload, "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity); //actual when in production
+                                        send(sock, payload, strlen(payload), 0);
+                                 }
+
+                                else if(strncmp(rx_buffer, "*INH?#",6) == 0){
+                                        if (INHInputValue !=0)
+                                            INHInputValue = 1;
+                                        ESP_LOGI(TAG, "INH Values @ numValue %d ",INHInputValue);
+                                        sprintf(payload, "*INH-IN,%s,%s,%d,%d#",INHuserName,INHdateTime,INHInputValue,INHOutputValue); 
+                                        send(sock, payload, strlen(payload), 0);
+                                 }
+                                else if(strncmp(rx_buffer, "*INH:", 5) == 0){
+                                        sscanf(rx_buffer, "*INH:%[^:]:%[^:]:%d#",INHuserName,INHdateTime, &INHOutputValue);
+                                        if (INHOutputValue != 0)
+                                        {
+                                            INHOutputValue = 1;
+                                            gpio_set_level(CINHO, 0);
+                                        }
+                                        else
+                                        {
+                                              gpio_set_level(CINHO, 1);
+                                        }
+                                        ESP_LOGI (TAG, "Set INH Output as %d",INHOutputValue);
+                                        sprintf(payload, "*INH-DONE,%s,%s,%d#",SSuserName,SSdateTime,INHOutputValue);
+                                        utils_nvs_set_str(NVS_INH_USERNAME, INHuserName);
+                                        utils_nvs_set_str(NVS_INH_DATETIME, INHdateTime);
+                                        send(sock, payload, strlen(payload), 0);
+                                        // sprintf(payload, "*INH-DONE,%d#",INHOutputValue); //actual when in production
+                                        // send(sock, payload, strlen(payload), 0);
+                                        utils_nvs_set_int(NVS_INH_KEY, INHOutputValue);
+                                }    
+
+
+                                else if(strncmp(rx_buffer, "*SP:", 4) == 0){
+                                        sscanf(rx_buffer, "*SP:%[^:]:%[^:]:%d#",SPuserName,SPdateTime, &jumperPort);
+                                         sprintf(payload, "*SP-OK,%s,%s,%d#",SPuserName,SPdateTime,jumperPort);
+                                        utils_nvs_set_str(NVS_SP_USERNAME, SPuserName);
+                                        utils_nvs_set_str(NVS_SP_DATETIME, SPdateTime);
+                                        send(sock, payload, strlen(payload), 0);
+                                        // sprintf(payload, "*SP-OK,%d#",jumperPort); //actual when in production
+                                        // send(sock, payload, strlen(payload), 0);
+                                        utils_nvs_set_int(NVS_SERVER_PORT_KEY_JUMPER, jumperPort);
+ 
+                                }        
+                                else if(strncmp(rx_buffer, "*CA:", 4) == 0){
+                                        sscanf(rx_buffer, "*CA:%[^:]:%[^:]:%d:%d#",CAuserName,CAdateTime, &numValue,&polarity);
+                                        ESP_LOGI(TAG, "Generate @ numValue %d polarity %d",numValue,polarity);
+                                        sprintf(payload, "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,numValue,polarity);
+                                        utils_nvs_set_str(NVS_CA_USERNAME, CAuserName);
+                                        utils_nvs_set_str(NVS_CA_DATETIME, CAdateTime);
+                                        ESP_LOGI(TAG,"CA Values Saved %s,%s",CAuserName,CAdateTime);
+                                        send(sock, payload, strlen(payload), 0);
+                                        
+                                        // sprintf(payload, "*CA-OK,%d,%d#",numValue,polarity); //actual when in production
+                                        // send(sock, payload, strlen(payload), 0);
+                                        // valid values are between 25 and 100
+                                        if (numValue<10)
+                                            numValue = 25;
+                                        if (numValue>100)
+                                            numValue = 100;
+                                        // possible values are 0 and 1        
+                                        if (polarity>0)
+                                            polarity = 1;    
+                                        pulseWitdh=numValue;
+                                        SignalPolarity=polarity;
+                                        tx_event_pending = 1;
+                                        Out4094(0x00);
+                                        utils_nvs_set_int(NVS_CA_KEY, numValue*2+polarity);
+                                }
+                                else if(strncmp(rx_buffer, "*SS1:", 5) == 0){
+                                    sscanf(rx_buffer, "*SS1:%[^:]:%[^:]:%[^#]#",SS1userName,SS1dateTime, buf);
+                                    strcpy(WIFI_SSID_2, buf);
+                                    utils_nvs_set_str(NVS_SSID_2_KEY, WIFI_SSID_2);
+                                     sprintf(payload, "*SS1-OK,%s,%s#",SS1userName,SS1dateTime);
+                                    utils_nvs_set_str(NVS_SS1_USERNAME, SS1userName);
+                                    utils_nvs_set_str(NVS_SS1_DATETIME, SS1dateTime);
+                                    send(sock, payload, strlen(payload), 0);
+                                    // send(sock, "*SS1-OK#", strlen("*SS1-OK#"), 0);
+                                    tx_event_pending = 1;
+                                }
+                                else if(strncmp(rx_buffer, "*SS2:", 5) == 0){
+                                    sscanf(rx_buffer, "*SS2:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
+                                    strcpy(WIFI_SSID_3, buf);
+                                    utils_nvs_set_str(NVS_SSID_3_KEY, WIFI_SSID_3);
+                                    send(sock, "*SS2-OK#", strlen("*SS2-OK#"), 0);
+                                    tx_event_pending = 1;
+                                }else if(strncmp(rx_buffer, "*PW:", 4) == 0){
+                                    sscanf(rx_buffer, "*PW:%[^:]:%[^:]:%[^#]#",PWuserName,PWdateTime, buf);
+                                    strcpy(WIFI_PASS_1, buf);
+                                    utils_nvs_set_str(NVS_PASS_1_KEY, WIFI_PASS_1);
+                                      sprintf(payload, "*PW-OK,%s,%s#",PWuserName,PWdateTime);
+                                    utils_nvs_set_str(NVS_PW_USERNAME, PWuserName);
+                                    utils_nvs_set_str(NVS_PW_DATETIME, PWdateTime);
+                                    send(sock, payload, strlen(payload), 0);
+                                    // send(sock, "*PW-OK#", strlen("*PW-OK#"), 0);
+                                    tx_event_pending = 1;
+                                }else if(strncmp(rx_buffer, "*PW1:", 5) == 0){
+                                    sscanf(rx_buffer, "*PW1:%[^:]:%[^:]:%[^#]#",PW1userName,PW1dateTime, buf);
+                                    strcpy(WIFI_PASS_2, buf);
+                                    utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
+                                      sprintf(payload, "*PW1-OK,%s,%s#",PW1userName,PW1dateTime);
+                                    utils_nvs_set_str(NVS_PW1_USERNAME, PW1userName);
+                                    utils_nvs_set_str(NVS_PW1_DATETIME, PW1dateTime);
+                                    send(sock, payload, strlen(payload), 0);
+                                    // send(sock, "*PW1-OK#", strlen("*PW1-OK#"), 0);
+                                    tx_event_pending = 1;
+                                }else if(strncmp(rx_buffer, "*PW2:", 5) == 0){
+                                    sscanf(rx_buffer, "*PW2:%[^:]:%[^:]:%[^#]#",userName,dateTime, buf);
+                                    strcpy(WIFI_PASS_3, buf);
+                                    utils_nvs_set_str(NVS_PASS_3_KEY, WIFI_PASS_3);
+                                    send(sock, "*PW2-OK#", strlen("*PW2-OK#"), 0);
+                                    tx_event_pending = 1;
+                                }else if(strncmp(rx_buffer, "*URL:", 5) == 0){
+                                    sscanf(rx_buffer, "*URL:%[^:]:%[^:]:%[^#]#",URLuserName,URLdateTime, buf);
+                                    strcpy(FOTA_URL, buf);
+                                    utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
+                                      sprintf(payload, "*URL-OK,%s,%s#",URLuserName,URLdateTime);
+                                    utils_nvs_set_str(NVS_URL_USERNAME, URLuserName);
+                                    utils_nvs_set_str(NVS_URL_DATETIME, URLdateTime);
+                                    send(sock, payload, strlen(payload), 0);
+                                    // send(sock, "*URL-OK#", strlen("*URL-OK#"), 0);
+                                    tx_event_pending = 1;
+                                }
+                                else if (strncmp(rx_buffer, "*SSID?#", 7) == 0){
+                                sprintf(payload, "*SSID,%d,%s,%s,%s#",WiFiNumber,WIFI_SSID_1,WIFI_SSID_2,WIFI_SSID_3); 
+                                send(sock, payload, strlen(payload), 0);
+                                tx_event_pending = 1;
+                                }
+                                else if(strncmp(rx_buffer, "*URL?#", 6) == 0){
+                                    ESP_LOGI(TAG,"URL RECEIVED,%s,%s,%s",URLuserName,URLdateTime,FOTA_URL);
+                                 char msg[600];
+                                sprintf(msg,"*URL,%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL); 
+                                send(sock, msg, strlen(msg), 0);
+                                tx_event_pending = 1;
+                                }else if(strncmp(rx_buffer, "*FOTA:", 6) == 0){
+                                    send(sock, "*FOTA-OK#", strlen("*FOTA-OK#"), 0);
+                                  
+                                    send(sock,FOTA_URL,strlen(FOTA_URL),0);
+                                    tx_event_pending = 1;
+                                    http_fota();
+                                }else if(strncmp(rx_buffer, "*SIP:", 5) == 0){
+                                  
+                                    sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%[^:]:%d#",SIPuserName,SIPdateTime,server_ip_addr,
+                                        &sp_port);
+                                    char buf[100];
+                                    sprintf(payload, "*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
+                                    sprintf(buf, "%s",server_ip_addr);
+                                  
+
+                                    utils_nvs_set_str(NVS_SERVER_IP_KEY, buf);
+                                    utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
+                                    utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
+                                    utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
+                                    
+                                    
+                                    send(sock, payload, strlen(payload), 0);
+                                    tx_event_pending = 1;
+                                }else if (strncmp(rx_buffer, "*ERASE#", 7) == 0){
+                                    utils_nvs_erase_all();
+                                    send(sock, "*ERASE-OK#", strlen("*ERASE-OK#"), 0);
+                                }else if(strncmp(rx_buffer, "*RESTART#", 9) == 0){
+                                    send(sock, "*RESTART-OK#", strlen("*RESTART-OK#"), 0);
+                                    tx_event_pending = 1;
+                                    vTaskDelay(2000/portTICK_PERIOD_MS);
+                                    esp_restart();
+                                }
+//                                 start genertaing pulses
+//                                  INPUT  -   *V:{TID},{pin},{Pulses}#
+//                                  *V-OK{TID}:{pin}:{Pulses}#
+//                                   generate pulses on pin
+//                                  *T-OK{TID}:{pin}:{Pulses}#
+//                                  avoid duplicate TID
+//                                  add up all pulses for specific pins
+//                                  if to begin with
+//                                  1 is 0, 2 is 0, 3 is 0.....
+//                                  if I get commands say 3 pulses for pin1, 5 pulses for pin 2 etc.. add
+//                                  1 is 3, 2 is 5 and so on
+//                                  next time , add again to previous counts
+
+
+
+                                else if(strncmp(rx_buffer, "*V:", 3) == 0){
+                                    if (edges == 0) 
+                                    {
+                                        sscanf(rx_buffer, "*V:%d:%d:%d#",&TID,&pin,&pulses);
+                                        if (INHInputValue == INHIBITLevel)
+                                        {
+                                          ESP_LOGI(TAG, "*UNIT DISABLED#");
+                                          send(sock, "*VEND DISABLED#", strlen("*VEND DISABLED#"), 0);
+                                            
+                                        }
+                                        else if (TID != LastTID)
+                                        {
+                                            edges = pulses*2;  // doubled edges
+                                            // strcpy(WIFI_PASS_2, buf);
+                                            // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
+                                            ESP_LOGI(TAG, "*V-OK,%d,%d,%d#",TID,pin,pulses);
+                                            sprintf(payload, "*V-OK,%d,%d,%d#", TID,pin,pulses); //actual when in production
+                                            send(sock, payload, strlen(payload), 0);
+                                            vTaskDelay(1000/portTICK_PERIOD_MS);
+                                            sprintf(payload, "*T-OK,%d,%d,%d#",TID,pin,pulses); //actual when in production
+                                            ESP_LOGI(TAG, "*T-OK,%d,%d,%d#",TID,pin,pulses);
+                                            send(sock, payload, strlen(payload), 0);
+                                            tx_event_pending = 1;
+                                            Totals[pin-1] += pulses;
+                                            LastTID = TID;
+                                        }
+                                        else
+                                        {
+                                          ESP_LOGI(TAG, "Duplicate TID");
+                                          send(sock, "*DUP TID#", strlen("*DUP TID#"), 0);
+                                        }  
+
+                                    }
+                                }
+
+
+
+                                else if(strncmp(rx_buffer, "*SL:", 4) == 0){
+                                    if (edges == 0)
+                                    {
+                                        sscanf(rx_buffer, "*SL:%[^:]:%[^:]:%d:%d#",userName,dateTime, &ledpin,&ledstatus);
+                                        // strcpy(WIFI_PASS_2, buf);
+                                        // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
+                                        ESP_LOGI(TAG, "Set LED @ Pin %d Status %d",ledpin,ledstatus);
+                                        send(sock, "*SL-OK#", strlen("*SL-OK#"), 0);
+                                        tx_event_pending = 1;
+                                        if (ledpin == 1)
+                                            gpio_set_level(L1, ledstatus);
+                                        if (ledpin == 2)
+                                            gpio_set_level(L2, ledstatus);
+                                        if (ledpin == 3)
+                                            gpio_set_level(L3, ledstatus);
+                                        
+                                    }
+                                }
+                                // when TC command is received send totals
+
+                                else if(strncmp(rx_buffer, "*TV?#", 5) == 0){
+                                        sprintf(payload, "*TV,%d,%d,%d,%d,%d,%d,%d#", Totals[0],Totals[1],Totals[2],Totals[3],Totals[4],Totals[5],Totals[6]); //actual when in production
+                                        send(sock, payload, strlen(payload), 0);
+                                        ESP_LOGI(TAG, "TV Sending");
+                                        
+                                }
+
+                                else if(strncmp(rx_buffer, "*TC?#", 5) == 0){
+                                        sprintf(payload, "*TC,%d,%d,%d,%d,%d,%d,%d#", CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]); //actual when in production
+                                        send(sock, payload, strlen(payload), 0);
+                                        ESP_LOGI(TAG, "*TC,%d,%d,%d,%d,%d,%d,%d#", CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6] );
+                                        
+                                }
+                                  else if(strncmp(rx_buffer, "*SIP?#", 6) == 0){
+                                        sprintf(payload, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
+                                        sp_port ); //actual when in production
+                                        send(sock, payload, strlen(payload), 0);
+                                        ESP_LOGI(TAG, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
+                                        sp_port );
+                                        
+                                }
+                                else if(strncmp(rx_buffer, "*CC:", 4) == 0){
+                                    sscanf(rx_buffer, "*CC:%[^:]:%[^#]#",CCuserName,CCdateTime);
+                                        ESP_LOGI(TAG, "*CC-OK#");
+                                        // sprintf(payload, "*CC-OK#"); //actual when in production
+                                          sprintf(payload, "*CC-OK,%s,%s#",CCuserName,CCdateTime);
+                                    utils_nvs_set_str(NVS_CC_USERNAME, CCuserName);
+                                    utils_nvs_set_str(NVS_CC_DATETIME, CCdateTime);
+                                    send(sock, payload, strlen(payload), 0);
+                                        // send(sock, payload, strlen(payload), 0);
+                                        for (int i = 0 ; i < 7 ; i++)
+                                        {
+                                            Totals[i] = 0;
+                                            CashTotals[i] = 0;
+                                        } 
+                                        utils_nvs_set_int(NVS_CASH1_KEY, CashTotals[0]);
+                                        utils_nvs_set_int(NVS_CASH2_KEY, CashTotals[1]);
+                                        utils_nvs_set_int(NVS_CASH3_KEY, CashTotals[2]);
+                                        utils_nvs_set_int(NVS_CASH4_KEY, CashTotals[3]);
+                                        utils_nvs_set_int(NVS_CASH5_KEY, CashTotals[4]);
+                                        utils_nvs_set_int(NVS_CASH6_KEY, CashTotals[5]);
+                                        utils_nvs_set_int(NVS_CASH7_KEY, CashTotals[6]);
+                                 }
+
+
+                                else if(strncmp(rx_buffer, "*FW?#", 5) == 0){
+                                        ESP_LOGI(TAG, "*%s#",FWVersion);
+                                        send(sock, FWVersion, strlen(FWVersion), 0);
+                                        tx_event_pending = 1;
+                                        if (ledpin == 1)
+                                            gpio_set_level(L1, ledstatus);
+                                        if (ledpin == 2)
+                                            gpio_set_level(L2, ledstatus);
+                                        if (ledpin == 3)
+                                            gpio_set_level(L3, ledstatus);
+                                    }
+                                else if(strncmp(rx_buffer, "*RST:", 5) == 0){
+                                        ESP_LOGI(TAG, "**************Restarting after 3 second*******");
+                                        send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
+                                        ESP_LOGI(TAG, "*RST-OK#");
+                                        vTaskDelay(3000/portTICK_PERIOD_MS);
+                                        esp_restart();
+                                }
+                                else{
+                                    if(extractSubstring(rx_buffer, buf) == true){
+                                        uart_write_string("*");
+                                        uart_write_string(buf);
+                                        uart_write_string("#");
+                                        tx_event_pending = 1;
+                                    }
+                                }
+//                                Write On UART
+                                uart_write_string(rx_buffer);
+                                // gpio_set_level(LedTCP, 1);
+                                // vTaskDelay(200/portTICK_PERIOD_MS);
+                                // gpio_set_level(LedTCP, 0);
+                            }
+                            vTaskDelay(1000 / portTICK_PERIOD_MS);
+                        }
+                    }
+                }
+            }
+        }
+        vTaskDelay(2000/portTICK_PERIOD_MS);
+    }
+}

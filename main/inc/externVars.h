@@ -1,3 +1,4 @@
+#include "defs.h"
 extern int INHInputValue;
 extern int INHOutputValue;
 extern int PreviousINHValue;
@@ -218,11 +219,14 @@ extern int blinkLEDNumber;
 #define EX_UART_NUM UART_NUM_2
 #define BUF_SIZE (1024)
 #define RD_BUF_SIZE (BUF_SIZE)
-extern  QueueHandle_t uart0_queue;
+//extern  QueueHandle_t uart0_queue;
 
 
 extern nvs_handle_t utils_nvs_handle;
 
+extern Led_State_t led_state;
+extern TCPIP_Socket_State socket_state;
+extern bool connected_to_wifi_and_internet;
 extern int WiFiNumber;
 extern int rx_event_pending;
 extern int tx_event_pending;

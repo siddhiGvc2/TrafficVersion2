@@ -21,9 +21,19 @@ extern bool extractSubstring(const char* , char* );
 // tcp
 extern void tcp_ip_client_send_str(const char *);
 extern void tcp_ip_client_send_str(const char *);
+extern void tcpip_client_task(void);
 
 // fota
 extern void http_fota(void);
 
 extern void set_led_state(Led_State_t);
+
+// general
+extern void resolve_hostname(const char *);
+
+// hardware
+extern void Out4094 (unsigned char);
+
+// timer
+extern uint32_t millis(void);
 
