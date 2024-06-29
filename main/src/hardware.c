@@ -42,7 +42,8 @@ void TestCoin (void);
 void Test4094 (void);
 void s2p_init();
 void console_uart_init(void);
-
+void read_mac_address();
+void led_set_level(gpio_num_t , int);
 
 static void uart_event_task(void *pvParameters)
 {
@@ -647,3 +648,25 @@ void s2p_init(){
 
 }
 
+void read_mac_address(){
+    uint8_t macAddress[6];
+    esp_err_t err = esp_read_mac(macAddress, ESP_MAC_WIFI_STA);
+    if (err == ESP_OK) {
+        ESP_LOGI(TAG, "*MAC Address: %02x:%02x:%02x:%02x:%02x:%02x#\n",
+            macAddress[0], macAddress[1], macAddress[2],
+            macAddress[3], macAddress[4], macAddress[5]);
+        sprintf(MAC_ADDRESS_ESP, "%02X:%02X:%02X:%02X:%02X:%02X",
+            macAddress[0], macAddress[1], macAddress[2],
+            macAddress[3], macAddress[4], macAddress[5]);
+    } else {
+        ESP_LOGE(TAG, "Failed to read MAC address. Error code: %d\n", err);
+    }
+}
+
+void led_set_level(gpio_num_t gpio_num, int state){
+    #ifdef LED_ACTIVE_HIGH
+        gpio_set_level(gpio_num, state);
+    #else
+        gpio_set_level(gpio_num, !state);
+    #endif
+}

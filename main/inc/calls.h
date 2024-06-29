@@ -44,6 +44,9 @@ extern void TestCoin (void);
 extern void Test4094 (void);
 extern void s2p_init(void);
 extern void console_uart_init(void);
+extern void read_mac_address(void);
+extern void led_set_level(gpio_num_t , int);
+
 
 // timer
 extern uint32_t millis(void);
