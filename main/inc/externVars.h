@@ -118,3 +118,6 @@ extern bool connected_to_wifi_and_internet;
 extern int WiFiNumber;
 extern int rx_event_pending;
 extern int tx_event_pending;
+
+extern bool pending_tcp_packet ;
+extern char tcp_packet[200];

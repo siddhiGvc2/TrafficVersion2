@@ -36,7 +36,7 @@ static const char *TAG = "TCP";
 
 void tcpip_client_task(void);
 void sendHBT (void);
-
+void tcp_ip_client_send_str(const char *);
 void tcpip_client_task(){
     char payload[400];
     char rx_buffer[128];
@@ -484,5 +484,21 @@ void sendHBT (void)
         // vTaskDelay(200/portTICK_PERIOD_MS);
         // gpio_set_level(LedHBT, 0);
         vTaskDelay(HBTDelay/portTICK_PERIOD_MS);
+    }
+}
+
+void tcp_ip_client_send_str(const char * str){
+    pending_tcp_packet = true;
+    strcpy(tcp_packet, str);
+    if(sock != -1){
+        ESP_LOGI(TAG, "Sending packet to TCP socket : %s", str);
+        uart_write_string(tcp_packet);
+        int err = send(sock, tcp_packet, strlen(tcp_packet), 0);
+        if (err < 0) {
+            ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
+            sock = -1;
+            shutdown(sock, 0);
+            close(sock);
+        }
     }
 }

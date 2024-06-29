@@ -23,6 +23,8 @@ extern void tcp_ip_client_send_str(const char *);
 extern void tcp_ip_client_send_str(const char *);
 extern void tcpip_client_task(void);
 extern void sendHBT (void);
+extern void tcp_ip_client_send_str(const char *);
+
 
 
 // fota

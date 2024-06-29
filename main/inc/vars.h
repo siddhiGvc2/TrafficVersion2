@@ -112,3 +112,6 @@ int WiFiNumber = 0;
 
 
 int tcp_sock = -1;
+
+bool pending_tcp_packet = false;
+char tcp_packet[200];

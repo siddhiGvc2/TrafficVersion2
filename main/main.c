@@ -261,23 +261,6 @@ bool connect_to_wifi(char * ssid, char * psk){
  
 
 
-bool pending_tcp_packet = false;
-char tcp_packet[200];
-void tcp_ip_client_send_str(const char * str){
-    pending_tcp_packet = true;
-    strcpy(tcp_packet, str);
-    if(sock != -1){
-        ESP_LOGI(TAG, "Sending packet to TCP socket : %s", str);
-        uart_write_string(tcp_packet);
-        int err = send(sock, tcp_packet, strlen(tcp_packet), 0);
-        if (err < 0) {
-            ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
-            sock = -1;
-            shutdown(sock, 0);
-            close(sock);
-        }
-    }
-}
 
 bool extractSubstring(const char* str, char* result) {
     const char* start = strchr(str, '*');
