@@ -1,0 +1,565 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/event_groups.h"
+#include "esp_system.h"
+#include "esp_wifi.h"
+#include "esp_mac.h"
+#include "esp_event.h"   
+#include "esp_log.h"
+#include "nvs_flash.h"
+#include "driver/gpio.h"
+#include "lwip/err.h"
+#include "lwip/sys.h"
+#include "lwip/sockets.h"
+#include "esp_http_client.h"
+#include "esp_https_ota.h"
+#include "esp_timer.h"
+#include "esp_ota_ops.h"
+#include "driver/uart.h"
+#include "esp_netif.h"
+#include "rom/ets_sys.h"
+#include "esp_smartconfig.h"
+#include <sys/socket.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+
+#include "externVars.h"
+#include "calls.h"
+static const char *TAG = "HW";
+
+void Out4094Byte (unsigned char);
+void gpio_read_n_act(void);
+void ICH_init();
+void Out4094 (unsigned char);
+void BlinkLED (void);
+void GeneratePulsesInBackGround (void);
+void TestCoin (void);
+void Test4094 (void);
+void s2p_init();
+
+
+void Out4094Byte (unsigned char value)
+{
+    uint8_t i,j;
+    uint8_t OutputMap[9] = {99,6,0,4,5,2,3,1,99};
+    uint8_t ReverseBitMap[8] = {0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01};
+
+
+    j =0;
+    for (i = 1 ; i< 8 ; i++)
+    {
+        if (value & (0x01<<i))
+            j = 0x01 << (OutputMap[i]);
+    }
+
+    for (i = 0 ; i < 8 ; i++)
+    {
+        if (j && (ReverseBitMap[i]))  
+            gpio_set_level(DAT, 1);
+        else    
+            gpio_set_level(DAT, 0);
+        ets_delay_us(10);
+        gpio_set_level(CLK, 1);
+        ets_delay_us(10);
+        gpio_set_level(CLK, 0);
+    }
+    ets_delay_us(10);
+    gpio_set_level(STRB, 1);
+    ets_delay_us(10);
+    gpio_set_level(STRB, 0);
+}
+
+void gpio_read_n_act(void)
+{
+    int testCounter = 0;
+    int BlinkMode = 0;
+    char payload[100];
+    for (;;)
+    {
+        if (gpio_get_level(ErasePin) == 0)
+        {
+            if (LastErasePinStatus == 1)    
+            {
+                ErasePinDebounce = 2000;        
+                LastErasePinStatus = 0;
+                ESP_LOGI(TAG,"*Eraseing Sense Started#");
+            }
+            else
+            {
+                if (ErasePinDebounce)
+                { 
+                    ErasePinDebounce = ErasePinDebounce-1;
+                    if (ErasePinDebounce == 0)
+                    {
+                        ErasePinStatus = 0;
+                        ESP_LOGI(TAG,"*Eraseing All Parameters#");
+                        send(sock, "*ERASE-LOCAL#", strlen("*ERASE-LOCAL#"), 0);
+                        utils_nvs_erase_all();
+                        ESP_LOGI(TAG, "**************Restarting after 3 second******#");
+                        send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
+                        ESP_LOGI(TAG, "*RST-OK#");
+                        vTaskDelay(3000/portTICK_PERIOD_MS);
+                        esp_restart();
+                    }
+                }
+
+            }
+        }
+        else
+        {
+            if (LastErasePinStatus == 0)
+            {
+                ErasePinDebounce = 200; 
+                LastErasePinStatus = 0;
+            }
+            else
+            {
+                if (ErasePinDebounce)
+                { 
+                    ErasePinDebounce = ErasePinDebounce-1;
+                    if (ErasePinDebounce == 0)
+                        ErasePinStatus = 1;
+                }
+
+            }
+        }
+        if (gpio_get_level(CINHI) == 0)
+        {
+            INHInputValue = 0;        
+        }
+        else
+        {
+            INHInputValue = 1;        
+            
+        }
+        if (PreviousINHValue != INHInputValue)
+        {
+            PreviousINHValue = INHInputValue;
+            // if (gpio_get_level(JUMPER) == 0)
+            // {
+                sprintf(payload, "*INH,%d#",INHInputValue); 
+                send(sock, payload, strlen(payload), 0);
+            // }
+        }
+        InputPin = 0;
+        if (gpio_get_level(ICH1) == 0)
+        {
+            InputPin = 1;
+        }
+        else if (gpio_get_level(ICH2) == 0)
+        {
+            InputPin = 2;
+        }
+        else if (gpio_get_level(ICH3) == 0)
+        {
+            InputPin = 3;
+        }
+        else if (gpio_get_level(ICH4) == 0)
+        {
+            InputPin = 4;
+        }
+        else if (gpio_get_level(ICH5) == 0)
+        {
+            InputPin = 5;
+        }
+        else if (gpio_get_level(ICH6) == 0)
+        {
+            InputPin = 6;
+        }
+        else if (gpio_get_level(ICH7) == 0)
+        {
+            InputPin = 7;
+        }
+        else 
+        {
+            InputPin = 0;
+        }    
+        if (InputPin == 0)
+        {
+            if (PulseStoppedDelay>0)
+            {
+                PulseStoppedDelay--;
+                if (PulseStoppedDelay == 0)
+                {
+                    
+                    CashTotals[LastInputPin-1] += TotalPulses;
+                    if (LastInputPin == 1)
+                        utils_nvs_set_int(NVS_CASH1_KEY, CashTotals[0]);
+                    if (LastInputPin == 2)
+                        utils_nvs_set_int(NVS_CASH2_KEY, CashTotals[1]);
+                    if (LastInputPin == 3)
+                        utils_nvs_set_int(NVS_CASH3_KEY, CashTotals[2]);
+                    if (LastInputPin == 4)
+                        utils_nvs_set_int(NVS_CASH4_KEY, CashTotals[3]);
+                    if (LastInputPin == 5)
+                        utils_nvs_set_int(NVS_CASH5_KEY, CashTotals[4]);
+                    if (LastInputPin == 6)
+                        utils_nvs_set_int(NVS_CASH6_KEY, CashTotals[5]);
+                    if (LastInputPin == 7)
+                        utils_nvs_set_int(NVS_CASH7_KEY, CashTotals[6]);
+
+                    // ESP_LOGI("COIN","Input Pin %d Pulses %d",LastInputPin,TotalPulses);
+                   if (gpio_get_level(JUMPER) == 0)
+                   {
+                        sprintf(payload, "*RP,%d,%d#",LastInputPin,TotalPulses); 
+                        send(sock, payload, strlen(payload), 0);
+                   }
+                   // create same pules on same output pin 17-06-24
+                   edges = TotalPulses * 2;
+                   pin = LastInputPin;
+                   sprintf(payload, "*RP,%d,%d#",LastInputPin,TotalPulses); 
+                   uart_write_string(payload);
+                   ESP_LOGI(TAG,"*RP,%d,%d#",LastInputPin,TotalPulses);
+
+                   TotalPulses = 0;
+                }
+            }
+        }
+        if (LastValue != InputPin)
+        {
+            LastValue = InputPin;
+            DebounceCount = 5;
+        }
+        else
+        {
+            if (DebounceCount)
+            {
+                DebounceCount--;
+                if (DebounceCount == 0)
+                {
+                    if (InputPin == 0)
+                    {
+                    }
+                    if (InputPin != 0)
+                    {
+                    TotalPulses++;                                      
+                    PulseStoppedDelay = 100;
+                    LastInputPin = InputPin;
+                    }
+                }
+            }
+
+        }
+        vTaskDelay(5/portTICK_PERIOD_MS);
+    }
+}
+
+
+// static void gpio_read_n_act_old(void* arg)
+// {
+//     char buff[50];
+//     uint16_t Pin = 0;
+//     uint16_t Counter = 0;
+//     for (;;) {
+
+//         x=0;
+//         Pin = 0;
+//         if (gpio_get_level(ICH1) == 0)
+//         {
+//             x=x+1;
+//             Pin = 1;
+//         }
+//         if (gpio_get_level(ICH2) == 0)
+//         {
+//             x=x+2;
+//             Pin = 2;
+//         }
+//         if (gpio_get_level(ICH3) == 0)
+//         {
+//             x=x+4;
+//             Pin = 3;
+//         }
+//         if (gpio_get_level(ICH4) == 0)
+//         {
+//             x=x+8;
+//             Pin = 4;
+//         }
+//         if (gpio_get_level(ICH5) == 0)
+//         {
+//             x=x+16;
+//             Pin = 5;
+//         }
+//         if (gpio_get_level(ICH6) == 0)
+//         {
+//             x=x+32;
+//             Pin = 6;
+//         }
+//         if (gpio_get_level(ICH7) == 0)
+//         {
+//             x=x+64;
+//             Pin = 7;
+//         }
+//         if (x!= PreviousSwitchStatus)
+//         {
+//              PreviousSwitchStatus =x;
+//              DebounceCount = 1;   
+//              ESP_LOGI("COIN","Counter %d Input Value:%d Pin %d",Counter,SwitchStatus,Pin);
+//              if (Pin == 0)
+//                 Counter = 0;
+//              else  
+//                 Counter++;      
+//         }   
+//         else if (DebounceCount>0)
+//         {
+//             DebounceCount--;
+//             if (DebounceCount == 0)
+//             {
+//                 SwitchStatus = PreviousSwitchStatus;
+//                 if (SwitchStatus != 0)
+//                 {
+//                     // if firts pulse, start timeout
+//                     if (PulseTimeOut == 0)
+//                         PulseCount = 1;
+//                     else    
+//                         PulseCount++;   
+//                     PulseTimeOut = 200; // 100  * delay
+//                 }         
+//                     Out4094Byte(SwitchStatus);    
+//  //                   blinkLEDNumber = 2;
+//                     //tcp_ip_client_send_str(buff);
+                
+//             }
+//         }
+//         if (PulseTimeOut>0)
+//         {
+//             PulseTimeOut--;
+//             if (PulseTimeOut == 0) 
+//             {
+//                  PulseCount = 0;    
+//             //    ESP_LOGI("COIN","*RP:%d:%d#",Pin,PulseCount);
+//                 sprintf (buff, "*RP:%d:%d#",Pin,PulseCount);
+//                 blinkLEDNumber = 2;
+//             //     tcp_ip_client_send_str(buff);
+//              }
+//         }
+//         vTaskDelay(5/portTICK_PERIOD_MS);
+//     }
+// }
+
+
+void ICH_init()
+{
+    ESP_LOGI(TAG,"********Starting ICH INIT*************");
+    gpio_config_t io_conf = {};
+    //disable interrupt
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+//    io_conf.intr_type = GPIO_INTR_NEGEDGE;
+    //set as input mode
+    io_conf.mode = GPIO_MODE_INPUT;
+    //bit mask of the pins that you want to set
+    io_conf.pin_bit_mask = 1ULL << ErasePin | 1ULL << JUMPER | 1ULL << JUMPER2 |1ULL << CINHI | 1ULL << INH | 1ULL << ICH1 | 1ULL << ICH2 | 1ULL << ICH3 | 1ULL << ICH4 | 1ULL << ICH5 | 1ULL << ICH6| 1ULL << ICH7;
+    //disable pull-down mode
+    io_conf.pull_down_en = 0;
+    //enable pull-up mode
+    io_conf.pull_up_en = 1;
+    //configure GPIO with the given settings
+    gpio_config(&io_conf);
+
+
+    // //create a queue to handle gpio event from isr
+    // gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
+    // //start gpio task
+// **************** skip reading input
+    if (Production)
+        xTaskCreate(gpio_read_n_act, "gpio_read_n_act", 2048, NULL, 10, NULL);
+
+    //install gpio isr service
+    // gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
+    // //hook isr handler for specific gpio pin
+    // gpio_isr_handler_add(ICH1, gpio_isr_handler, (void*) ICH1);
+    // gpio_isr_handler_add(ICH2, gpio_isr_handler, (void*) ICH2);
+    // gpio_isr_handler_add(ICH3, gpio_isr_handler, (void*) ICH3);
+    // gpio_isr_handler_add(ICH4, gpio_isr_handler, (void*) ICH4);
+    // gpio_isr_handler_add(ICH5, gpio_isr_handler, (void*) ICH5);
+    // gpio_isr_handler_add(ICH6, gpio_isr_handler, (void*) ICH6);
+    // gpio_isr_handler_add(ICH7, gpio_isr_handler, (void*) ICH7);
+ }
+
+
+void Out4094 (unsigned char value)
+{
+    uint8_t i,j;
+    uint8_t OutputMap[9] = {99,6,0,4,5,2,3,1,99};
+    j = OutputMap[value];
+//    ESP_LOGI("OUT4094","pin %d",j);
+    for (i = 0 ; i < 8 ; i++)
+    {
+        if (SignalPolarity == 0)
+        {
+            if (j == 7-i)
+               gpio_set_level(DAT, 1);
+            else    
+                gpio_set_level(DAT, 0);
+        }
+        else
+        {
+            if (j == 7-i)
+               gpio_set_level(DAT, 0);
+            else    
+                gpio_set_level(DAT, 1);
+        }
+
+        ets_delay_us(10);
+        gpio_set_level(CLK, 1);
+        ets_delay_us(10);
+        gpio_set_level(CLK, 0);
+    }
+    ets_delay_us(10);
+    gpio_set_level(STRB, 1);
+    ets_delay_us(10);
+    gpio_set_level(STRB, 0);
+    // if (value<7)
+    //     ESP_LOGI("OUT4094","Start Pulse %d is %lu",edges,xTaskGetTickCount());
+    // else
+    //     ESP_LOGI("OUT4094","End Pulses %d is %lu",edges,xTaskGetTickCount());
+
+}
+
+// generate pulses in background
+// as soon as pulses value is non zero - generate 1 pulse and decrement pulses by 1 
+
+            // if (edges%2 == 0)
+            // {
+            //     Out4094(pin);
+            //     ESP_LOGI("OUT4094","Start Pulse %d is %lu",edges,xTaskGetTickCount());
+            // }
+            // else
+            // {    
+            //     Out4094(8);
+            //     ESP_LOGI("OUT4094","End Pulse %d is %lu",edges,xTaskGetTickCount());
+            // }
+
+// blink LED as per number - set led on, wait, led off, clear led number
+void BlinkLED (void)
+{
+    for (;;)
+    {
+        if (blinkLEDNumber>0)
+        {
+            if (blinkLEDNumber==1)
+            {
+                gpio_set_level(L1, 1);
+                vTaskDelay(500/portTICK_PERIOD_MS);
+                gpio_set_level(L1, 0);
+                blinkLEDNumber = 0;
+            }
+            if (blinkLEDNumber==2)
+            {
+                gpio_set_level(L2, 1);
+                vTaskDelay(500/portTICK_PERIOD_MS);
+                gpio_set_level(L2, 0);
+                blinkLEDNumber = 0;
+            }
+            if (blinkLEDNumber==3)
+            {
+                gpio_set_level(L1, 1);
+                vTaskDelay(500/portTICK_PERIOD_MS);
+                gpio_set_level(L3, 0);
+                blinkLEDNumber = 0;
+            }
+        }
+        vTaskDelay(500/portTICK_PERIOD_MS);
+    }
+}
+
+
+void GeneratePulsesInBackGround (void)
+{
+    for (;;)
+    {
+        if (edges)
+        {
+            if (edges%2 == 0)
+            {
+                Out4094(pin);
+            }
+            else
+            {    
+                Out4094(8);
+            }
+            edges--;
+            if (edges == 0)
+                 ESP_LOGI("GenPulse","Pulse Width is %d ",pulseWitdh);
+
+        }
+        vTaskDelay(pulseWitdh/portTICK_PERIOD_MS);
+    }
+}
+
+void TestCoin (void)
+{
+    for (;;) 
+    {
+        // pin++;
+        // if (pin>7)
+            pin = 4;
+        edges = 2;    
+         ESP_LOGI("TestCoin","Pin Number %d ",pin);
+        vTaskDelay(2000/portTICK_PERIOD_MS);
+    }
+}
+void Test4094 (void)
+{
+    for (;;) 
+    {
+        Test4094Count++;
+        if (Test4094Count == 8)
+            Test4094Count = 0;
+
+        gpio_set_level(L1, 0);
+        gpio_set_level(L2, 0);
+        gpio_set_level(L3, 0);
+        if ((Test4094Count == 0) || (Test4094Count == 3))
+            gpio_set_level(L1, 1);
+        if ((Test4094Count == 1) || (Test4094Count == 4))
+            gpio_set_level(L2, 1);
+        if ((Test4094Count == 2) || (Test4094Count == 5))
+            gpio_set_level(L3, 1);
+
+        Out4094(Test4094Count);  
+        ESP_LOGI(TAG, "Pulse 4094 %d",Test4094Count);  
+        vTaskDelay(2000/portTICK_PERIOD_MS);
+    }
+}
+
+void s2p_init(){
+    gpio_config_t io_conf = {};
+    //disable interrupt
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    //set as output mode
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    //bit mask of the pins that you want to set
+    io_conf.pin_bit_mask = 1ULL << STRB | 1ULL << CLK | 1ULL << DAT | 1ULL << CINHO | 1ULL << L1 | 1ULL << L2 | 1ULL << L3 ;
+    //disable pull-down mode
+    io_conf.pull_down_en = 0;
+    //disable pull-up mode
+    io_conf.pull_up_en = 0;
+    //configure GPIO with the given settings
+    gpio_config(&io_conf);
+    gpio_set_level(STRB, 0);
+    gpio_set_level(CLK, 0);
+    gpio_set_level(DAT, 0);
+    gpio_set_level(L1, 0);
+    gpio_set_level(L2, 0);
+    gpio_set_level(L3, 0);
+    if (INHOutputValue != 0)
+    {
+        INHOutputValue = 1;
+        gpio_set_level(CINHO, 0);
+    }
+    else
+    {
+        gpio_set_level(CINHO, 1);
+    }
+
+    
+    Test4094Count = 0;
+    ESP_LOGI(TAG, "4094 IOs,RGB initialised");  
+    xTaskCreate(GeneratePulsesInBackGround, "GeneratePulsesInBackGround", 2048, NULL, 9, NULL);
+
+}
+

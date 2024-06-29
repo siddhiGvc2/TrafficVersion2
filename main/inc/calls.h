@@ -32,7 +32,15 @@ extern void set_led_state(Led_State_t);
 extern void resolve_hostname(const char *);
 
 // hardware
+extern void Out4094Byte (unsigned char);
+extern void gpio_read_n_act(void);
+extern void ICH_init();
 extern void Out4094 (unsigned char);
+extern void BlinkLED (void);
+extern void GeneratePulsesInBackGround (void);
+extern void TestCoin (void);
+extern void Test4094 (void);
+extern void s2p_init();
 
 // timer
 extern uint32_t millis(void);

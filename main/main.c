@@ -236,229 +236,130 @@ also data sent from server is received and displayed on ESP_LOGI
 #include <netdb.h>
 #include <arpa/inet.h>
 #include "calls.h"
-#include "externVars.h"
-
-
-int INHInputValue = 0;
-int INHOutputValue = 0;
-int PreviousINHValue = 0;
-#define INHIBITLevel 1
-char WIFI_SSID_1[64];
-char WIFI_PASS_1[64];
-char WIFI_SSID_2[64];
-char WIFI_PASS_2[64];
-char WIFI_SSID_3[64];
-char WIFI_PASS_3[64];
-
-char server_ip_addr[100];
-char ipstr[100]; // host mapped
-
-char MAC_ADDRESS_ESP[40];
-char FOTA_URL[356];
-int16_t server_port;
-int jumperPort;
-int16_t caValue;
-int16_t cashValue;
-int sock = -1;
-
-int sp_port;
-#define ESP_MAXIMUM_RETRY       2
-#define ESP_RETRY_GAP           2000
-#define Production          1
-#define NVS_INH_KEY           "INH"
-#define NVS_SSID_1_KEY        "SSID1"
-#define NVS_PASS_1_KEY        "PASS1"
-#define NVS_SSID_2_KEY        "SSID2"
-#define NVS_PASS_2_KEY        "PASS2"
-#define NVS_SSID_3_KEY        "SSID3"
-#define NVS_PASS_3_KEY        "PASS3"
-
-#define NVS_SERVER_IP_KEY     "SERVER"
-#define NVS_SERVER_PORT_KEY   "PORT"
-#define NVS_SERVER_PORT_KEY_JUMPER "JUMPERPORT" 
-#define NVS_OTA_URL_KEY   "OTA_URL"
-#define NVS_CA_KEY          "CA"
-#define NVS_CASHTOTAL_KEY   "CASHTOTAL"
-#define NVS_VENDTOTAL_KEY   "VENDTOTAL"
-#define NVS_CASH1_KEY   "CASH1"
-#define NVS_CASH2_KEY   "CASH2"
-#define NVS_CASH3_KEY   "CASH3"
-#define NVS_CASH4_KEY   "CASH4"
-#define NVS_CASH5_KEY   "CASH5"
-#define NVS_CASH6_KEY   "CASH6"
-#define NVS_CASH7_KEY   "CASH7"
-
-#define DEFAULT_SSID1  "GVCSYS1"
-#define DEFAULT_PASS1  "GVC3065V"
-#define DEFAULT_SSID2  "GVCSYS2"
-#define DEFAULT_PASS2  "GVC3065V"
-#define DEFAULT_SSID3  "GVCSYS3"
-#define DEFAULT_PASS3  "GVC3065V"
-
-
-#define NVS_SIP_USERNAME     "USERNAME_SIP"
-#define NVS_SIP_DATETIME   "DATETIME_SIP"
-
-#define NVS_CA_USERNAME     "USERNAME_CA"
-#define NVS_CA_DATETIME   "DATETIME_CA"
-
-#define NVS_CC_USERNAME     "USERNAME_CC"
-#define NVS_CC_DATETIME   "DATETIME_CC"
-
-#define NVS_URL_USERNAME     "USERNAME_URL"
-#define NVS_URL_DATETIME   "DATETIME_URL"
-
-#define NVS_FOTA_USERNAME     "USERNAME_FOTA"
-#define NVS_FOTA_DATETIME   "DATETIME_FOTA"
-
-#define NVS_RST_USERNAME     "USERNAME_RST"
-#define NVS_RST_DATETIME   "DATETIME_RST"
-
-#define NVS_SS_USERNAME     "USERNAME_SS"
-#define NVS_SS_DATETIME   "DATETIME_SS"
-
-#define NVS_PW_USERNAME     "USERNAME_PW"
-#define NVS_PW_DATETIME   "DATETIME_PW"
-
-#define NVS_SS1_USERNAME     "USERNAME_SS1"
-#define NVS_SS1_DATETIME   "DATETIME_SS1"
-
-#define NVS_PW1_USERNAME     "USERNAME_PW1"
-#define NVS_PW1_DATETIME   "DATETIME_PW1"
-
-#define NVS_INH_USERNAME     "USERNAME_INH"
-#define NVS_INH_DATETIME   "DATETIME_INH"
-
-#define NVS_SP_USERNAME     "USERNAME_SP"
-#define NVS_SP_DATETIME   "DATETIME_SP"
-
-#define DEFAULT_SERVER_IP_ADDR_TRY "gvc.co.in"
-#define DEFAULT_SERVER_IP_ADDR "gvc.co.in"
-#define DEFAULT_SERVER_PORT    6666
-#define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
-#define FWVersion "*GVCSYS-27JUNE24T5#"
-#define HBTDelay    300000
-#define LEDR    13
-#define LEDG    12
-
-#define JUMPER  15
-#define JUMPER2  18
-
-
-#define ErasePin 0
-#define ICH1    33
-#define ICH2    32
-#define ICH3    35
-#define ICH4    34
-#define ICH5    26
-#define ICH6    27
-#define ICH7    25
-#define INH     23
-
-#define STRB    19
-#define CLK     22
-#define DAT    21
-
-#define CINHO   14
-#define CINHI   23
-
-#define L1      2
-#define L2      5
-#define L3      4
-#define LedHBT  L1
-#define LedTCP  L2
-
-#define SDA     21
-#define SCL     22
-
-#define MKM_IC_UART UART_NUM_2
-#define MKM_IC_UART_TX 17
-#define MKM_IC_UART_RX 16
-
-
-// values used in erase pin
-bool ErasePinStatus,LastErasePinStatus;
-int ErasePinDebounce;
-
-// valuses used in CA command
-int numValue=0;
-int polarity=0;
-int pulseWitdh=0;
-int SignalPolarity=0;
-char dateTime[100];
-char userName[100];
-
-char SIPdateTime[100];
-char SIPuserName[100];
-
-char CAdateTime[100];
-char CAuserName[100];
-
-char CCdateTime[100];
-char CCuserName[100];
-
-char URLdateTime[100];
-char URLuserName[100];
-
-char FOTAdateTime[100];
-char FOTAuserName[100];
-
-char RSTdateTime[100];
-char RSTuserName[100];
-
-char SSdateTime[100];
-char SSuserName[100];
-
-char PWdateTime[100];
-char PWuserName[100];
-
-char SS1dateTime[100];
-char SS1userName[100];
-
-char PW1dateTime[100];
-char PW1userName[100];
-
-char INHdateTime[100];
-char INHuserName[100];
-
-char SPdateTime[100];
-char SPuserName[100];
+//#include "externVars.h"
+#include "vars.h"
 
 
 
+// #define ESP_MAXIMUM_RETRY       2
+// #define ESP_RETRY_GAP           2000
+// #define Production          1
+// #define NVS_INH_KEY           "INH"
+// #define NVS_SSID_1_KEY        "SSID1"
+// #define NVS_PASS_1_KEY        "PASS1"
+// #define NVS_SSID_2_KEY        "SSID2"
+// #define NVS_PASS_2_KEY        "PASS2"
+// #define NVS_SSID_3_KEY        "SSID3"
+// #define NVS_PASS_3_KEY        "PASS3"
+
+// #define NVS_SERVER_IP_KEY     "SERVER"
+// #define NVS_SERVER_PORT_KEY   "PORT"
+// #define NVS_SERVER_PORT_KEY_JUMPER "JUMPERPORT" 
+// #define NVS_OTA_URL_KEY   "OTA_URL"
+// #define NVS_CA_KEY          "CA"
+// #define NVS_CASHTOTAL_KEY   "CASHTOTAL"
+// #define NVS_VENDTOTAL_KEY   "VENDTOTAL"
+// #define NVS_CASH1_KEY   "CASH1"
+// #define NVS_CASH2_KEY   "CASH2"
+// #define NVS_CASH3_KEY   "CASH3"
+// #define NVS_CASH4_KEY   "CASH4"
+// #define NVS_CASH5_KEY   "CASH5"
+// #define NVS_CASH6_KEY   "CASH6"
+// #define NVS_CASH7_KEY   "CASH7"
+
+// #define DEFAULT_SSID1  "GVCSYS1"
+// #define DEFAULT_PASS1  "GVC3065V"
+// #define DEFAULT_SSID2  "GVCSYS2"
+// #define DEFAULT_PASS2  "GVC3065V"
+// #define DEFAULT_SSID3  "GVCSYS3"
+// #define DEFAULT_PASS3  "GVC3065V"
 
 
+// #define NVS_SIP_USERNAME     "USERNAME_SIP"
+// #define NVS_SIP_DATETIME   "DATETIME_SIP"
 
-unsigned char  SwitchStatus,PreviousSwitchStatus,DebounceCount;
-int16_t x;
-unsigned char Test4094Count;
+// #define NVS_CA_USERNAME     "USERNAME_CA"
+// #define NVS_CA_DATETIME   "DATETIME_CA"
 
-// used in Check input sense pins
-uint16_t Counter,InputPin,LastValue,LastInputPin;
+// #define NVS_CC_USERNAME     "USERNAME_CC"
+// #define NVS_CC_DATETIME   "DATETIME_CC"
+
+// #define NVS_URL_USERNAME     "USERNAME_URL"
+// #define NVS_URL_DATETIME   "DATETIME_URL"
+
+// #define NVS_FOTA_USERNAME     "USERNAME_FOTA"
+// #define NVS_FOTA_DATETIME   "DATETIME_FOTA"
+
+// #define NVS_RST_USERNAME     "USERNAME_RST"
+// #define NVS_RST_DATETIME   "DATETIME_RST"
+
+// #define NVS_SS_USERNAME     "USERNAME_SS"
+// #define NVS_SS_DATETIME   "DATETIME_SS"
+
+// #define NVS_PW_USERNAME     "USERNAME_PW"
+// #define NVS_PW_DATETIME   "DATETIME_PW"
+
+// #define NVS_SS1_USERNAME     "USERNAME_SS1"
+// #define NVS_SS1_DATETIME   "DATETIME_SS1"
+
+// #define NVS_PW1_USERNAME     "USERNAME_PW1"
+// #define NVS_PW1_DATETIME   "DATETIME_PW1"
+
+// #define NVS_INH_USERNAME     "USERNAME_INH"
+// #define NVS_INH_DATETIME   "DATETIME_INH"
+
+// #define NVS_SP_USERNAME     "USERNAME_SP"
+// #define NVS_SP_DATETIME   "DATETIME_SP"
+
+// #define DEFAULT_SERVER_IP_ADDR_TRY "gvc.co.in"
+// #define DEFAULT_SERVER_IP_ADDR "gvc.co.in"
+// #define DEFAULT_SERVER_PORT    6666
+// #define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
+// #define FWVersion "*GVCSYS-27JUNE24T5#"
+// #define HBTDelay    300000
+// #define LEDR    13
+// #define LEDG    12
+
+// #define JUMPER  15
+// #define JUMPER2  18
 
 
-uint32_t current_interval = 0;
-uint32_t numberOfPulses = 0;
-uint16_t TotalPulses = 0; // total received pulses for coin input
-uint16_t PulseStoppedDelay = 0; // time delay when it is assumed that pulses end
-// uint16_t PulseCount =0; // for received pulses for coin input
-// uint16_t PulseTimeOut = 0;  // received pulses time out time in ticks* delay
+// #define ErasePin 0
+// #define ICH1    33
+// #define ICH2    32
+// #define ICH3    35
+// #define ICH4    34
+// #define ICH5    26
+// #define ICH6    27
+// #define ICH7    25
+// #define INH     23
 
-uint32_t ticks_100 =0;;
-int LastTID = 0;
-int TID = 0; // Transaction ID
-int pin = 0; // output pin for Generating Pulses
-int pulses = 0; // number of pulses for generating pulses on output pin
-int edges = 0; // number of edges (pulses * 2) for generating pulses on output pin
-int Totals[7];
-int CashTotals[7];
-int ledpin = 0;
-int ledstatus = 0;
-int blinkLEDNumber = 0;
+// #define STRB    19
+// #define CLK     22
+// #define DAT    21
 
-#define EX_UART_NUM UART_NUM_2
-#define BUF_SIZE (1024)
-#define RD_BUF_SIZE (BUF_SIZE)
+// #define CINHO   14
+// #define CINHI   23
+
+// #define L1      2
+// #define L2      5
+// #define L3      4
+// #define LedHBT  L1
+// #define LedTCP  L2
+
+// #define SDA     21
+// #define SCL     22
+
+// #define MKM_IC_UART UART_NUM_2
+// #define MKM_IC_UART_TX 17
+// #define MKM_IC_UART_RX 16
+
+// #define INHIBITLevel 1
+
+
+// #define EX_UART_NUM UART_NUM_2
+// #define BUF_SIZE (1024)
+// #define RD_BUF_SIZE (BUF_SIZE)
 static QueueHandle_t uart0_queue;
 
 
@@ -482,13 +383,6 @@ static QueueHandle_t uart0_queue;
 
 
 
-Led_State_t led_state = STANDBY_LED;
-TCPIP_Socket_State socket_state;
-bool connected_to_wifi_and_internet = false;
-int WiFiNumber = 0;
-
-
-int tcp_sock = -1;
 void set_led_state(Led_State_t st);
 void uart_write_string(const char * str);
 void uart_write_string_ln(const char * str);
@@ -518,8 +412,6 @@ static const int ESPTOUCH_DONE_BIT = BIT3;
 static const char *TAG = "main";
 
 static int s_retry_num = 0;
-int rx_event_pending = 0;
-int tx_event_pending = 0;
 
 
 void Out4094 (unsigned char);
@@ -1355,526 +1247,6 @@ void sendHBT (void)
     }
 }
 
-void Out4094Byte (unsigned char value)
-{
-    uint8_t i,j;
-    uint8_t OutputMap[9] = {99,6,0,4,5,2,3,1,99};
-    uint8_t ReverseBitMap[8] = {0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01};
-
-
-    j =0;
-    for (i = 1 ; i< 8 ; i++)
-    {
-        if (value & (0x01<<i))
-            j = 0x01 << (OutputMap[i]);
-    }
-
-    for (i = 0 ; i < 8 ; i++)
-    {
-        if (j && (ReverseBitMap[i]))  
-            gpio_set_level(DAT, 1);
-        else    
-            gpio_set_level(DAT, 0);
-        ets_delay_us(10);
-        gpio_set_level(CLK, 1);
-        ets_delay_us(10);
-        gpio_set_level(CLK, 0);
-    }
-    ets_delay_us(10);
-    gpio_set_level(STRB, 1);
-    ets_delay_us(10);
-    gpio_set_level(STRB, 0);
-}
-
-static void gpio_read_n_act(void* arg)
-{
-    int testCounter = 0;
-    int BlinkMode = 0;
-    char payload[100];
-    for (;;)
-    {
-        if (gpio_get_level(ErasePin) == 0)
-        {
-            if (LastErasePinStatus == 1)    
-            {
-                ErasePinDebounce = 2000;        
-                LastErasePinStatus = 0;
-                ESP_LOGI(TAG,"*Eraseing Sense Started#");
-            }
-            else
-            {
-                if (ErasePinDebounce)
-                { 
-                    ErasePinDebounce = ErasePinDebounce-1;
-                    if (ErasePinDebounce == 0)
-                    {
-                        ErasePinStatus = 0;
-                        ESP_LOGI(TAG,"*Eraseing All Parameters#");
-                        send(sock, "*ERASE-LOCAL#", strlen("*ERASE-LOCAL#"), 0);
-                        utils_nvs_erase_all();
-                        ESP_LOGI(TAG, "**************Restarting after 3 second******#");
-                        send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
-                        ESP_LOGI(TAG, "*RST-OK#");
-                        vTaskDelay(3000/portTICK_PERIOD_MS);
-                        esp_restart();
-                    }
-                }
-
-            }
-        }
-        else
-        {
-            if (LastErasePinStatus == 0)
-            {
-                ErasePinDebounce = 200; 
-                LastErasePinStatus = 0;
-            }
-            else
-            {
-                if (ErasePinDebounce)
-                { 
-                    ErasePinDebounce = ErasePinDebounce-1;
-                    if (ErasePinDebounce == 0)
-                        ErasePinStatus = 1;
-                }
-
-            }
-        }
-        if (gpio_get_level(CINHI) == 0)
-        {
-            INHInputValue = 0;        
-        }
-        else
-        {
-            INHInputValue = 1;        
-            
-        }
-        if (PreviousINHValue != INHInputValue)
-        {
-            PreviousINHValue = INHInputValue;
-            // if (gpio_get_level(JUMPER) == 0)
-            // {
-                sprintf(payload, "*INH,%d#",INHInputValue); 
-                send(sock, payload, strlen(payload), 0);
-            // }
-        }
-        InputPin = 0;
-        if (gpio_get_level(ICH1) == 0)
-        {
-            InputPin = 1;
-        }
-        else if (gpio_get_level(ICH2) == 0)
-        {
-            InputPin = 2;
-        }
-        else if (gpio_get_level(ICH3) == 0)
-        {
-            InputPin = 3;
-        }
-        else if (gpio_get_level(ICH4) == 0)
-        {
-            InputPin = 4;
-        }
-        else if (gpio_get_level(ICH5) == 0)
-        {
-            InputPin = 5;
-        }
-        else if (gpio_get_level(ICH6) == 0)
-        {
-            InputPin = 6;
-        }
-        else if (gpio_get_level(ICH7) == 0)
-        {
-            InputPin = 7;
-        }
-        else 
-        {
-            InputPin = 0;
-        }    
-        if (InputPin == 0)
-        {
-            if (PulseStoppedDelay>0)
-            {
-                PulseStoppedDelay--;
-                if (PulseStoppedDelay == 0)
-                {
-                    
-                    CashTotals[LastInputPin-1] += TotalPulses;
-                    if (LastInputPin == 1)
-                        utils_nvs_set_int(NVS_CASH1_KEY, CashTotals[0]);
-                    if (LastInputPin == 2)
-                        utils_nvs_set_int(NVS_CASH2_KEY, CashTotals[1]);
-                    if (LastInputPin == 3)
-                        utils_nvs_set_int(NVS_CASH3_KEY, CashTotals[2]);
-                    if (LastInputPin == 4)
-                        utils_nvs_set_int(NVS_CASH4_KEY, CashTotals[3]);
-                    if (LastInputPin == 5)
-                        utils_nvs_set_int(NVS_CASH5_KEY, CashTotals[4]);
-                    if (LastInputPin == 6)
-                        utils_nvs_set_int(NVS_CASH6_KEY, CashTotals[5]);
-                    if (LastInputPin == 7)
-                        utils_nvs_set_int(NVS_CASH7_KEY, CashTotals[6]);
-
-                    // ESP_LOGI("COIN","Input Pin %d Pulses %d",LastInputPin,TotalPulses);
-                   if (gpio_get_level(JUMPER) == 0)
-                   {
-                        sprintf(payload, "*RP,%d,%d#",LastInputPin,TotalPulses); 
-                        send(sock, payload, strlen(payload), 0);
-                   }
-                   // create same pules on same output pin 17-06-24
-                   edges = TotalPulses * 2;
-                   pin = LastInputPin;
-                   sprintf(payload, "*RP,%d,%d#",LastInputPin,TotalPulses); 
-                   uart_write_string(payload);
-                   ESP_LOGI(TAG,"*RP,%d,%d#",LastInputPin,TotalPulses);
-
-                   TotalPulses = 0;
-                }
-            }
-        }
-        if (LastValue != InputPin)
-        {
-            LastValue = InputPin;
-            DebounceCount = 5;
-        }
-        else
-        {
-            if (DebounceCount)
-            {
-                DebounceCount--;
-                if (DebounceCount == 0)
-                {
-                    if (InputPin == 0)
-                    {
-                    }
-                    if (InputPin != 0)
-                    {
-                    TotalPulses++;                                      
-                    PulseStoppedDelay = 100;
-                    LastInputPin = InputPin;
-                    }
-                }
-            }
-
-        }
-        vTaskDelay(5/portTICK_PERIOD_MS);
-    }
-}
-
-
-// static void gpio_read_n_act_old(void* arg)
-// {
-//     char buff[50];
-//     uint16_t Pin = 0;
-//     uint16_t Counter = 0;
-//     for (;;) {
-
-//         x=0;
-//         Pin = 0;
-//         if (gpio_get_level(ICH1) == 0)
-//         {
-//             x=x+1;
-//             Pin = 1;
-//         }
-//         if (gpio_get_level(ICH2) == 0)
-//         {
-//             x=x+2;
-//             Pin = 2;
-//         }
-//         if (gpio_get_level(ICH3) == 0)
-//         {
-//             x=x+4;
-//             Pin = 3;
-//         }
-//         if (gpio_get_level(ICH4) == 0)
-//         {
-//             x=x+8;
-//             Pin = 4;
-//         }
-//         if (gpio_get_level(ICH5) == 0)
-//         {
-//             x=x+16;
-//             Pin = 5;
-//         }
-//         if (gpio_get_level(ICH6) == 0)
-//         {
-//             x=x+32;
-//             Pin = 6;
-//         }
-//         if (gpio_get_level(ICH7) == 0)
-//         {
-//             x=x+64;
-//             Pin = 7;
-//         }
-//         if (x!= PreviousSwitchStatus)
-//         {
-//              PreviousSwitchStatus =x;
-//              DebounceCount = 1;   
-//              ESP_LOGI("COIN","Counter %d Input Value:%d Pin %d",Counter,SwitchStatus,Pin);
-//              if (Pin == 0)
-//                 Counter = 0;
-//              else  
-//                 Counter++;      
-//         }   
-//         else if (DebounceCount>0)
-//         {
-//             DebounceCount--;
-//             if (DebounceCount == 0)
-//             {
-//                 SwitchStatus = PreviousSwitchStatus;
-//                 if (SwitchStatus != 0)
-//                 {
-//                     // if firts pulse, start timeout
-//                     if (PulseTimeOut == 0)
-//                         PulseCount = 1;
-//                     else    
-//                         PulseCount++;   
-//                     PulseTimeOut = 200; // 100  * delay
-//                 }         
-//                     Out4094Byte(SwitchStatus);    
-//  //                   blinkLEDNumber = 2;
-//                     //tcp_ip_client_send_str(buff);
-                
-//             }
-//         }
-//         if (PulseTimeOut>0)
-//         {
-//             PulseTimeOut--;
-//             if (PulseTimeOut == 0) 
-//             {
-//                  PulseCount = 0;    
-//             //    ESP_LOGI("COIN","*RP:%d:%d#",Pin,PulseCount);
-//                 sprintf (buff, "*RP:%d:%d#",Pin,PulseCount);
-//                 blinkLEDNumber = 2;
-//             //     tcp_ip_client_send_str(buff);
-//              }
-//         }
-//         vTaskDelay(5/portTICK_PERIOD_MS);
-//     }
-// }
-
-
-void ICH_init()
-{
-    ESP_LOGI(TAG,"********Starting ICH INIT*************");
-    gpio_config_t io_conf = {};
-    //disable interrupt
-    io_conf.intr_type = GPIO_INTR_DISABLE;
-//    io_conf.intr_type = GPIO_INTR_NEGEDGE;
-    //set as input mode
-    io_conf.mode = GPIO_MODE_INPUT;
-    //bit mask of the pins that you want to set
-    io_conf.pin_bit_mask = 1ULL << ErasePin | 1ULL << JUMPER | 1ULL << JUMPER2 |1ULL << CINHI | 1ULL << INH | 1ULL << ICH1 | 1ULL << ICH2 | 1ULL << ICH3 | 1ULL << ICH4 | 1ULL << ICH5 | 1ULL << ICH6| 1ULL << ICH7;
-    //disable pull-down mode
-    io_conf.pull_down_en = 0;
-    //enable pull-up mode
-    io_conf.pull_up_en = 1;
-    //configure GPIO with the given settings
-    gpio_config(&io_conf);
-
-
-    // //create a queue to handle gpio event from isr
-    // gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
-    // //start gpio task
-// **************** skip reading input
-    if (Production)
-        xTaskCreate(gpio_read_n_act, "gpio_read_n_act", 2048, NULL, 10, NULL);
-
-    //install gpio isr service
-    // gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
-    // //hook isr handler for specific gpio pin
-    // gpio_isr_handler_add(ICH1, gpio_isr_handler, (void*) ICH1);
-    // gpio_isr_handler_add(ICH2, gpio_isr_handler, (void*) ICH2);
-    // gpio_isr_handler_add(ICH3, gpio_isr_handler, (void*) ICH3);
-    // gpio_isr_handler_add(ICH4, gpio_isr_handler, (void*) ICH4);
-    // gpio_isr_handler_add(ICH5, gpio_isr_handler, (void*) ICH5);
-    // gpio_isr_handler_add(ICH6, gpio_isr_handler, (void*) ICH6);
-    // gpio_isr_handler_add(ICH7, gpio_isr_handler, (void*) ICH7);
- }
-
-
-void Out4094 (unsigned char value)
-{
-    uint8_t i,j;
-    uint8_t OutputMap[9] = {99,6,0,4,5,2,3,1,99};
-    j = OutputMap[value];
-//    ESP_LOGI("OUT4094","pin %d",j);
-    for (i = 0 ; i < 8 ; i++)
-    {
-        if (SignalPolarity == 0)
-        {
-            if (j == 7-i)
-               gpio_set_level(DAT, 1);
-            else    
-                gpio_set_level(DAT, 0);
-        }
-        else
-        {
-            if (j == 7-i)
-               gpio_set_level(DAT, 0);
-            else    
-                gpio_set_level(DAT, 1);
-        }
-
-        ets_delay_us(10);
-        gpio_set_level(CLK, 1);
-        ets_delay_us(10);
-        gpio_set_level(CLK, 0);
-    }
-    ets_delay_us(10);
-    gpio_set_level(STRB, 1);
-    ets_delay_us(10);
-    gpio_set_level(STRB, 0);
-    // if (value<7)
-    //     ESP_LOGI("OUT4094","Start Pulse %d is %lu",edges,xTaskGetTickCount());
-    // else
-    //     ESP_LOGI("OUT4094","End Pulses %d is %lu",edges,xTaskGetTickCount());
-
-}
-
-// generate pulses in background
-// as soon as pulses value is non zero - generate 1 pulse and decrement pulses by 1 
-
-            // if (edges%2 == 0)
-            // {
-            //     Out4094(pin);
-            //     ESP_LOGI("OUT4094","Start Pulse %d is %lu",edges,xTaskGetTickCount());
-            // }
-            // else
-            // {    
-            //     Out4094(8);
-            //     ESP_LOGI("OUT4094","End Pulse %d is %lu",edges,xTaskGetTickCount());
-            // }
-
-// blink LED as per number - set led on, wait, led off, clear led number
-void BlinkLED (void)
-{
-    for (;;)
-    {
-        if (blinkLEDNumber>0)
-        {
-            if (blinkLEDNumber==1)
-            {
-                gpio_set_level(L1, 1);
-                vTaskDelay(500/portTICK_PERIOD_MS);
-                gpio_set_level(L1, 0);
-                blinkLEDNumber = 0;
-            }
-            if (blinkLEDNumber==2)
-            {
-                gpio_set_level(L2, 1);
-                vTaskDelay(500/portTICK_PERIOD_MS);
-                gpio_set_level(L2, 0);
-                blinkLEDNumber = 0;
-            }
-            if (blinkLEDNumber==3)
-            {
-                gpio_set_level(L1, 1);
-                vTaskDelay(500/portTICK_PERIOD_MS);
-                gpio_set_level(L3, 0);
-                blinkLEDNumber = 0;
-            }
-        }
-        vTaskDelay(500/portTICK_PERIOD_MS);
-    }
-}
-
-
-void GeneratePulsesInBackGround (void)
-{
-    for (;;)
-    {
-        if (edges)
-        {
-            if (edges%2 == 0)
-            {
-                Out4094(pin);
-            }
-            else
-            {    
-                Out4094(8);
-            }
-            edges--;
-            if (edges == 0)
-                 ESP_LOGI("GenPulse","Pulse Width is %d ",pulseWitdh);
-
-        }
-        vTaskDelay(pulseWitdh/portTICK_PERIOD_MS);
-    }
-}
-
-void TestCoin (void)
-{
-    for (;;) 
-    {
-        // pin++;
-        // if (pin>7)
-            pin = 4;
-        edges = 2;    
-         ESP_LOGI("TestCoin","Pin Number %d ",pin);
-        vTaskDelay(2000/portTICK_PERIOD_MS);
-    }
-}
-void Test4094 (void)
-{
-    for (;;) 
-    {
-        Test4094Count++;
-        if (Test4094Count == 8)
-            Test4094Count = 0;
-
-        gpio_set_level(L1, 0);
-        gpio_set_level(L2, 0);
-        gpio_set_level(L3, 0);
-        if ((Test4094Count == 0) || (Test4094Count == 3))
-            gpio_set_level(L1, 1);
-        if ((Test4094Count == 1) || (Test4094Count == 4))
-            gpio_set_level(L2, 1);
-        if ((Test4094Count == 2) || (Test4094Count == 5))
-            gpio_set_level(L3, 1);
-
-        Out4094(Test4094Count);  
-        ESP_LOGI(TAG, "Pulse 4094 %d",Test4094Count);  
-        vTaskDelay(2000/portTICK_PERIOD_MS);
-    }
-}
-
-void s2p_init(){
-    gpio_config_t io_conf = {};
-    //disable interrupt
-    io_conf.intr_type = GPIO_INTR_DISABLE;
-    //set as output mode
-    io_conf.mode = GPIO_MODE_OUTPUT;
-    //bit mask of the pins that you want to set
-    io_conf.pin_bit_mask = 1ULL << STRB | 1ULL << CLK | 1ULL << DAT | 1ULL << CINHO | 1ULL << L1 | 1ULL << L2 | 1ULL << L3 ;
-    //disable pull-down mode
-    io_conf.pull_down_en = 0;
-    //disable pull-up mode
-    io_conf.pull_up_en = 0;
-    //configure GPIO with the given settings
-    gpio_config(&io_conf);
-    gpio_set_level(STRB, 0);
-    gpio_set_level(CLK, 0);
-    gpio_set_level(DAT, 0);
-    gpio_set_level(L1, 0);
-    gpio_set_level(L2, 0);
-    gpio_set_level(L3, 0);
-    if (INHOutputValue != 0)
-    {
-        INHOutputValue = 1;
-        gpio_set_level(CINHO, 0);
-    }
-    else
-    {
-        gpio_set_level(CINHO, 1);
-    }
-
-    
-    Test4094Count = 0;
-    ESP_LOGI(TAG, "4094 IOs,RGB initialised");  
-    xTaskCreate(GeneratePulsesInBackGround, "GeneratePulsesInBackGround", 2048, NULL, 9, NULL);
-
-}
 
 
 
