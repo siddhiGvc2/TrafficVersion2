@@ -26,6 +26,14 @@ extern void sendHBT (void);
 extern void tcp_ip_client_send_str(const char *);
 
 
+// wifi
+extern bool connect_to_wifi(char *, char *);
+extern bool connect_to_wifi(char *, char *);
+extern void event_handler(void* , esp_event_base_t , int32_t , void* );
+extern void smartconfig_example_task(void * );
+extern void wifi_init_sta(void);
+
+
 
 // fota
 extern void http_fota(void);
