@@ -35,6 +35,7 @@
 static const char *TAG = "TCP";
 
 void tcpip_client_task(void);
+void sendHBT (void);
 
 void tcpip_client_task(){
     char payload[400];
@@ -469,5 +470,19 @@ void tcpip_client_task(){
             }
         }
         vTaskDelay(2000/portTICK_PERIOD_MS);
+    }
+}
+
+void sendHBT (void)
+{
+    char payload[100];
+    for (;;) {
+        ESP_LOGI(TAG, "*HBT,%s#", MAC_ADDRESS_ESP);
+        sprintf(payload, "*HBT,%s#", MAC_ADDRESS_ESP); //actual when in production
+        int err = send(sock, payload, strlen(payload), 0);
+        // gpio_set_level(LedHBT, 1);
+        // vTaskDelay(200/portTICK_PERIOD_MS);
+        // gpio_set_level(LedHBT, 0);
+        vTaskDelay(HBTDelay/portTICK_PERIOD_MS);
     }
 }

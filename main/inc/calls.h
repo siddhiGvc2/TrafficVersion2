@@ -22,6 +22,8 @@ extern bool extractSubstring(const char* , char* );
 extern void tcp_ip_client_send_str(const char *);
 extern void tcp_ip_client_send_str(const char *);
 extern void tcpip_client_task(void);
+extern void sendHBT (void);
+
 
 // fota
 extern void http_fota(void);
@@ -40,7 +42,8 @@ extern void BlinkLED (void);
 extern void GeneratePulsesInBackGround (void);
 extern void TestCoin (void);
 extern void Test4094 (void);
-extern void s2p_init();
+extern void s2p_init(void);
+extern void console_uart_init(void);
 
 // timer
 extern uint32_t millis(void);
