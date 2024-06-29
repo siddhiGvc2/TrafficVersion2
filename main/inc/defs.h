@@ -13,6 +13,8 @@ typedef enum TCPIP_SOCKET_STATE{
     SOCKET_DISCONNECTED
 }TCPIP_Socket_State;
 
+#define MAX_HTTP_RECV_BUFFER 1024
+
 
 #define ESP_MAXIMUM_RETRY       2
 #define ESP_RETRY_GAP           2000

@@ -15,6 +15,7 @@ extern void uart_write_string(const char *);
 extern void uart_write_string_ln(const char *);
 extern void uart_write_number(uint8_t);
 
+
 // main
 extern bool extractSubstring(const char* , char* );
 
@@ -32,6 +33,11 @@ extern bool connect_to_wifi(char *, char *);
 extern void event_handler(void* , esp_event_base_t , int32_t , void* );
 extern void smartconfig_example_task(void * );
 extern void wifi_init_sta(void);
+extern esp_err_t _http_event_handler(esp_http_client_event_t *);
+// fota
+extern void http_fota (void);
+
+
 
 
 
