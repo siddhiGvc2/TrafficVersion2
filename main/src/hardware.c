@@ -44,6 +44,130 @@ void s2p_init();
 void console_uart_init(void);
 void read_mac_address();
 void led_set_level(gpio_num_t , int);
+void status_leds_init();
+void leds_update_task();
+void set_led_state(Led_State_t);
+bool extractSubstring(const char* , char* );
+uint32_t millis(void);
+void resolve_hostname(const char *);
+
+
+void leds_update_task(){
+    for(;;){
+
+        //Handle Led 1 States
+
+        ticks_100 = ticks_100+1;
+        if (ticks_100 >= 20)
+        {
+            ticks_100 = 0;
+         }    
+        if (led_state == SEARCH_FOR_ESPTOUCH)
+        {
+            current_interval = 0;
+            if(led2_gpio_state == 1){
+                led2_gpio_state = 0;
+                led_set_level(LEDG, led2_gpio_state);
+            }
+            
+        }
+        if(led_state == STANDBY_LED){
+            current_interval = 0;
+            if(led1_gpio_state == 1){
+                led1_gpio_state = 0;
+                led_set_level(LEDR, led1_gpio_state);
+            }
+        }else if(led_state == SEARCH_FOR_WIFI){
+            numberOfPulses = 20;
+        }else if(led_state == WIFI_FOUND_NO_INTERNET){
+            numberOfPulses = 6;
+        }else if(led_state == WIFI_AND_INTERNET_NO_SERVER){
+            numberOfPulses = 4;
+        }else if(led_state == EVERYTHING_OK_LED){
+            numberOfPulses = 2;
+        }    
+        //     // if(rx_event_pending){
+        //     //     rx_event_pending = 0; 
+        //     //     led_set_level(LEDG, 0);
+        //     //     vTaskDelay(50/portTICK_PERIOD_MS);
+        //     //     led_set_level(LEDG, 1);
+        //     //     vTaskDelay(50/portTICK_PERIOD_MS);
+        //     // }
+
+        //     // if(tx_event_pending){
+        //     //     tx_event_pending = 0; 
+        //     //     led_set_level(LEDG, 0);
+        //     //     vTaskDelay(50/portTICK_PERIOD_MS);
+        //     //     led_set_level(LEDG, 1);
+        //     //     vTaskDelay(50/portTICK_PERIOD_MS);
+        //     //     led_set_level(LEDG, 0);
+        //     //     vTaskDelay(50/portTICK_PERIOD_MS);
+        //     //     led_set_level(LEDG, 1);
+        //     //     vTaskDelay(50/portTICK_PERIOD_MS);
+        //     // }
+
+        // }
+           else if (led_state == OTA_IN_PROGRESS){
+            led2_gpio_state = !led2_gpio_state;
+            led_set_level(LEDG, led2_gpio_state);
+        }
+
+        if (numberOfPulses>ticks_100)
+        {
+            // if (led_state == SEARCH_FOR_ESPTOUCH)
+            // {
+            //     led2_gpio_state = !led2_gpio_state;
+            //     led_set_level(LEDG, led2_gpio_state);
+            //     led_set_level(LEDR, 0);
+
+            // }
+            // else
+            // {
+                led1_gpio_state = !led1_gpio_state;
+                led_set_level(LEDR, led1_gpio_state);
+                led_set_level(LEDG, 0);
+            // }
+        }
+        else
+        {
+            led1_gpio_state = 0;
+            led_set_level(LEDR, led1_gpio_state);
+        }
+        // // if(((last_update_led1 == 0) || (millis() - last_update_led1 > current_interval)) && (current_interval != 0)){
+        // //     //This will be only called when there is some error
+        // //     last_update_led1 = millis();
+        // //     led1_gpio_state = !led1_gpio_state;
+        // //     led_set_level(LEDR, led1_gpio_state);
+        // // }
+        vTaskDelay(200/portTICK_PERIOD_MS);
+    }
+}
+
+void set_led_state(Led_State_t st){
+    last_update_led1 = 0;
+    led_state = st;
+}
+
+void status_leds_init(){
+    gpio_config_t io_conf = {};
+    //disable interrupt
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    //set as output mode
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    //bit mask of the pins that you want to set
+    io_conf.pin_bit_mask = 1ULL << LEDR | 1ULL << LEDG ;
+    //disable pull-down mode
+    io_conf.pull_down_en = 0;
+    //disable pull-up mode
+    io_conf.pull_up_en = 0;
+    //configure GPIO with the given settings
+    gpio_config(&io_conf);
+    led_set_level(LEDR, 0);
+    led_set_level(LEDG, 0);
+    xTaskCreate(leds_update_task, "leds_update_task", 2048, NULL, 6, NULL);
+}
+
+
 
 static void uart_event_task(void *pvParameters)
 {
@@ -670,3 +794,64 @@ void led_set_level(gpio_num_t gpio_num, int state){
         gpio_set_level(gpio_num, !state);
     #endif
 }
+
+bool extractSubstring(const char* str, char* result) {
+    const char* start = strchr(str, '*');
+    const char* end = strchr(str, '#');
+
+    if (start != NULL && end != NULL && end > start + 1) {
+        strncpy(result, start + 1, end - start - 1);
+        result[end - start - 1] = '\0';
+        return true;
+    }
+
+    return false;
+}
+
+uint32_t millis(void) {
+    return (uint32_t)(esp_timer_get_time() / 1000ULL);
+}
+
+void resolve_hostname(const char *hostname) {
+    struct addrinfo hints, *res;
+    int status;
+    // char ipstr[100];
+    char payload[200];
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC; // AF_INET for IPv4, AF_INET6 for IPv6
+    hints.ai_socktype = SOCK_STREAM;
+
+    if ((status = getaddrinfo(hostname, NULL, &hints, &res)) != 0) {
+        // Corrected here: use gai_strerror instead of strerror
+        fprintf(stderr, "getaddrinfo: %s\n", strerror(status));
+        return;
+    }
+
+    printf("*IP addresses for %s:\n\n#", hostname);
+    ESP_LOGI(TAG,"*IP addresses for %s:\n\n#", hostname);
+    struct addrinfo *p;
+    for (p = res; p != NULL; p = p->ai_next) {
+        void *addr;
+        char *ipver;
+
+        if (p->ai_family == AF_INET) { // IPv4
+            struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
+            addr = &(ipv4->sin_addr);
+            ipver = "IPv4";
+        } else { // IPv6
+            struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
+            addr = &(ipv6->sin6_addr);
+            ipver = "IPv6";
+        }
+
+        inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
+        sprintf(payload,"*IP VER - %s: IP STR - %s#", ipver, ipstr);
+        uart_write_string(payload);
+//        ESP_LOGI(TAG,payload);
+
+    }
+
+    freeaddrinfo(res); // free the linked list
+}
+

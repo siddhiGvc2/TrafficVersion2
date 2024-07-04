@@ -115,3 +115,9 @@ int tcp_sock = -1;
 
 bool pending_tcp_packet = false;
 char tcp_packet[200];
+uint32_t last_update_led1 = 0;
+uint8_t led1_gpio_state = 0;
+uint8_t led2_gpio_state = 0;
+
+
+nvs_handle_t utils_nvs_handle;

@@ -121,3 +121,8 @@ extern int tx_event_pending;
 
 extern bool pending_tcp_packet ;
 extern char tcp_packet[200];
+extern uint32_t last_update_led1;
+extern uint8_t led1_gpio_state;
+extern uint8_t led2_gpio_state;
+
+extern int32_t MQTT_CONNEECTED;

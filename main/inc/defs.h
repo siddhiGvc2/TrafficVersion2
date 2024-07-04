@@ -15,7 +15,7 @@ typedef enum TCPIP_SOCKET_STATE{
 
 #define MAX_HTTP_RECV_BUFFER 1024
 
-
+#define LED_ACTIVE_HIGH
 #define ESP_MAXIMUM_RETRY       2
 #define ESP_RETRY_GAP           2000
 #define Production          1
@@ -87,10 +87,10 @@ typedef enum TCPIP_SOCKET_STATE{
 #define NVS_SP_DATETIME   "DATETIME_SP"
 
 #define DEFAULT_SERVER_IP_ADDR_TRY "gvc.co.in"
-#define DEFAULT_SERVER_IP_ADDR "gvc.co.in"
+#define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
-#define FWVersion "*GVCSYS-27JUNE24T5#"
+#define FWVersion "*GVCSYS-01JUL24T1#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12

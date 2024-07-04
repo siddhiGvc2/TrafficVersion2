@@ -4,7 +4,13 @@ Challenge -once wifi disconnected, it does not sense that and change status
 s2pinit if added will set a test output , normally keep it off
 UART2 not yet tested/not working
 wifi/server disconnection to be tested
+040724T1
+Added first trial of MQTT sending some thing
 
+010724T1
+made 4MB variant
+changed default address to kwikpay server
+jmper server to GVC
 
 27062024
 1.Ensure that all query commands are replied with username as date in same as received in last command.
