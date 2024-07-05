@@ -48,6 +48,35 @@ int32_t MQTT_CONNEECTED = 0;
  * @param event_id The id for the received event.
  * @param event_data The data for the event, esp_mqtt_event_handle_t.
  */
+
+
+ esp_mqtt_client_handle_t client = NULL;
+
+
+void publish_sip_message(const char *message, esp_mqtt_client_handle_t client) {
+    // Publish the provided message to the MQTT topic
+    esp_mqtt_client_publish(client, "GVC/KP/ALL", message, strlen(message), 0, 0);
+
+    // Indicate that a transaction is pending
+    tx_event_pending = 1;
+
+    // Log the published message for debugging
+    ESP_LOGI(TAG, "Published SIP message: %s", message);
+}
+
+void Publisher_Task(void *params)
+{
+  while (true)
+  {
+    if(MQTT_CONNEECTED)
+    {
+        publish_sip_message("*HBT#", client);
+        vTaskDelay(15000 / portTICK_PERIOD_MS);
+    }
+  }
+}
+
+
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(TAG, "Event dispatched from event loop base=%s, event_id=%d", base, (int)event_id);
@@ -130,14 +159,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
                     utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
                     
-                    esp_mqtt_client_publish(client, "GVC/KP/00002", strlen(payload), 0, 0, 0);
+                     publish_sip_message(payload, client);
                     // send(sock, payload, strlen(payload), 0);
                     tx_event_pending = 1;
                 }
                 else if(strncmp(data, "*SIP?#", 6) == 0){
                     sprintf(payload, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
                     sp_port ); //actual when in production
-                    esp_mqtt_client_publish(client, "GVC/KP/00002", strlen(payload), 0, 0, 0);
+                     publish_sip_message(payload, client);
                     ESP_LOGI(TAG, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
                     sp_port );
                 }
@@ -150,7 +179,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     utils_nvs_set_str(NVS_CC_USERNAME, CCuserName);
                     utils_nvs_set_str(NVS_CC_DATETIME, CCdateTime);
                     sprintf(payload, "*CC-OK,%s,%s#",CCuserName,CCdateTime);
-                    esp_mqtt_client_publish(client, "GVC/KP/00002", strlen(payload), 0, 0, 0);
+                     publish_sip_message(payload, client);
                     for (int i = 0 ; i < 7 ; i++)
                     {
                         Totals[i] = 0;
@@ -169,7 +198,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                         strcpy(RSTuserName,"MQTT_LOCAL");
                         strcpy(RSTdateTime,"00/00/00");
                         sprintf(payload, "*RST-OK,%s,%s#",RSTuserName,RSTdateTime);
-                        esp_mqtt_client_publish(client, "GVC/KP/00002", strlen(payload), 0, 0, 0);
+                         publish_sip_message(payload, client);
                         ESP_LOGI(TAG, "*RST-OK#");
                         vTaskDelay(3000/portTICK_PERIOD_MS);
                         esp_restart();
@@ -178,7 +207,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     ESP_LOGI(TAG,"URL RECEIVED,%s,%s,%s",URLuserName,URLdateTime,FOTA_URL);
                     char msg[600];
                     sprintf(msg,"*URL,%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL); 
-                    esp_mqtt_client_publish(client, "GVC/KP/00002", strlen(msg), 0, 0, 0);
+                     publish_sip_message(msg, client);
                     tx_event_pending = 1;
                 }
                 else {
@@ -202,7 +231,6 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 }
 
 
-esp_mqtt_client_handle_t client = NULL;
 void mqtt_app_start(void)
 {
     ESP_LOGI(TAG, "STARTING MQTT");
@@ -223,17 +251,7 @@ void mqtt_app_start(void)
     esp_mqtt_client_start(client);
 }
 
-void Publisher_Task(void *params)
-{
-  while (true)
-  {
-    if(MQTT_CONNEECTED)
-    {
-        esp_mqtt_client_publish(client, "GVC/KP/ALL", "*HBT#", 0, 0, 0);
-        vTaskDelay(15000 / portTICK_PERIOD_MS);
-    }
-  }
-}
+
 
 
 
