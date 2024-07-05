@@ -422,6 +422,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     if (ledpin == 3)
                         gpio_set_level(L3, ledstatus);
                 }
+                else if(strncmp(data, "*FOTA:", 6) == 0){
+                    publish_sip_message("FOTA-OK", client);
+                    publish_sip_message(FOTA_URL, client);
+                    tx_event_pending = 1;
+                    http_fota();
+                }
                 else {
                     ESP_LOGI(TAG, "Unknown message received.");
                 }
