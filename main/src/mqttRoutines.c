@@ -53,7 +53,7 @@ int32_t MQTT_CONNEECTED = 0;
  esp_mqtt_client_handle_t client = NULL;
 
 
-void publish_sip_message(const char *message, esp_mqtt_client_handle_t client) {
+void publish_message(const char *message, esp_mqtt_client_handle_t client) {
     // Publish the provided message to the MQTT topic
     esp_mqtt_client_publish(client, "GVC/KP/ALL", message, strlen(message), 0, 0);
 
@@ -70,7 +70,7 @@ void Publisher_Task(void *params)
   {
     if(MQTT_CONNEECTED)
     {
-        publish_sip_message("*HBT#", client);
+        publish_message("*HBT#", client);
         vTaskDelay(15000 / portTICK_PERIOD_MS);
     }
   }
@@ -159,14 +159,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
                     utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
                     
-                     publish_sip_message(payload, client);
+                     publish_message(payload, client);
                     // send(sock, payload, strlen(payload), 0);
                     tx_event_pending = 1;
                 }
                 else if(strncmp(data, "*SIP?#", 6) == 0){
                     sprintf(payload, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
                     sp_port ); //actual when in production
-                     publish_sip_message(payload, client);
+                     publish_message(payload, client);
                     ESP_LOGI(TAG, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
                     sp_port );
                 }
@@ -179,7 +179,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     utils_nvs_set_str(NVS_CC_USERNAME, CCuserName);
                     utils_nvs_set_str(NVS_CC_DATETIME, CCdateTime);
                     sprintf(payload, "*CC-OK,%s,%s#",CCuserName,CCdateTime);
-                     publish_sip_message(payload, client);
+                     publish_message(payload, client);
                     for (int i = 0 ; i < 7 ; i++)
                     {
                         Totals[i] = 0;
@@ -198,7 +198,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                         strcpy(RSTuserName,"MQTT_LOCAL");
                         strcpy(RSTdateTime,"00/00/00");
                         sprintf(payload, "*RST-OK,%s,%s#",RSTuserName,RSTdateTime);
-                         publish_sip_message(payload, client);
+                         publish_message(payload, client);
                         ESP_LOGI(TAG, "*RST-OK#");
                         vTaskDelay(3000/portTICK_PERIOD_MS);
                         esp_restart();
@@ -207,14 +207,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     ESP_LOGI(TAG,"URL RECEIVED,%s,%s,%s",URLuserName,URLdateTime,FOTA_URL);
                     char msg[600];
                     sprintf(msg,"*URL,%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL); 
-                     publish_sip_message(msg, client);
+                     publish_message(msg, client);
                     tx_event_pending = 1;
                 }
                 else if(strncmp(data, "*CA?#", 5) == 0){
                     ESP_LOGI(TAG, "CA Values @ numValue %d polarity %d username %s dateTime %s",pulseWitdh,polarity,CAuserName,CAdateTime);
                     
                     sprintf(payload, "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity); //actual when in production
-                    publish_sip_message(payload, client);
+                    publish_message(payload, client);
                 }
                 else  if(strncmp(data, "*SS:", 4) == 0){
                     
@@ -227,7 +227,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     sprintf(payload, "*SS-OK,%s,%s#",SSuserName,SSdateTime);
                     utils_nvs_set_str(NVS_SS_USERNAME, SSuserName);
                     utils_nvs_set_str(NVS_SS_DATETIME, SSdateTime);
-                    publish_sip_message(payload, client);
+                    publish_message(payload, client);
                     tx_event_pending = 1;
                 }
                 else if(strncmp(data, "*INH?#",6) == 0){
@@ -235,7 +235,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                         INHInputValue = 1;
                     ESP_LOGI(TAG, "INH Values @ numValue %d ",INHInputValue);
                     sprintf(payload, "*INH-IN,%s,%s,%d,%d#",INHuserName,INHdateTime,INHInputValue,INHOutputValue); 
-                    publish_sip_message(payload, client);
+                    publish_message(payload, client);
                 }
                  else if(strncmp(data, "*INH:", 5) == 0){
                         sscanf(data, "*INH:%d#",&INHOutputValue);
@@ -254,7 +254,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                         sprintf(payload, "*INH-DONE,%s,%s,%d#",INHuserName,INHdateTime,INHOutputValue);
                         utils_nvs_set_str(NVS_INH_USERNAME, INHuserName);
                         utils_nvs_set_str(NVS_INH_DATETIME, INHdateTime);
-                        publish_sip_message(payload, client);
+                        publish_message(payload, client);
                         // sprintf(payload, "*INH-DONE,%d#",INHOutputValue); //actual when in production
                         // send(sock, payload, strlen(payload), 0);
                         utils_nvs_set_int(NVS_INH_KEY, INHOutputValue);
@@ -268,7 +268,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     utils_nvs_set_str(NVS_CA_USERNAME, CAuserName);
                     utils_nvs_set_str(NVS_CA_DATETIME, CAdateTime);
                     ESP_LOGI(TAG,"CA Values Saved %s,%s",CAuserName,CAdateTime);
-                    publish_sip_message(payload, client);
+                    publish_message(payload, client);
                     if (numValue<10)
                         numValue = 25;
                     if (numValue>100)
@@ -291,7 +291,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     sprintf(payload, "*SS1-OK,%s,%s#",SS1userName,SS1dateTime);
                     utils_nvs_set_str(NVS_SS1_USERNAME, SS1userName);
                     utils_nvs_set_str(NVS_SS1_DATETIME, SS1dateTime);
-                    publish_sip_message(payload, client);
+                    publish_message(payload, client);
                     tx_event_pending = 1;
                 }
                 else if(strncmp(data, "*PW:", 4) == 0){
@@ -316,7 +316,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     sprintf(payload, "*PW1-OK,%s,%s#",PW1userName,PW1dateTime);
                     utils_nvs_set_str(NVS_PW1_USERNAME, PW1userName);
                     utils_nvs_set_str(NVS_PW1_DATETIME, PW1dateTime);
-                    publish_sip_message(payload, client);
+                    publish_message(payload, client);
                     tx_event_pending = 1;
                 }
                 else if(strncmp(data, "*URL:", 5) == 0){
@@ -328,19 +328,19 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     sprintf(payload, "*URL-OK,%s,%s#",URLuserName,URLdateTime);
                     utils_nvs_set_str(NVS_URL_USERNAME, URLuserName);
                     utils_nvs_set_str(NVS_URL_DATETIME, URLdateTime);
-                    publish_sip_message(payload, client);
+                    publish_message(payload, client);
                     tx_event_pending = 1;
                 }
                 else if (strncmp(data, "*SSID?#", 7) == 0){
                     sprintf(payload, "*SSID,%s,%s,%d,%s,%s,%s#",SSuserName,SSdateTime,WiFiNumber,WIFI_SSID_1,WIFI_SSID_2,WIFI_SSID_3); 
-                    publish_sip_message(payload, client);
+                    publish_message(payload, client);
                     tx_event_pending = 1;
                 }
                 else if (strncmp(data, "*ERASE#", 7) == 0){
                     utils_nvs_erase_all();
-                    publish_sip_message("ERASE-OK", client);
+                    publish_message("*ERASE-OK#", client);
                 }else if(strncmp(data, "*RESTART#", 9) == 0){
-                    publish_sip_message("RESTART-OK", client);
+                    publish_message("*RESTART-OK#", client);
                     tx_event_pending = 1;
                     vTaskDelay(2000/portTICK_PERIOD_MS);
                     esp_restart();
@@ -352,7 +352,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                         if (INHInputValue == INHIBITLevel)
                         {
                             ESP_LOGI(TAG, "*UNIT DISABLED#");
-                            publish_sip_message("*VEND DISABLED#", client);
+                            publish_message("*VEND DISABLED#", client);
                             
                             
                         }
@@ -363,11 +363,11 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                             // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
                             ESP_LOGI(TAG, "*V-OK,%d,%d,%d#",TID,pin,pulses);
                             sprintf(payload, "*V-OK,%d,%d,%d#", TID,pin,pulses); //actual when in production
-                            publish_sip_message(payload, client);
+                            publish_message(payload, client);
                             vTaskDelay(1000/portTICK_PERIOD_MS);
                             sprintf(payload, "*T-OK,%d,%d,%d#",TID,pin,pulses); //actual when in production
                             ESP_LOGI(TAG, "*T-OK,%d,%d,%d#",TID,pin,pulses);
-                            publish_sip_message(payload, client);
+                            publish_message(payload, client);
                             tx_event_pending = 1;
                             Totals[pin-1] += pulses;
                             LastTID = TID;
@@ -375,7 +375,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                         else
                         {
                             ESP_LOGI(TAG, "Duplicate TID");
-                            publish_sip_message("*DUP TID#", client);
+                            publish_message("*DUP TID#", client);
                           
                         }  
 
@@ -388,7 +388,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                         // strcpy(WIFI_PASS_2, buf);
                         // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
                         ESP_LOGI(TAG, "Set LED @ Pin %d Status %d",ledpin,ledstatus);
-                        publish_sip_message("SL-OK", client);
+                        publish_message("SL-OK", client);
                         tx_event_pending = 1;
                         if (ledpin == 1)
                             gpio_set_level(L1, ledstatus);
@@ -401,19 +401,19 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                 }
                 else if(strncmp(data, "*TV?#", 5) == 0){
                         sprintf(payload, "*TV,%d,%d,%d,%d,%d,%d,%d#", Totals[0],Totals[1],Totals[2],Totals[3],Totals[4],Totals[5],Totals[6]); //actual when in production
-                        publish_sip_message(payload, client);
+                        publish_message(payload, client);
                         ESP_LOGI(TAG, "TV Sending");
                         
                 }
                 else if(strncmp(data, "*TC?#", 5) == 0){
                         sprintf(payload, "*TC,%d,%d,%d,%d,%d,%d,%d#", CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]); //actual when in production
-                        publish_sip_message(payload, client);
+                        publish_message(payload, client);
                         ESP_LOGI(TAG, "*TC,%d,%d,%d,%d,%d,%d,%d#", CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6] );
                         
                 }
                  else if(strncmp(data, "*FW?#", 5) == 0){
                     ESP_LOGI(TAG, "*%s#",FWVersion);
-                     publish_sip_message(FWVersion, client);
+                     publish_message(FWVersion, client);
                     tx_event_pending = 1;
                     if (ledpin == 1)
                         gpio_set_level(L1, ledstatus);
@@ -423,11 +423,48 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                         gpio_set_level(L3, ledstatus);
                 }
                 else if(strncmp(data, "*FOTA:", 6) == 0){
-                    publish_sip_message("FOTA-OK", client);
-                    publish_sip_message(FOTA_URL, client);
+                    strcpy(FOTAuserName,"MQTT_LOCAL");
+                    strcpy(FOTAdateTime,"00/00/00");
+                    publish_message("*FOTA-OK#", client);
+                    publish_message(FOTA_URL, client);
+                    utils_nvs_set_str(NVS_FOTA_USERNAME, FOTAuserName);
+                    utils_nvs_set_str(NVS_FOTA_DATETIME, FOTAdateTime);
                     tx_event_pending = 1;
                     http_fota();
                 }
+                 else if(strncmp(data, "*SP:", 4) == 0){
+                        sscanf(data, "*SP:%d#",&jumperPort);
+                        strcpy(SPuserName,"MQTT_LOCAL");
+                        strcpy(SPdateTime,"00/00/00");
+                        sprintf(payload, "*SP-OK,%s,%s,%d#",SPuserName,SPdateTime,jumperPort);
+                        utils_nvs_set_str(NVS_SP_USERNAME, SPuserName);
+                        utils_nvs_set_str(NVS_SP_DATETIME, SPdateTime);
+                        publish_message(payload, client);
+                        utils_nvs_set_int(NVS_SERVER_PORT_KEY_JUMPER, jumperPort);
+
+                } 
+                else if(strncmp(data, "*SS2:", 5) == 0){
+                    sscanf(data, "*SS2:%[^#]#",buf);
+                    strcpy(WIFI_SSID_3, buf);
+                    strcpy(SS2userName,"MQTT_LOCAL");
+                    strcpy(SS2dateTime,"00/00/00");
+                    utils_nvs_set_str(NVS_SSID_3_KEY, WIFI_SSID_3);
+                    utils_nvs_set_str(NVS_SS2_USERNAME, SS2userName);
+                    utils_nvs_set_str(NVS_SS2_DATETIME, SS2dateTime);
+                    publish_message("*SS2-OK#", client);
+                    tx_event_pending = 1;
+                }
+                else if(strncmp(data, "*PW2:", 5) == 0){
+                    sscanf(data, "*PW2:%[^#]#", buf);
+                    strcpy(WIFI_PASS_3, buf);
+                    strcpy(PW2userName,"MQTT_LOCAL");
+                    strcpy(PW2dateTime,"00/00/00");
+                    utils_nvs_set_str(NVS_PASS_3_KEY, WIFI_PASS_3);
+                    utils_nvs_set_str(NVS_PW2_USERNAME, PW2userName);
+                    utils_nvs_set_str(NVS_PW2_DATETIME, PW2dateTime);
+                    publish_message("*PW2-OK#", client);
+                    tx_event_pending = 1;
+                }  
                 else {
                     ESP_LOGI(TAG, "Unknown message received.");
                 }

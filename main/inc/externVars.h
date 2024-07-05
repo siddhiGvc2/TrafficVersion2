@@ -66,6 +66,12 @@ extern char SS1userName[100];
 extern char PW1dateTime[100];
 extern char PW1userName[100];
 
+extern char SS2dateTime[100];
+extern char SS2userName[100];
+
+extern char PW2dateTime[100];
+extern char PW2userName[100];
+
 extern char INHdateTime[100];
 extern char INHuserName[100];
 

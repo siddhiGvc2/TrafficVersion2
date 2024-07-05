@@ -58,6 +58,9 @@ char RSTuserName[100];
 char SSdateTime[100];
 char SSuserName[100];
 
+char SLdateTime[100];
+char SLuserName[100];
+
 char PWdateTime[100];
 char PWuserName[100];
 
@@ -66,6 +69,12 @@ char SS1userName[100];
 
 char PW1dateTime[100];
 char PW1userName[100];
+
+char SS2dateTime[100];
+char SS2userName[100];
+
+char PW2dateTime[100];
+char PW2userName[100];
 
 char INHdateTime[100];
 char INHuserName[100];
