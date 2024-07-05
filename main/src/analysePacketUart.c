@@ -51,7 +51,7 @@ void process_uart_packet(const char *pkt){
 
        uart_write_string_ln(buffer);
         tx_event_pending = 1;
-    }else if(strncmp(pkt, "*CC:", 4) == 0){
+    }else if(strncmp(pkt, "*CC#", 4) == 0){
          for (int i = 0 ; i < 7 ; i++)
         {
             Totals[i] = 0;

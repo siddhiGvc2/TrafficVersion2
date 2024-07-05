@@ -6,7 +6,8 @@ UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
 050524T1
-ESP_LOGI incoming messages from mqtt.
+1.ESP_LOGI incoming messages from mqtt.
+2. SIP: ,SIP?,RST,CC,UR? commands added in mqtt.
 
 040724T1
 Added first trial of MQTT sending some thing

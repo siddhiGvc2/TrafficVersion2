@@ -58,6 +58,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     // Declare variables outside the switch statement
     char topic[256]; // Assuming a max topic length
     char data[256];  // Assuming a max data length
+    char payload[400];
+    char rx_buffer[128];
 
     switch ((esp_mqtt_event_id_t)event_id)
     {
@@ -111,7 +113,75 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                 } else if (strcmp(data, "COMMAND2") == 0) {
                     ESP_LOGI(TAG, "Command 2 received.");
                     // Execute action for COMMAND2
-                } else {
+                } 
+                else if(strncmp(data, "*SIP:", 5) == 0){
+                                  
+                    sscanf(data, "*SIP:%[^:]:%d#",server_ip_addr,
+                        &sp_port);
+                    strcpy(SIPuserName,"MQTT_LOCAL");
+                    strcpy(SIPdateTime,"00/00/00");
+                    char buf[100];
+                    sprintf(payload, "*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
+                    sprintf(buf, "%s",server_ip_addr);
+                    
+
+                    utils_nvs_set_str(NVS_SERVER_IP_KEY, buf);
+                    utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
+                    utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
+                    utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
+                    
+                    esp_mqtt_client_publish(client, "GVC/KP/00002", strlen(payload), 0, 0, 0);
+                    // send(sock, payload, strlen(payload), 0);
+                    tx_event_pending = 1;
+                }
+                else if(strncmp(data, "*SIP?#", 6) == 0){
+                    sprintf(payload, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
+                    sp_port ); //actual when in production
+                    esp_mqtt_client_publish(client, "GVC/KP/00002", strlen(payload), 0, 0, 0);
+                    ESP_LOGI(TAG, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
+                    sp_port );
+                }
+                else if(strncmp(data, "*CC#", 4) == 0){
+                  
+                    ESP_LOGI(TAG, "*CC-OK#");
+                    strcpy(CCuserName,"MQTT_LOCAL");
+                    strcpy(CCdateTime,"00/00/00");
+                   
+                    utils_nvs_set_str(NVS_CC_USERNAME, CCuserName);
+                    utils_nvs_set_str(NVS_CC_DATETIME, CCdateTime);
+                    sprintf(payload, "*CC-OK,%s,%s#",CCuserName,CCdateTime);
+                    esp_mqtt_client_publish(client, "GVC/KP/00002", strlen(payload), 0, 0, 0);
+                    for (int i = 0 ; i < 7 ; i++)
+                    {
+                        Totals[i] = 0;
+                        CashTotals[i] = 0;
+                    } 
+                    utils_nvs_set_int(NVS_CASH1_KEY, CashTotals[0]);
+                    utils_nvs_set_int(NVS_CASH2_KEY, CashTotals[1]);
+                    utils_nvs_set_int(NVS_CASH3_KEY, CashTotals[2]);
+                    utils_nvs_set_int(NVS_CASH4_KEY, CashTotals[3]);
+                    utils_nvs_set_int(NVS_CASH5_KEY, CashTotals[4]);
+                    utils_nvs_set_int(NVS_CASH6_KEY, CashTotals[5]);
+                    utils_nvs_set_int(NVS_CASH7_KEY, CashTotals[6]);
+                }
+                else if(strncmp(data, "*RST#", 5) == 0){
+                        ESP_LOGI(TAG, "**************Restarting after 3 second*******");
+                        strcpy(RSTuserName,"MQTT_LOCAL");
+                        strcpy(RSTdateTime,"00/00/00");
+                        sprintf(payload, "*RST-OK,%s,%s#",RSTuserName,RSTdateTime);
+                        esp_mqtt_client_publish(client, "GVC/KP/00002", strlen(payload), 0, 0, 0);
+                        ESP_LOGI(TAG, "*RST-OK#");
+                        vTaskDelay(3000/portTICK_PERIOD_MS);
+                        esp_restart();
+                }
+                 else if(strncmp(data, "*URL?#", 6) == 0){
+                    ESP_LOGI(TAG,"URL RECEIVED,%s,%s,%s",URLuserName,URLdateTime,FOTA_URL);
+                    char msg[600];
+                    sprintf(msg,"*URL,%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL); 
+                    esp_mqtt_client_publish(client, "GVC/KP/00002", strlen(msg), 0, 0, 0);
+                    tx_event_pending = 1;
+                }
+                else {
                     ESP_LOGI(TAG, "Unknown message received.");
                 }
             }

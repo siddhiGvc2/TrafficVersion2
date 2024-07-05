@@ -443,7 +443,10 @@ void tcpip_client_task(){
                                             gpio_set_level(L3, ledstatus);
                                     }
                                 else if(strncmp(rx_buffer, "*RST:", 5) == 0){
+                                        sscanf(rx_buffer, "*RST:%[^:]:%[^#]#",RSTuserName,RSTdateTime);
                                         ESP_LOGI(TAG, "**************Restarting after 3 second*******");
+                                        utils_nvs_set_str(NVS_RST_USERNAME, RSTuserName);
+                                        utils_nvs_set_str(NVS_RST_DATETIME, RSTdateTime);
                                         send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
                                         ESP_LOGI(TAG, "*RST-OK#");
                                         vTaskDelay(3000/portTICK_PERIOD_MS);
