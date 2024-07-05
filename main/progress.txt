@@ -11,6 +11,7 @@ wifi/server disconnection to be tested
 3. CA? , SS: ,INH?,INH:commands added in mqtt.
 4. CA:, SS1:,PW,PW1 commands added in mqtt.
 5. URL: , SSID? ,ERASE ,RESTART commands added in mqtt.
+6. V: , SL: ,TV? , TC? ,FW? ,
 
 040724T1
 Added first trial of MQTT sending some thing

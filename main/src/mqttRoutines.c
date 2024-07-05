@@ -328,7 +328,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     sprintf(payload, "*URL-OK,%s,%s#",URLuserName,URLdateTime);
                     utils_nvs_set_str(NVS_URL_USERNAME, URLuserName);
                     utils_nvs_set_str(NVS_URL_DATETIME, URLdateTime);
-                    
+                    publish_sip_message(payload, client);
                     tx_event_pending = 1;
                 }
                 else if (strncmp(data, "*SSID?#", 7) == 0){
@@ -344,6 +344,83 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     tx_event_pending = 1;
                     vTaskDelay(2000/portTICK_PERIOD_MS);
                     esp_restart();
+                }
+                else if(strncmp(data, "*V:", 3) == 0){
+                    if (edges == 0) 
+                    {
+                        sscanf(data, "*V:%d:%d:%d#",&TID,&pin,&pulses);
+                        if (INHInputValue == INHIBITLevel)
+                        {
+                            ESP_LOGI(TAG, "*UNIT DISABLED#");
+                            publish_sip_message("*VEND DISABLED#", client);
+                            
+                            
+                        }
+                        else if (TID != LastTID)
+                        {
+                            edges = pulses*2;  // doubled edges
+                            // strcpy(WIFI_PASS_2, buf);
+                            // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
+                            ESP_LOGI(TAG, "*V-OK,%d,%d,%d#",TID,pin,pulses);
+                            sprintf(payload, "*V-OK,%d,%d,%d#", TID,pin,pulses); //actual when in production
+                            publish_sip_message(payload, client);
+                            vTaskDelay(1000/portTICK_PERIOD_MS);
+                            sprintf(payload, "*T-OK,%d,%d,%d#",TID,pin,pulses); //actual when in production
+                            ESP_LOGI(TAG, "*T-OK,%d,%d,%d#",TID,pin,pulses);
+                            publish_sip_message(payload, client);
+                            tx_event_pending = 1;
+                            Totals[pin-1] += pulses;
+                            LastTID = TID;
+                        }
+                        else
+                        {
+                            ESP_LOGI(TAG, "Duplicate TID");
+                            publish_sip_message("*DUP TID#", client);
+                          
+                        }  
+
+                    }
+                }
+                else if(strncmp(data, "*SL:", 4) == 0){
+                    if (edges == 0)
+                    {
+                        sscanf(data, "*SL:%d:%d#",&ledpin,&ledstatus);
+                        // strcpy(WIFI_PASS_2, buf);
+                        // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
+                        ESP_LOGI(TAG, "Set LED @ Pin %d Status %d",ledpin,ledstatus);
+                        publish_sip_message("SL-OK", client);
+                        tx_event_pending = 1;
+                        if (ledpin == 1)
+                            gpio_set_level(L1, ledstatus);
+                        if (ledpin == 2)
+                            gpio_set_level(L2, ledstatus);
+                        if (ledpin == 3)
+                            gpio_set_level(L3, ledstatus);
+                        
+                    }
+                }
+                else if(strncmp(data, "*TV?#", 5) == 0){
+                        sprintf(payload, "*TV,%d,%d,%d,%d,%d,%d,%d#", Totals[0],Totals[1],Totals[2],Totals[3],Totals[4],Totals[5],Totals[6]); //actual when in production
+                        publish_sip_message(payload, client);
+                        ESP_LOGI(TAG, "TV Sending");
+                        
+                }
+                else if(strncmp(data, "*TC?#", 5) == 0){
+                        sprintf(payload, "*TC,%d,%d,%d,%d,%d,%d,%d#", CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]); //actual when in production
+                        publish_sip_message(payload, client);
+                        ESP_LOGI(TAG, "*TC,%d,%d,%d,%d,%d,%d,%d#", CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6] );
+                        
+                }
+                 else if(strncmp(data, "*FW?#", 5) == 0){
+                    ESP_LOGI(TAG, "*%s#",FWVersion);
+                     publish_sip_message(FWVersion, client);
+                    tx_event_pending = 1;
+                    if (ledpin == 1)
+                        gpio_set_level(L1, ledstatus);
+                    if (ledpin == 2)
+                        gpio_set_level(L2, ledstatus);
+                    if (ledpin == 3)
+                        gpio_set_level(L3, ledstatus);
                 }
                 else {
                     ESP_LOGI(TAG, "Unknown message received.");
