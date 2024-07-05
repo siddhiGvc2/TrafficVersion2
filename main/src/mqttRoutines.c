@@ -210,6 +210,55 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                      publish_sip_message(msg, client);
                     tx_event_pending = 1;
                 }
+                else if(strncmp(data, "*CA?#", 5) == 0){
+                    ESP_LOGI(TAG, "CA Values @ numValue %d polarity %d username %s dateTime %s",pulseWitdh,polarity,CAuserName,CAdateTime);
+                    
+                    sprintf(payload, "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity); //actual when in production
+                    publish_sip_message(payload, client);
+                }
+                else  if(strncmp(data, "*SS:", 4) == 0){
+                    char buf[100];
+                    sscanf(data, "*SS:%[^#]#", buf);
+                    strcpy(SSuserName,"MQTT_LOCAL");
+                    strcpy(SSdateTime,"00/00/00");
+                    strcpy(WIFI_SSID_1, buf);
+                    utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
+                    utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
+                    sprintf(payload, "*SS-OK,%s,%s#",SSuserName,SSdateTime);
+                    utils_nvs_set_str(NVS_SS_USERNAME, SSuserName);
+                    utils_nvs_set_str(NVS_SS_DATETIME, SSdateTime);
+                    publish_sip_message(payload, client);
+                    tx_event_pending = 1;
+                }
+                else if(strncmp(data, "*INH?#",6) == 0){
+                    if (INHInputValue !=0)
+                        INHInputValue = 1;
+                    ESP_LOGI(TAG, "INH Values @ numValue %d ",INHInputValue);
+                    sprintf(payload, "*INH-IN,%s,%s,%d,%d#",INHuserName,INHdateTime,INHInputValue,INHOutputValue); 
+                    publish_sip_message(payload, client);
+                }
+                 else if(strncmp(data, "*INH:", 5) == 0){
+                        sscanf(data, "*INH:%d#",&INHOutputValue);
+                        strcpy(INHuserName,"MQTT_LOCAL");
+                        strcpy(INHdateTime,"00/00/00");
+                        if (INHOutputValue != 0)
+                        {
+                            INHOutputValue = 1;
+                            gpio_set_level(CINHO, 0);
+                        }
+                        else
+                        {
+                                gpio_set_level(CINHO, 1);
+                        }
+                        ESP_LOGI (TAG, "Set INH Output as %d",INHOutputValue);
+                        sprintf(payload, "*INH-DONE,%s,%s,%d#",SSuserName,SSdateTime,INHOutputValue);
+                        utils_nvs_set_str(NVS_INH_USERNAME, INHuserName);
+                        utils_nvs_set_str(NVS_INH_DATETIME, INHdateTime);
+                        publish_sip_message(payload, client);
+                        // sprintf(payload, "*INH-DONE,%d#",INHOutputValue); //actual when in production
+                        // send(sock, payload, strlen(payload), 0);
+                        utils_nvs_set_int(NVS_INH_KEY, INHOutputValue);
+                }
                 else {
                     ESP_LOGI(TAG, "Unknown message received.");
                 }

@@ -8,6 +8,7 @@ wifi/server disconnection to be tested
 050524T1
 1.ESP_LOGI incoming messages from mqtt.
 2. SIP: ,SIP?,RST,CC,UR? commands added in mqtt.
+3. CA? , SS: ,INH?,INH:,
 
 040724T1
 Added first trial of MQTT sending some thing
