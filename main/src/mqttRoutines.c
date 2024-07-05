@@ -87,7 +87,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     // Declare variables outside the switch statement
     char topic[256]; // Assuming a max topic length
     char data[256];  // Assuming a max data length
-    char payload[400];
+    char payload[500];
     char buf[500];
 
     switch ((esp_mqtt_event_id_t)event_id)
@@ -318,6 +318,32 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     utils_nvs_set_str(NVS_PW1_DATETIME, PW1dateTime);
                     publish_sip_message(payload, client);
                     tx_event_pending = 1;
+                }
+                else if(strncmp(data, "*URL:", 5) == 0){
+                    sscanf(data, "*URL:%[^#]#",buf);
+                    strcpy(FOTA_URL, buf);
+                    strcpy(URLuserName,"MQTT_LOCAL");
+                    strcpy(URLdateTime,"00/00/00");
+                    utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
+                    sprintf(payload, "*URL-OK,%s,%s#",URLuserName,URLdateTime);
+                    utils_nvs_set_str(NVS_URL_USERNAME, URLuserName);
+                    utils_nvs_set_str(NVS_URL_DATETIME, URLdateTime);
+                    
+                    tx_event_pending = 1;
+                }
+                else if (strncmp(data, "*SSID?#", 7) == 0){
+                    sprintf(payload, "*SSID,%s,%s,%d,%s,%s,%s#",SSuserName,SSdateTime,WiFiNumber,WIFI_SSID_1,WIFI_SSID_2,WIFI_SSID_3); 
+                    publish_sip_message(payload, client);
+                    tx_event_pending = 1;
+                }
+                else if (strncmp(data, "*ERASE#", 7) == 0){
+                    utils_nvs_erase_all();
+                    publish_sip_message("ERASE-OK", client);
+                }else if(strncmp(data, "*RESTART#", 9) == 0){
+                    publish_sip_message("RESTART-OK", client);
+                    tx_event_pending = 1;
+                    vTaskDelay(2000/portTICK_PERIOD_MS);
+                    esp_restart();
                 }
                 else {
                     ESP_LOGI(TAG, "Unknown message received.");

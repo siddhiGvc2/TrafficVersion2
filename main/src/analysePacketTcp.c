@@ -38,7 +38,7 @@ void tcpip_client_task(void);
 void sendHBT (void);
 void tcp_ip_client_send_str(const char *);
 void tcpip_client_task(){
-    char payload[400];
+    char payload[500];
     char rx_buffer[128];
     int addr_family = 0;
     int ip_protocol = 0;
@@ -272,7 +272,7 @@ void tcpip_client_task(){
                                     tx_event_pending = 1;
                                 }
                                 else if (strncmp(rx_buffer, "*SSID?#", 7) == 0){
-                                sprintf(payload, "*SSID,%d,%s,%s,%s#",WiFiNumber,WIFI_SSID_1,WIFI_SSID_2,WIFI_SSID_3); 
+                                sprintf(payload, "*SSID,%s,%s,%d,%s,%s,%s#",SSuserName,SSdateTime,WiFiNumber,WIFI_SSID_1,WIFI_SSID_2,WIFI_SSID_3); 
                                 send(sock, payload, strlen(payload), 0);
                                 tx_event_pending = 1;
                                 }
