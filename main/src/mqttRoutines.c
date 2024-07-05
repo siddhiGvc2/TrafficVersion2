@@ -54,45 +54,83 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     esp_mqtt_event_handle_t event = event_data;
     esp_mqtt_client_handle_t client = event->client;
     int msg_id;
+
+    // Declare variables outside the switch statement
+    char topic[256]; // Assuming a max topic length
+    char data[256];  // Assuming a max data length
+
     switch ((esp_mqtt_event_id_t)event_id)
     {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-        MQTT_CONNEECTED=1;
-        
-        msg_id = esp_mqtt_client_subscribe(client, "/topic/test1", 0);
+        MQTT_CONNEECTED = 1;  // Ensure MQTT_CONNECTED is defined
+
+        msg_id = esp_mqtt_client_subscribe(client, "/GVC/KP/ALL", 0);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
 
         msg_id = esp_mqtt_client_subscribe(client, "/topic/test2", 1);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
         break;
+
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
-        MQTT_CONNEECTED=0;
+        MQTT_CONNEECTED = 0;
         break;
 
     case MQTT_EVENT_SUBSCRIBED:
         ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
         break;
+
     case MQTT_EVENT_UNSUBSCRIBED:
         ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
         break;
+
     case MQTT_EVENT_PUBLISHED:
         ESP_LOGI(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
         break;
+
     case MQTT_EVENT_DATA:
         ESP_LOGI(TAG, "MQTT_EVENT_DATA");
         printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
         printf("DATA=%.*s\r\n", event->data_len, event->data);
+
+        // Ensure topic and data are within bounds
+        if (event->topic_len < sizeof(topic) && event->data_len < sizeof(data)) {
+            strncpy(topic, event->topic, event->topic_len);
+            topic[event->topic_len] = '\0';
+
+            strncpy(data, event->data, event->data_len);
+            data[event->data_len] = '\0';
+
+            if (strcmp(topic, "/GVC/KP/ALL") == 0) {
+                if (strcmp(data, "*HBT#") == 0) {
+                    ESP_LOGI(TAG, "Heartbeat message received.");
+                } else if (strcmp(data, "COMMAND1") == 0) {
+                    ESP_LOGI(TAG, "Command 1 received.");
+                    // Execute action for COMMAND1
+                } else if (strcmp(data, "COMMAND2") == 0) {
+                    ESP_LOGI(TAG, "Command 2 received.");
+                    // Execute action for COMMAND2
+                } else {
+                    ESP_LOGI(TAG, "Unknown message received.");
+                }
+            }
+        } else {
+            ESP_LOGE(TAG, "Received topic/data too large");
+        }
         break;
+
     case MQTT_EVENT_ERROR:
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
+        // Add more error handling here if needed
         break;
+
     default:
         ESP_LOGI(TAG, "Other event id:%d", event->event_id);
         break;
     }
 }
+
 
 esp_mqtt_client_handle_t client = NULL;
 void mqtt_app_start(void)
@@ -127,8 +165,11 @@ void Publisher_Task(void *params)
   }
 }
 
+
+
 void InitMqtt (void)
 {
      xTaskCreate(Publisher_Task, "Publisher_Task", 1024 * 5, NULL, 5, NULL);
+    
      ESP_LOGI(TAG,"MQTT Initiated");
 }

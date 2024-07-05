@@ -4,6 +4,10 @@ Challenge -once wifi disconnected, it does not sense that and change status
 s2pinit if added will set a test output , normally keep it off
 UART2 not yet tested/not working
 wifi/server disconnection to be tested
+
+050524T1
+ESP_LOGI incoming messages from mqtt.
+
 040724T1
 Added first trial of MQTT sending some thing
 
