@@ -88,7 +88,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     char topic[256]; // Assuming a max topic length
     char data[256];  // Assuming a max data length
     char payload[400];
-    char rx_buffer[128];
+    char buf[500];
 
     switch ((esp_mqtt_event_id_t)event_id)
     {
@@ -217,7 +217,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     publish_sip_message(payload, client);
                 }
                 else  if(strncmp(data, "*SS:", 4) == 0){
-                    char buf[100];
+                    
                     sscanf(data, "*SS:%[^#]#", buf);
                     strcpy(SSuserName,"MQTT_LOCAL");
                     strcpy(SSdateTime,"00/00/00");
@@ -251,13 +251,73 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                                 gpio_set_level(CINHO, 1);
                         }
                         ESP_LOGI (TAG, "Set INH Output as %d",INHOutputValue);
-                        sprintf(payload, "*INH-DONE,%s,%s,%d#",SSuserName,SSdateTime,INHOutputValue);
+                        sprintf(payload, "*INH-DONE,%s,%s,%d#",INHuserName,INHdateTime,INHOutputValue);
                         utils_nvs_set_str(NVS_INH_USERNAME, INHuserName);
                         utils_nvs_set_str(NVS_INH_DATETIME, INHdateTime);
                         publish_sip_message(payload, client);
                         // sprintf(payload, "*INH-DONE,%d#",INHOutputValue); //actual when in production
                         // send(sock, payload, strlen(payload), 0);
                         utils_nvs_set_int(NVS_INH_KEY, INHOutputValue);
+                }
+                else if(strncmp(data, "*CA:", 4) == 0){
+                    sscanf(data, "*CA:%d:%d#",&numValue,&polarity);
+                    strcpy(CAuserName,"MQTT_LOCAL");
+                    strcpy(CAdateTime,"00/00/00");
+                    ESP_LOGI(TAG, "Generate @ numValue %d polarity %d",numValue,polarity);
+                    sprintf(payload, "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,numValue,polarity);
+                    utils_nvs_set_str(NVS_CA_USERNAME, CAuserName);
+                    utils_nvs_set_str(NVS_CA_DATETIME, CAdateTime);
+                    ESP_LOGI(TAG,"CA Values Saved %s,%s",CAuserName,CAdateTime);
+                    publish_sip_message(payload, client);
+                    if (numValue<10)
+                        numValue = 25;
+                    if (numValue>100)
+                        numValue = 100;
+                    // possible values are 0 and 1        
+                    if (polarity>0)
+                        polarity = 1;    
+                    pulseWitdh=numValue;
+                    SignalPolarity=polarity;
+                    tx_event_pending = 1;
+                    Out4094(0x00);
+                    utils_nvs_set_int(NVS_CA_KEY, numValue*2+polarity);
+                }
+                else if(strncmp(data, "*SS1:", 5) == 0){
+                    sscanf(data, "*SS1:%[^#]#", buf);
+                    strcpy(WIFI_SSID_2, buf);
+                    strcpy(SS1userName,"MQTT_LOCAL");
+                    strcpy(SS1dateTime,"00/00/00");
+                    utils_nvs_set_str(NVS_SSID_2_KEY, WIFI_SSID_2);
+                    sprintf(payload, "*SS1-OK,%s,%s#",SS1userName,SS1dateTime);
+                    utils_nvs_set_str(NVS_SS1_USERNAME, SS1userName);
+                    utils_nvs_set_str(NVS_SS1_DATETIME, SS1dateTime);
+                    publish_sip_message(payload, client);
+                    tx_event_pending = 1;
+                }
+                else if(strncmp(data, "*PW:", 4) == 0){
+                    sscanf(data, "*PW:%[^#]#", buf);
+                    strcpy(WIFI_PASS_1, buf);
+                    strcpy(PWuserName,"MQTT_LOCAL");
+                    strcpy(PWdateTime,"00/00/00");
+                    utils_nvs_set_str(NVS_PASS_1_KEY, WIFI_PASS_1);
+                    sprintf(payload, "*PW-OK,%s,%s#",PWuserName,PWdateTime);
+                    utils_nvs_set_str(NVS_PW_USERNAME, PWuserName);
+                    utils_nvs_set_str(NVS_PW_DATETIME, PWdateTime);
+                    
+                    // send(sock, "*PW-OK#", strlen("*PW-OK#"), 0);
+                    tx_event_pending = 1;
+                }
+                else if(strncmp(data, "*PW1:", 5) == 0){
+                    sscanf(data, "*PW1:%[^#]#", buf);
+                    strcpy(WIFI_PASS_2, buf);
+                    strcpy(PW1userName,"MQTT_LOCAL");
+                    strcpy(PW1dateTime,"00/00/00");
+                    utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
+                    sprintf(payload, "*PW1-OK,%s,%s#",PW1userName,PW1dateTime);
+                    utils_nvs_set_str(NVS_PW1_USERNAME, PW1userName);
+                    utils_nvs_set_str(NVS_PW1_DATETIME, PW1dateTime);
+                    publish_sip_message(payload, client);
+                    tx_event_pending = 1;
                 }
                 else {
                     ESP_LOGI(TAG, "Unknown message received.");
