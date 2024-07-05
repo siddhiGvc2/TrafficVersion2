@@ -65,10 +65,10 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
         MQTT_CONNEECTED = 1;  // Ensure MQTT_CONNECTED is defined
 
-        msg_id = esp_mqtt_client_subscribe(client, "/GVC/KP/ALL", 0);
+        msg_id = esp_mqtt_client_subscribe(client, "GVC/KP/00002", 0);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
 
-        msg_id = esp_mqtt_client_subscribe(client, "/topic/test2", 1);
+        msg_id = esp_mqtt_client_subscribe(client, "GVC/KP/00003", 1);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
         break;
 
@@ -91,8 +91,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
     case MQTT_EVENT_DATA:
         ESP_LOGI(TAG, "MQTT_EVENT_DATA");
-        printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
-        printf("DATA=%.*s\r\n", event->data_len, event->data);
+        ESP_LOGI(TAG,"TOPIC=%.*s\r\n", event->topic_len, event->topic);
+        ESP_LOGI(TAG,"DATA=%.*s\r\n", event->data_len, event->data);
 
         // Ensure topic and data are within bounds
         if (event->topic_len < sizeof(topic) && event->data_len < sizeof(data)) {
@@ -102,10 +102,10 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             strncpy(data, event->data, event->data_len);
             data[event->data_len] = '\0';
 
-            if (strcmp(topic, "/GVC/KP/ALL") == 0) {
+            if (strcmp(topic, "GVC/KP/00002") == 0) {
                 if (strcmp(data, "*HBT#") == 0) {
                     ESP_LOGI(TAG, "Heartbeat message received.");
-                } else if (strcmp(data, "COMMAND1") == 0) {
+                } else if (strcmp(data, "SS1:") == 0) {
                     ESP_LOGI(TAG, "Command 1 received.");
                     // Execute action for COMMAND1
                 } else if (strcmp(data, "COMMAND2") == 0) {
