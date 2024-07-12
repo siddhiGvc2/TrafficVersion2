@@ -99,7 +99,7 @@ typedef enum TCPIP_SOCKET_STATE{
 #define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
-#define FWVersion "*GVCSYS-05JUL24T2#"
+#define FWVersion "*GVCSYS-12JUL24T1#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12

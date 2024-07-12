@@ -5,7 +5,14 @@ s2pinit if added will set a test output , normally keep it off
 UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
-050524T1
+120724T1
+make green led always on 
+pulse R-G-B Led at power on
+Green LED is always on
+removed MQTT
+Siddhi
+
+050724T1
 1.ESP_LOGI incoming messages from mqtt.
 2. SIP: ,SIP?,RST,CC,UR? commands added in mqtt.
 3. CA? , SS: ,INH?,INH:commands added in mqtt.

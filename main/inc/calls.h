@@ -56,6 +56,8 @@ extern void led_set_level(gpio_num_t , int);
 extern void status_leds_init();
 extern void leds_update_task();
 extern void set_led_state(Led_State_t);
+extern void TestRGB (void);
+
 
 
 

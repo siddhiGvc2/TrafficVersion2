@@ -71,13 +71,16 @@ void app_main(void)
     wifi_init_sta();
     ESP_LOGI(TAG, "*Starting S2P#");
     s2p_init();
+    ESP_LOGI(TAG, "*Testing RGB #");
+    TestRGB();
+    
     ESP_LOGI(TAG, "*Clearing 4094 Output#");
     Out4094(0x00);; // set all outputs inactive
     xTaskCreate(sendHBT, "sendHBT", 2048, NULL, 6, NULL);
     xTaskCreate(BlinkLED, "BlinkLED", 2048, NULL, 6, NULL);
     if (!Production)
         xTaskCreate(TestCoin, "TestCoin", 2048, NULL, 6, NULL);
-    InitMqtt();
+//    InitMqtt();
     for (;;) 
     {
         vTaskDelay(100);   

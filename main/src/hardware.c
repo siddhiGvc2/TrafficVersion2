@@ -125,13 +125,16 @@ void leds_update_task(){
             // {
                 led1_gpio_state = !led1_gpio_state;
                 led_set_level(LEDR, led1_gpio_state);
-                led_set_level(LEDG, 0);
+                led2_gpio_state = 1;
+                led_set_level(LEDG, led2_gpio_state);
             // }
         }
         else
         {
             led1_gpio_state = 0;
             led_set_level(LEDR, led1_gpio_state);
+            led2_gpio_state = 1;
+            led_set_level(LEDG, led2_gpio_state);
         }
         // // if(((last_update_led1 == 0) || (millis() - last_update_led1 > current_interval)) && (current_interval != 0)){
         // //     //This will be only called when there is some error
@@ -711,6 +714,27 @@ void TestCoin (void)
         vTaskDelay(2000/portTICK_PERIOD_MS);
     }
 }
+
+
+void TestRGB (void)
+{
+    gpio_set_level(L1, 0);
+    gpio_set_level(L2, 0);
+    gpio_set_level(L3, 0);
+    vTaskDelay(1000/portTICK_PERIOD_MS);
+    gpio_set_level(L1, 1);
+    vTaskDelay(1000/portTICK_PERIOD_MS);
+    
+    gpio_set_level(L1, 0);
+    gpio_set_level(L2, 1);
+    vTaskDelay(1000/portTICK_PERIOD_MS);
+    gpio_set_level(L2, 0);
+    gpio_set_level(L3, 1);
+    vTaskDelay(1000/portTICK_PERIOD_MS);
+    gpio_set_level(L3, 0);
+    
+}
+
 void Test4094 (void)
 {
     for (;;) 
