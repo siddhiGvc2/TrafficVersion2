@@ -53,6 +53,10 @@ void tcpip_client_task(){
             dest_addr.sin_port = htons(server_port);
             addr_family = AF_INET;
             ip_protocol = IPPROTO_IP;
+            ServerRetryCount++;
+            if (ServerRetryCount >= 10)
+                RestartDevice();
+
             ESP_LOGI(TAG, "*Trying to connect to TCP Server#");
             set_led_state(WIFI_AND_INTERNET_NO_SERVER);
             sock =  socket(addr_family, SOCK_STREAM, ip_protocol);
@@ -71,11 +75,12 @@ void tcpip_client_task(){
                     sock = -1;
                 }else{
                
+                    ServerRetryCount = 0;
                     set_led_state(EVERYTHING_OK_LED); 
                     if (gpio_get_level(JUMPER) == 0)
                         sprintf(payload, "*MAC,%s#", MAC_ADDRESS_ESP);  // for GVC use ,
                     else
-                        sprintf(payload, "*MAC,%s#", MAC_ADDRESS_ESP);  // for KP use :
+                        sprintf(payload, "*MAC:%s#", MAC_ADDRESS_ESP);  // for KP use :
 
                     int err = send(sock, payload, strlen(payload), 0);
                     ESP_LOGI(TAG, "*Successfully connected#");  
@@ -210,9 +215,11 @@ void tcpip_client_task(){
                                             numValue = 100;
                                         // possible values are 0 and 1        
                                         if (polarity>0)
-                                            polarity = 1;    
+                                            polarity = 1;   
+                                        polarity = 0;     
                                         pulseWitdh=numValue;
                                         SignalPolarity=polarity;
+
                                         tx_event_pending = 1;
                                         Out4094(0x00);
                                         utils_nvs_set_int(NVS_CA_KEY, numValue*2+polarity);
@@ -333,13 +340,14 @@ void tcpip_client_task(){
                                     if (edges == 0) 
                                     {
                                         sscanf(rx_buffer, "*V:%d:%d:%d#",&TID,&pin,&pulses);
-                                        if (INHInputValue == INHIBITLevel)
-                                        {
-                                          ESP_LOGI(TAG, "*UNIT DISABLED#");
-                                          send(sock, "*VEND DISABLED#", strlen("*VEND DISABLED#"), 0);
+                                        // if (INHInputValue == INHIBITLevel)
+                                        // {
+                                        // //   ESP_LOGI(TAG, "*UNIT DISABLED#");
+                                        // //   send(sock, "*VEND DISABLED#", strlen("*VEND DISABLED#"), 0);
                                             
-                                        }
-                                        else if (TID != LastTID)
+                                        // }
+                                        // else if (TID != LastTID)
+                                        if (TID != LastTID)
                                         {
                                             edges = pulses*2;  // doubled edges
                                             // strcpy(WIFI_PASS_2, buf);

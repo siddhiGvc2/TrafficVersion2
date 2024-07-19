@@ -276,6 +276,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     // possible values are 0 and 1        
                     if (polarity>0)
                         polarity = 1;    
+                    polarity = 0; // hard code polairty to 0
                     pulseWitdh=numValue;
                     SignalPolarity=polarity;
                     tx_event_pending = 1;
@@ -349,14 +350,15 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     if (edges == 0) 
                     {
                         sscanf(data, "*V:%d:%d:%d#",&TID,&pin,&pulses);
-                        if (INHInputValue == INHIBITLevel)
-                        {
-                            ESP_LOGI(TAG, "*UNIT DISABLED#");
-                            publish_message("*VEND DISABLED#", client);
+                        // if (INHInputValue == INHIBITLevel)
+                        // {
+                        //     ESP_LOGI(TAG, "*UNIT DISABLED#");
+                        //     publish_message("*VEND DISABLED#", client);
                             
                             
-                        }
-                        else if (TID != LastTID)
+                        // }
+//                        else if (TID != LastTID)
+                        if (TID != LastTID)
                         {
                             edges = pulses*2;  // doubled edges
                             // strcpy(WIFI_PASS_2, buf);

@@ -6,7 +6,7 @@ int sp_port;
 int INHInputValue = 0;
 int INHOutputValue = 0;
 int PreviousINHValue = 0;
-
+int ServerRetryCount = 0;
 char WIFI_SSID_1[64];
 char WIFI_PASS_1[64];
 char WIFI_SSID_2[64];

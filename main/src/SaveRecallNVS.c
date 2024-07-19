@@ -183,12 +183,21 @@ void load_settings_nvs(){
         utils_nvs_set_str(NVS_SERVER_IP_KEY, server_ip_addr);
     }
 
+    if(utils_nvs_get_str(NVS_OTA_URL_KEY, FOTA_URL, 256) == ESP_OK){
+        ESP_LOGI(TAG, "*FOTA URL From NVS %s#", FOTA_URL);
+    }else{
+        strcpy(FOTA_URL, DEFAULT_FOTA_URL);
+        ESP_LOGI(TAG, "*Default FOTA URL : %s#", FOTA_URL);
+        utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
+    }
 
 
 // if jumper set server address and server port as jumperPort
     if (gpio_get_level(JUMPER) == 0)
     {        
         strcpy(server_ip_addr, DEFAULT_SERVER_IP_ADDR_TRY);
+        strcpy(FOTA_URL, DEFAULT_FOTA_URL_TRY);
+//        DEFAULT_FOTA_URL_TRY
         ESP_LOGI(TAG, "***************************");
         ESP_LOGI(TAG, "*JUMPER SENSED AT POWER ON#");
         ESP_LOGI(TAG, "*Server IP ADDRESS is %s#",server_ip_addr);
@@ -234,12 +243,5 @@ void load_settings_nvs(){
     }
 
 
-    if(utils_nvs_get_str(NVS_OTA_URL_KEY, FOTA_URL, 256) == ESP_OK){
-        ESP_LOGI(TAG, "*FOTA URL From NVS %s#", FOTA_URL);
-    }else{
-        strcpy(FOTA_URL, DEFAULT_FOTA_URL);
-        ESP_LOGI(TAG, "*Default FOTA URL : %s#", FOTA_URL);
-        utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
-    }
 
 }

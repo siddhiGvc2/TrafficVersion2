@@ -132,7 +132,8 @@ void event_handler(void* arg, esp_event_base_t event_base,
         ESP_LOGI(TAG, "*got ip:*" IPSTR, IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
-        mqtt_app_start();  // connect to MQTT when IP received
+// disable mqtt        
+//        mqtt_app_start();  // connect to MQTT when IP received
     }
     else if (event_base == SC_EVENT && event_id == SC_EVENT_SCAN_DONE) {
         ESP_LOGI(TAG, "*Scan done#");

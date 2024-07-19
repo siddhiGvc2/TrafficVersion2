@@ -51,6 +51,14 @@ bool extractSubstring(const char* , char* );
 uint32_t millis(void);
 void resolve_hostname(const char *);
 
+void RestartDevice (void)
+{
+     ESP_LOGI(TAG, "**************Restarting after 3 second******#");
+     send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
+     ESP_LOGI(TAG, "*RST-OK#");
+     vTaskDelay(3000/portTICK_PERIOD_MS);
+     esp_restart();
+}
 
 void leds_update_task(){
     for(;;){
@@ -123,15 +131,24 @@ void leds_update_task(){
             // }
             // else
             // {
+            if (led_state == EVERYTHING_OK_LED)
+                led1_gpio_state = 1;
+            else
+            {
                 led1_gpio_state = !led1_gpio_state;
-                led_set_level(LEDR, led1_gpio_state);
-                led2_gpio_state = 1;
-                led_set_level(LEDG, led2_gpio_state);
+            }
+            led_set_level(LEDR, led1_gpio_state);
+            led2_gpio_state = 1;
+            led_set_level(LEDG, led2_gpio_state);
             // }
         }
         else
         {
-            led1_gpio_state = 0;
+            if (led_state == EVERYTHING_OK_LED)
+                led1_gpio_state = 1;
+            else
+                led1_gpio_state = 0;
+
             led_set_level(LEDR, led1_gpio_state);
             led2_gpio_state = 1;
             led_set_level(LEDG, led2_gpio_state);

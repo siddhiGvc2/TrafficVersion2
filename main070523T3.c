@@ -527,6 +527,7 @@ void load_settings_nvs(){
 
     if(utils_nvs_get_int(NVS_CA_KEY, &caValue) == ESP_OK){
         SignalPolarity = caValue%2;
+        SignalPolarity =0;  // make it always zero
         pulseWitdh = caValue/2;
         ESP_LOGI(TAG, "CA Values %d - %d", pulseWitdh,SignalPolarity);
     }

@@ -5,6 +5,18 @@ s2pinit if added will set a test output , normally keep it off
 UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
+190724
+remove MQTT - DONE
+Make LED permanently on when connected - DONE
+blink Red LED when connecting to wifi/server - DONE
+After ESP TOUCH freeze / restart Device - PENDING
+Remove INH Functionality (defauly Vend enabled) - DONE
+Remove CA functionality of reverse polarity (defauly 0) - done by Jugaad , making Signal Polarity 0 
+after reading and 0 while setting
+BUG : Not being set in UART - DONE
+if Server not found - restart after X tries
+
+
 120724T1
 make green led always on 
 pulse R-G-B Led at power on

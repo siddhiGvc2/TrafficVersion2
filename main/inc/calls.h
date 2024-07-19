@@ -39,6 +39,7 @@ extern void set_led_state(Led_State_t);
 
 // general
 extern void resolve_hostname(const char *);
+extern void RestartDevice (void);
 
 // hardware
 extern void Out4094Byte (unsigned char);

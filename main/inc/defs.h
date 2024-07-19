@@ -42,12 +42,12 @@ typedef enum TCPIP_SOCKET_STATE{
 #define NVS_CASH6_KEY   "CASH6"
 #define NVS_CASH7_KEY   "CASH7"
 
-#define DEFAULT_SSID1  "GVCSYS1"
-#define DEFAULT_PASS1  "GVC3065V"
-#define DEFAULT_SSID2  "GVCSYS2"
-#define DEFAULT_PASS2  "GVC3065V"
-#define DEFAULT_SSID3  "GVCSYS3"
-#define DEFAULT_PASS3  "GVC3065V"
+#define DEFAULT_SSID1  "Kwikpay_Wifi"
+#define DEFAULT_PASS1  "Kwik@123"
+#define DEFAULT_SSID2  "NA_iOt_WF"
+#define DEFAULT_PASS2  "N*kwik@1507"
+#define DEFAULT_SSID3  "Kwikpay_Wifi"
+#define DEFAULT_PASS3  "Kwik@123"
 
 
 #define NVS_SIP_USERNAME     "USERNAME_SIP"
@@ -98,8 +98,9 @@ typedef enum TCPIP_SOCKET_STATE{
 #define DEFAULT_SERVER_IP_ADDR_TRY "gvc.co.in"
 #define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
 #define DEFAULT_SERVER_PORT    6666
-#define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/firmware.bin"
-#define FWVersion "*GVCSYS-12JUL24T1#"
+#define DEFAULT_FOTA_URL_TRY  "http://gvc.co.in/esp/firmware.bin"
+#define DEFAULT_FOTA_URL  "http://test-firmware.kwikpay.uk/firmware/firmware.bin"
+#define FWVersion "*Kwikpay_150724_VER_1.00 Naico Ltd#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12

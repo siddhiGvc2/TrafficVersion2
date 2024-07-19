@@ -95,6 +95,7 @@ void process_uart_packet(const char *pkt){
         utils_nvs_set_str(NVS_CA_DATETIME, CAdateTime);
        uart_write_string_ln(buffer);
         tx_event_pending = 1;
+        
     }
      else if(strncmp(pkt, "*FOTA:", 6) == 0){
     
@@ -121,15 +122,16 @@ void process_uart_packet(const char *pkt){
         if(edges==0)
         {
            sscanf(pkt, "*V:%d:%d:%d#",&TID,&pin,&pulses);
-            if (INHInputValue == INHIBITLevel)
-            {
-                ESP_LOGI(TAG, "*UNIT DISABLED#");
-                char buffer[100]; 
-                sprintf(buffer, "*VEND DISABLED#");
-                uart_write_string_ln(buffer);
+            // if (INHInputValue == INHIBITLevel)
+            // {
+            //     ESP_LOGI(TAG, "*UNIT DISABLED#");
+            //     char buffer[100]; 
+            //     sprintf(buffer, "*VEND DISABLED#");
+            //     uart_write_string_ln(buffer);
                 
-            }
-             else if (TID != LastTID)
+            // }
+            //  else if (TID != LastTID)
+            if (TID != LastTID)
             {
                 edges = pulses*2;  // doubled edges
                 // strcpy(WIFI_PASS_2, buf);

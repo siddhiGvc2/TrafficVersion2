@@ -2,6 +2,8 @@
 extern int INHInputValue;
 extern int INHOutputValue;
 extern int PreviousINHValue;
+extern int ServerRetryCount;
+
 #define INHIBITLevel 1
 extern char WIFI_SSID_1[64];
 extern char WIFI_PASS_1[64];
