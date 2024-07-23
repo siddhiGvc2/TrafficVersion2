@@ -78,8 +78,8 @@ void app_main(void)
     Out4094(0x00);; // set all outputs inactive
     xTaskCreate(sendHBT, "sendHBT", 2048, NULL, 6, NULL);
     xTaskCreate(BlinkLED, "BlinkLED", 2048, NULL, 6, NULL);
-    if (!Production)
-        xTaskCreate(TestCoin, "TestCoin", 2048, NULL, 6, NULL);
+   
+    xTaskCreate(TestCoin, "TestCoin", 2048, NULL, 6, NULL);
 //    InitMqtt();
     for (;;) 
     {

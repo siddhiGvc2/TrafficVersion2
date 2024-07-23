@@ -338,6 +338,7 @@ void http_fota(void){
     
    // http_perform_as_stream_reader();
    // return;
+   char buffer[100];
     esp_err_t err;
     esp_ota_handle_t ota_handle = 0;
     const esp_partition_t *update_partition = NULL;
@@ -347,6 +348,7 @@ void http_fota(void){
     update_partition = esp_ota_get_next_update_partition(NULL);
     if (update_partition == NULL) {
         printf("Failed to get OTA partition.\n#");
+        uart_write_string_ln("*Failed to get OTA partition#");
         //esp_http_client_cleanup(client);
         set_led_state(prev_state);
         return;
@@ -355,6 +357,7 @@ void http_fota(void){
     err = esp_ota_begin(update_partition, OTA_SIZE_UNKNOWN, &ota_handle);
     if (err != ESP_OK) {
         printf("Failed to begin OTA update: %s\n", esp_err_to_name(err));
+        uart_write_string_ln("*Failed to get OTA udpate#");
         //esp_http_client_cleanup(client);
         set_led_state(prev_state);
         return;
@@ -381,12 +384,14 @@ void http_fota(void){
     if ((err = esp_http_client_open(client, 0)) != ESP_OK) {
         ESP_LOGE(TAG, "*Failed to open HTTP connection: %s#", esp_err_to_name(err));
         send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
+        uart_write_string_ln("*Failed to open http#");
         esp_http_client_cleanup(client);
         set_led_state(prev_state);
         return;
     }
 
     ESP_LOGI(TAG, "*esp_http_client_open#");
+    uart_write_string_ln("*esp_http_client_open#");
 
     /*
     int read_bytes = 0;
@@ -422,9 +427,12 @@ void http_fota(void){
             if (err != ESP_OK) {
                 printf("Failed to write OTA data: %s\n", esp_err_to_name(err));
                 send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
+                uart_write_string_ln("*FOTA-ERROR#");
                 esp_http_client_cleanup(client);
             }else{
+                sprintf(buffer,"*OTA Percent : %d#", ((total_read_len*100)/content_length));    
                 ESP_LOGI(TAG, "*OTA Percent : %d#", ((total_read_len*100)/content_length) );
+                uart_write_string_ln(buffer);
             }
         }
     }
@@ -438,17 +446,19 @@ void http_fota(void){
     }
 
     ESP_LOGI(TAG, "*ota data written#");
-
+    uart_write_string("*ota data written#");
     err = esp_ota_end(ota_handle);
     if (err != ESP_OK) {
         printf("*OTA update failed: %s\n#", esp_err_to_name(err));
         send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
+        uart_write_string_ln("*ota data written#");
         esp_http_client_cleanup(client);
         set_led_state(prev_state);
         return;
     }
 
     ESP_LOGI(TAG, "*esp_ota_end#");
+    uart_write_string_ln("*ota data written#");
 
     err = esp_ota_set_boot_partition(update_partition);
     if (err != ESP_OK) {
@@ -460,11 +470,12 @@ void http_fota(void){
     }
 
     ESP_LOGI(TAG, "*esp_ota_set_boot_partition#");
+    uart_write_string_ln("*esp_ota_set_boot_partition#");
     
     esp_http_client_cleanup(client);
     printf("*OTA update successful! Restarting...\n#");
     send(sock, "*FOTA-OVER#", strlen("*FOTA-OVER#"), 0);
-    
+    uart_write_string_ln("OTA update successful! Restarting...");
     vTaskDelay(2000/portTICK_PERIOD_MS);
     esp_restart();
     set_led_state(prev_state);

@@ -1,5 +1,7 @@
 #include "defs.h"
 
+int HardwareTestMode = 0;
+int HardwareTestCount = 0;
 int rx_event_pending = 0;
 int tx_event_pending = 0;
 int sp_port;

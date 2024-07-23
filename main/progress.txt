@@ -7,6 +7,10 @@ wifi/server disconnection to be tested
 
 
 230724
+Add a test functions
+in Test function - disable local tranfer of signals
+
+230724
 SN: , SN? commands added only in UART.
 Displayed MacId and HBT command in UART also.
 

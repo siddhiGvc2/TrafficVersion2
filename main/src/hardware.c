@@ -438,8 +438,12 @@ void gpio_read_n_act(void)
                         send(sock, payload, strlen(payload), 0);
                    }
                    // create same pules on same output pin 17-06-24
-                   edges = TotalPulses * 2;
-                   pin = LastInputPin;
+                   // provided this is not hardware test mode
+                   if (HardwareTestMode == 0)
+                   {
+                    edges = TotalPulses * 2;
+                    pin = LastInputPin;
+                   }
                    sprintf(payload, "*RP,%d,%d#",LastInputPin,TotalPulses); 
                    uart_write_string(payload);
                    ESP_LOGI(TAG,"*RP,%d,%d#",LastInputPin,TotalPulses);
@@ -721,13 +725,50 @@ void GeneratePulsesInBackGround (void)
 
 void TestCoin (void)
 {
+    char buffer[100];
+    int j;
     for (;;) 
     {
-        // pin++;
-        // if (pin>7)
-            pin = 4;
-        edges = 2;    
-         ESP_LOGI("TestCoin","Pin Number %d ",pin);
+        if (HardwareTestMode)
+        {
+            gpio_set_level(L1, 0);
+            gpio_set_level(L2, 0);
+            gpio_set_level(L3, 0);
+            pin++;
+            if (pin>7)
+            {
+                j = 0;
+                pin = 1;
+                HardwareTestCount++;
+                for (int i = 0 ; i < 7 ; i++)
+                {
+                    if ( CashTotals[i] != HardwareTestCount)
+                    {
+                        sprintf(buffer, "Error - Pin %d & Count Number %d ",i+1,CashTotals[i]); //actual when in production
+                        ESP_LOGI("TestCoin","Error %d - Pin %d, Count",i+1 , CashTotals[i]);
+                        uart_write_string_ln(buffer);
+                        j++;
+                    }
+                    if (j == 0)
+                    {    
+                        ESP_LOGI("TestCoin","Test Cycle Okay");
+                        uart_write_string_ln("Test Cycle Okay");        
+                    }   
+                }
+            }   
+            if ((pin == 1) || (pin == 4))
+                gpio_set_level(L1, 1);
+            if ((pin == 2) || (pin == 5))
+                gpio_set_level(L2, 1);
+            if ((pin == 3) || (pin == 6))
+                gpio_set_level(L3, 1);
+
+            edges = 2;    
+            ESP_LOGI("TestCoin","Test Coin Pin Number %d ",pin);
+            sprintf(buffer, "Test Coin Pin Number %d ",pin); //actual when in production
+            uart_write_string_ln(buffer);
+            
+        }
         vTaskDelay(2000/portTICK_PERIOD_MS);
     }
 }

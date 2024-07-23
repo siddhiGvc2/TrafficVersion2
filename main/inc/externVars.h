@@ -1,4 +1,7 @@
 #include "defs.h"
+
+extern int HardwareTestMode;
+extern int HardwareTestCount;
 extern int INHInputValue;
 extern int INHOutputValue;
 extern int PreviousINHValue;

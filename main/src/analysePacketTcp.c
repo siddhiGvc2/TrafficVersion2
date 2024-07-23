@@ -157,6 +157,27 @@ void tcpip_client_task(){
                                         send(sock, payload, strlen(payload), 0);
                                  }
 
+                                else if(strncmp(rx_buffer, "*TESTON#",8) == 0)
+                                {
+                                    HardwareTestMode = 1;    
+                                    pin = 0;    
+                                    ESP_LOGI(TAG, "*Hardware Test Started#");
+                                    uart_write_string_ln("*Hardware Test Started#");
+                                    // clear TC also
+                                    for (int i = 0 ; i < 7 ; i++)
+                                    {
+                                        CashTotals[i] = 0;
+                                    } 
+                            }        
+                                else if(strncmp(rx_buffer, "*TESTOFF#",9) == 0)
+                                {
+                                    HardwareTestMode = 0;    
+                                    pin = 0;    
+                                    ESP_LOGI(TAG, "*Hardware Test Stopped#");
+                                    uart_write_string_ln("*Hardware Test Stopped#");
+                                    RestartDevice();
+
+                            }        
                                 else if(strncmp(rx_buffer, "*INH?#",6) == 0){
                                         if (INHInputValue !=0)
                                             INHInputValue = 1;
