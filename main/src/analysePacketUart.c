@@ -45,8 +45,14 @@ void process_uart_packet(const char *);
 void process_uart_packet(const char *pkt){
     rx_event_pending = 1;
     char buf[100];
+    char buffer[900]; 
+    char payload[140]; 
+    sprintf(buffer,"*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber);
+    uart_write_string_ln(buffer);
+    sprintf(payload, "*HBT,%s,%s#", MAC_ADDRESS_ESP,SerialNumber);
+    uart_write_string_ln(payload);
       if(strncmp(pkt, "*CA?#", 5) == 0){
-         char buffer[300]; 
+       
        sprintf(buffer,"*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity);
 
        uart_write_string_ln(buffer);
@@ -64,7 +70,7 @@ void process_uart_packet(const char *pkt){
         utils_nvs_set_int(NVS_CASH5_KEY, CashTotals[4]);
         utils_nvs_set_int(NVS_CASH6_KEY, CashTotals[5]);
         utils_nvs_set_int(NVS_CASH7_KEY, CashTotals[6]);
-         char buffer[150]; 
+       
         sprintf(buffer, "*CC-OK#");
       
         uart_write_string_ln(buffer);
@@ -96,7 +102,7 @@ void process_uart_packet(const char *pkt){
         
     }
      else if(strncmp(pkt, "*SN?#", 5) == 0){
-        char buffer[100];
+      
         sprintf(buffer, "*SN-OK,%s#",SerialNumber); //actual when in production
         uart_write_string_ln(buffer);
       
@@ -108,7 +114,7 @@ void process_uart_packet(const char *pkt){
         sscanf(pkt, "*CA:%d:%d#",&numValue,&polarity);
         strcpy(CAuserName,"LOCAL");
         strcpy(CAdateTime,"00/00/00");
-         char buffer[100]; 
+        
         sprintf(buffer,"*CA-OK,%d,%d#",numValue,polarity);
         utils_nvs_set_str(NVS_CA_USERNAME, CAuserName);
         utils_nvs_set_str(NVS_CA_DATETIME, CAdateTime);
@@ -116,20 +122,9 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
         
     }
-     else if(strncmp(pkt, "*FOTA:", 6) == 0){
-    
-         char buffer[100]; 
-        sprintf(buffer,"*FOTA-OK#");
-     
-
-       uart_write_string_ln(buffer);
-       uart_write_string_ln(FOTA_URL);
-       http_fota();
-        tx_event_pending = 1;
-    }
+   
      else if(strncmp(pkt, "*RST:", 5) == 0){
     
-         char buffer[100]; 
         sprintf(buffer, "*RST-OK#");
         uart_write_string_ln(buffer);
         vTaskDelay(3000/portTICK_PERIOD_MS);
@@ -156,7 +151,7 @@ void process_uart_packet(const char *pkt){
                 // strcpy(WIFI_PASS_2, buf);
                 // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
                 ESP_LOGI(TAG, "*V-OK,%d,%d,%d#",TID,pin,pulses);
-                 char buffer[100]; 
+                 
                 sprintf(buffer, "*V-OK,%d,%d,%d#", TID,pin,pulses); //actual when in production
                 uart_write_string_ln(buffer);
                 vTaskDelay(1000/portTICK_PERIOD_MS);
@@ -171,7 +166,7 @@ void process_uart_packet(const char *pkt){
             {
                 ESP_LOGI(TAG, "Duplicate TID");
            
-                 char buffer[100]; 
+                
                 sprintf(buffer,  "*DUP TID#");
                 uart_write_string_ln(buffer);
             }  
@@ -241,7 +236,7 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
         http_fota();
     }else if(strncmp(pkt, "*URL?#", 6) == 0){
-         char buffer[650]; 
+       
        sprintf(buffer,"*%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL);
         uart_write_string_ln(buffer);
         tx_event_pending = 1;
@@ -263,7 +258,7 @@ void process_uart_packet(const char *pkt){
     }
     
     else if(strncmp(pkt, "*TC?#", 5) == 0){
-        char buffer[100]; 
+      
         sprintf(buffer, "*TC,%d,%d,%d,%d,%d,%d,%d#", 
              CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]);
 
@@ -272,7 +267,7 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
     }
     else if(strncmp(pkt, "*TV?#", 5) == 0){
-        char buffer[100]; 
+       
         sprintf(buffer, "*TV,%d,%d,%d,%d,%d,%d,%d#", 
             Totals[0], Totals[1], Totals[2], Totals[3], Totals[4], Totals[5], Totals[6]);
 
@@ -287,7 +282,7 @@ void process_uart_packet(const char *pkt){
                                         &sp_port);
         strcpy(SIPuserName,"LOCAL");
         strcpy(SIPdateTime,"00/00/00");
-        char buf[100];
+
         sprintf(buf, "%s", server_ip_addr);
         
         utils_nvs_set_str(NVS_SERVER_IP_KEY, buf);
@@ -298,7 +293,7 @@ void process_uart_packet(const char *pkt){
         uart_write_string_ln("*SIP-OK#");
         tx_event_pending = 1;
     } else if(strncmp(pkt, "*SIP?#", 6) == 0){
-        char buffer[350]; 
+        
        sprintf(buffer,"*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
                                         sp_port );
 

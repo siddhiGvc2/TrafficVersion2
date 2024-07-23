@@ -5,6 +5,11 @@ s2pinit if added will set a test output , normally keep it off
 UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
+
+230724
+SN: , SN? commands added only in UART.
+Displayed MacId and HBT command in UART also.
+
 190724
 remove MQTT - DONE
 Make LED permanently on when connected - DONE
