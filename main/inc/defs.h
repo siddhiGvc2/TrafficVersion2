@@ -102,7 +102,7 @@ typedef enum TCPIP_SOCKET_STATE{
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL_TRY  "http://gvc.co.in/esp/firmware.bin"
 #define DEFAULT_FOTA_URL  "http://test-firmware.kwikpay.uk/firmware/firmware.bin"
-#define FWVersion "*Kwikpay_230724_VER_1.01 Naico Ltd#"
+#define FWVersion "*Kwikpay_230724_VER_1.02 Naico Ltd#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
