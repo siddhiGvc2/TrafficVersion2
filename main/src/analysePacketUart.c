@@ -85,6 +85,25 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
         }
     }
+      else if(strncmp(pkt, "*SN:", 4) == 0){
+      
+       sscanf(pkt, "*SN:%[^:]#", SerialNumber);
+        utils_nvs_set_str(NVS_SERIAL_NUMBER, SerialNumber);
+        
+      
+        uart_write_string_ln("*SN-OK#");
+        tx_event_pending = 1;
+        
+    }
+     else if(strncmp(pkt, "*SN?#", 5) == 0){
+        char buffer[100];
+        sprintf(buffer, "*SN-OK,%s#",SerialNumber); //actual when in production
+        uart_write_string_ln(buffer);
+      
+      
+        tx_event_pending = 1;
+        
+    }
     else if(strncmp(pkt, "*CA:", 4) == 0){
         sscanf(pkt, "*CA:%d:%d#",&numValue,&polarity);
         strcpy(CAuserName,"LOCAL");

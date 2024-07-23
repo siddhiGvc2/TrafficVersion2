@@ -38,7 +38,7 @@ void tcpip_client_task(void);
 void sendHBT (void);
 void tcp_ip_client_send_str(const char *);
 void tcpip_client_task(){
-    char payload[500];
+    char payload[700];
     char rx_buffer[128];
     int addr_family = 0;
     int ip_protocol = 0;
@@ -78,16 +78,16 @@ void tcpip_client_task(){
                     ServerRetryCount = 0;
                     set_led_state(EVERYTHING_OK_LED); 
                     if (gpio_get_level(JUMPER) == 0)
-                        sprintf(payload, "*MAC,%s#", MAC_ADDRESS_ESP);  // for GVC use ,
+                        sprintf(payload, "*MAC,%s,%s#", MAC_ADDRESS_ESP,SerialNumber);  // for GVC use ,
                     else
-                        sprintf(payload, "*MAC:%s#", MAC_ADDRESS_ESP);  // for KP use :
+                        sprintf(payload, "*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber);  // for KP use :
 
                     int err = send(sock, payload, strlen(payload), 0);
                     ESP_LOGI(TAG, "*Successfully connected#");  
                     if (gpio_get_level(JUMPER) == 0)
-                        ESP_LOGI(TAG, "*MAC,%s#", MAC_ADDRESS_ESP) ;
+                        ESP_LOGI(TAG, "*MAC,%s,%s#", MAC_ADDRESS_ESP,SerialNumber) ;
                     else
-                        ESP_LOGI(TAG, "*MAC,%s#", MAC_ADDRESS_ESP) ;
+                        ESP_LOGI(TAG, "*MAC,%s,%s#", MAC_ADDRESS_ESP,SerialNumber) ;
 
                     sprintf(payload, "*WiFi,%d#", WiFiNumber); //actual when in production
                     err = send(sock, payload, strlen(payload), 0);
@@ -486,10 +486,10 @@ void tcpip_client_task(){
 
 void sendHBT (void)
 {
-    char payload[100];
+    char payload[400];
     for (;;) {
-        ESP_LOGI(TAG, "*HBT,%s#", MAC_ADDRESS_ESP);
-        sprintf(payload, "*HBT,%s#", MAC_ADDRESS_ESP); //actual when in production
+        ESP_LOGI(TAG, "*HBT,%s,%s#", MAC_ADDRESS_ESP,SerialNumber);
+        sprintf(payload, "*HBT,%s,%s#", MAC_ADDRESS_ESP,SerialNumber); //actual when in production
         int err = send(sock, payload, strlen(payload), 0);
         // gpio_set_level(LedHBT, 1);
         // vTaskDelay(200/portTICK_PERIOD_MS);
