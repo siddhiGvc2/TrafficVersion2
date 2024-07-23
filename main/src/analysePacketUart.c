@@ -44,9 +44,9 @@ void process_uart_packet(const char *);
 
 void process_uart_packet(const char *pkt){
     rx_event_pending = 1;
-    char buf[100];
+    char buf[200];
     char buffer[900]; 
-    char payload[140]; 
+    char payload[240]; 
     sprintf(buffer,"*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber);
     uart_write_string_ln(buffer);
     sprintf(payload, "*HBT,%s,%s#", MAC_ADDRESS_ESP,SerialNumber);
@@ -93,7 +93,8 @@ void process_uart_packet(const char *pkt){
     }
       else if(strncmp(pkt, "*SN:", 4) == 0){
       
-       sscanf(pkt, "*SN:%[^:]#", SerialNumber);
+       sscanf(pkt, "*SN:%[^#]#",buf);
+        strcpy(SerialNumber, buf);
         utils_nvs_set_str(NVS_SERIAL_NUMBER, SerialNumber);
         
       

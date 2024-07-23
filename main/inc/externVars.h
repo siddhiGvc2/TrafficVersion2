@@ -83,7 +83,7 @@ extern char INHuserName[100];
 extern char SPdateTime[100];
 extern char SPuserName[100];
 
-extern char SerialNumber[90];
+extern char SerialNumber[100];
 
 
 
