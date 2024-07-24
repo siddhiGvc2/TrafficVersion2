@@ -12,6 +12,8 @@ wifi/server disconnection to be tested
 3. In mqttp subscribe topic is replaced with GVC/KP/SerialNumber.
 4. in SS: set ssid with 3 parameters if 3 parameters is not given then send error message.
 5. Nvs recalled for all username and dateTime.
+6. for SS1:,SS2:,PW:,PW1:,PW2: error message send if parameters are not correct.
+7. for Ca & URl also error message added.
 
 
 
