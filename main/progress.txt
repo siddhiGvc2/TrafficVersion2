@@ -8,6 +8,9 @@ wifi/server disconnection to be tested
 
 240723
 1.nvs recalled for SerialNumber.
+2.SN: ,SN? commands added in tcp.
+3. In mqttp subscribe topic is replaced with GVC/KP/SerialNumber.
+
 
 
 230724

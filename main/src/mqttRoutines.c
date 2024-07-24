@@ -85,7 +85,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     int msg_id;
 
     // Declare variables outside the switch statement
-    char topic[256]; // Assuming a max topic length
+    char topic[356]; // Assuming a max topic length
     char data[256];  // Assuming a max data length
     char payload[500];
     char buf[500];
@@ -95,8 +95,11 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
         MQTT_CONNEECTED = 1;  // Ensure MQTT_CONNECTED is defined
+        
+      
+        sprintf(topic, "GVC/KP/%s", SerialNumber);
 
-        msg_id = esp_mqtt_client_subscribe(client, "GVC/KP/00002", 0);
+        msg_id = esp_mqtt_client_subscribe(client, topic, 0);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
 
         msg_id = esp_mqtt_client_subscribe(client, "GVC/KP/00003", 1);
@@ -133,7 +136,10 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             strncpy(data, event->data, event->data_len);
             data[event->data_len] = '\0';
 
-            if (strcmp(topic, "GVC/KP/00002") == 0) {
+            char expected_topic[150];
+            sprintf(expected_topic, "GVC/KP/%s", SerialNumber);
+
+            if (strcmp(topic, expected_topic) == 0) {
                 if (strcmp(data, "*HBT#") == 0) {
                     ESP_LOGI(TAG, "Heartbeat message received.");
                 } else if (strcmp(data, "SS1:") == 0) {

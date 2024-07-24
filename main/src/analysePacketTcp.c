@@ -481,6 +481,20 @@ void tcpip_client_task(){
                                         vTaskDelay(3000/portTICK_PERIOD_MS);
                                         esp_restart();
                                 }
+                                 else if(strncmp(rx_buffer, "*SN:", 4) == 0){
+      
+                                        sscanf(rx_buffer, "*SN:%[^#]#",SerialNumber);
+                                        utils_nvs_set_str(NVS_SERIAL_NUMBER, SerialNumber);
+                                        send(sock, "*SN-OK#", strlen("*SN-OK#"), 0);
+                                        tx_event_pending = 1;
+                                        
+                                    }
+                                    else if(strncmp(rx_buffer, "*SN?#", 5) == 0){
+                                        sprintf(payload, "*SN-OK,%s#",SerialNumber);
+                                        send(sock, payload, strlen(payload), 0);
+                                        tx_event_pending = 1;
+                                        
+                                    }
                                 else{
                                     if(extractSubstring(rx_buffer, buf) == true){
                                         uart_write_string("*");
