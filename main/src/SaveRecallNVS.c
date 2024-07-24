@@ -104,6 +104,11 @@ void load_settings_nvs(){
         ESP_LOGI(TAG, "*CA values %s|%s#", CAuserName, CAdateTime);
     }
     }
+    
+    if(utils_nvs_get_str(NVS_SERIAL_NUMBER, SerialNumber,100) == ESP_OK){
+       utils_nvs_get_str(NVS_SERIAL_NUMBER, SerialNumber,100);
+    }
+
 
     if(utils_nvs_get_str(NVS_SSID_1_KEY, WIFI_SSID_1, 64) == ESP_OK){
         utils_nvs_get_str(NVS_PASS_1_KEY, WIFI_PASS_1, 64);
@@ -171,8 +176,7 @@ void load_settings_nvs(){
     {
         gpio_set_level(CINHO, 1);
     }
-
-
+   
 
 
     if(utils_nvs_get_str(NVS_SERVER_IP_KEY, server_ip_addr, 100) == ESP_OK){
@@ -182,7 +186,7 @@ void load_settings_nvs(){
         ESP_LOGI(TAG, "*Default Server IP : %s#", server_ip_addr);
         utils_nvs_set_str(NVS_SERVER_IP_KEY, server_ip_addr);
     }
-
+   
     if(utils_nvs_get_str(NVS_OTA_URL_KEY, FOTA_URL, 256) == ESP_OK){
         ESP_LOGI(TAG, "*FOTA URL From NVS %s#", FOTA_URL);
     }else{

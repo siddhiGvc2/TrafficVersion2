@@ -6,6 +6,10 @@ UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
 
+240723
+1.nvs recalled for SerialNumber.
+
+
 230724
 Add a test functions
 in Test function - disable local tranfer of signals
