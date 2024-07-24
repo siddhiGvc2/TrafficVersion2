@@ -62,6 +62,9 @@ extern char RSTuserName[100];
 extern char SSdateTime[100];
 extern char SSuserName[100];
 
+extern char SLdateTime[100];
+extern char SLuserName[100];
+
 extern char PWdateTime[100];
 extern char PWuserName[100];
 

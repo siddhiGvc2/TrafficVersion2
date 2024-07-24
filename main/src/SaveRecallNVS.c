@@ -98,15 +98,112 @@ void utils_nvs_set_str(const char * key , const char * val){
 void load_settings_nvs(){
     
     ESP_LOGI(TAG, "*NVS Reading Started#");
-    if (utils_nvs_get_str(NVS_CA_USERNAME, CAuserName, sizeof(CAuserName)) == ESP_OK) {
-    if (strcmp(CAuserName, "Siddhi Gvc") == 0) {
-        utils_nvs_get_str(NVS_CA_DATETIME, CAdateTime, sizeof(CAdateTime));
-        ESP_LOGI(TAG, "*CA values %s|%s#", CAuserName, CAdateTime);
-    }
-    }
+  
     
     if(utils_nvs_get_str(NVS_SERIAL_NUMBER, SerialNumber,100) == ESP_OK){
        utils_nvs_get_str(NVS_SERIAL_NUMBER, SerialNumber,100);
+    }
+    if(utils_nvs_get_str(NVS_SIP_USERNAME,SIPuserName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_SIP_USERNAME,SIPuserName,100);
+    }
+     if(utils_nvs_get_str(NVS_SIP_DATETIME,SIPdateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_SIP_DATETIME,SIPdateTime,100);
+    }
+    if(utils_nvs_get_str(NVS_CA_USERNAME,CAuserName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_CA_USERNAME,CAuserName,100);
+    }
+     if(utils_nvs_get_str(NVS_CA_DATETIME,CAdateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_CA_DATETIME,CAdateTime,100);
+    }
+
+    if(utils_nvs_get_str(NVS_CC_USERNAME,CCuserName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_CC_USERNAME,CCuserName,100);
+    }
+     if(utils_nvs_get_str(NVS_CC_DATETIME,CCdateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_CC_DATETIME,CCdateTime,100);
+    }
+    
+    if(utils_nvs_get_str(NVS_URL_USERNAME,URLuserName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_URL_USERNAME,URLuserName,100);
+    }
+     if(utils_nvs_get_str(NVS_URL_DATETIME,URLdateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_URL_DATETIME,URLdateTime,100);
+    }
+
+    if(utils_nvs_get_str(NVS_FOTA_USERNAME,FOTAuserName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_FOTA_USERNAME,FOTAuserName,100);
+    }
+     if(utils_nvs_get_str(NVS_FOTA_DATETIME,FOTAdateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_FOTA_DATETIME,FOTAdateTime,100);
+    }
+
+    if(utils_nvs_get_str(NVS_RST_USERNAME,RSTuserName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_RST_USERNAME,RSTuserName,100);
+    }
+     if(utils_nvs_get_str(NVS_RST_DATETIME,RSTdateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_RST_DATETIME,RSTdateTime,100);
+    }
+
+    if(utils_nvs_get_str(NVS_SS_USERNAME,SSuserName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_SS_USERNAME,SSuserName,100);
+    }
+     if(utils_nvs_get_str(NVS_SS_DATETIME,SSdateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_SS_DATETIME,SSdateTime,100);
+    }
+
+    if(utils_nvs_get_str(NVS_SL_USERNAME,SLuserName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_SL_USERNAME,SLuserName,100);
+    }
+     if(utils_nvs_get_str(NVS_SL_DATETIME,SLdateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_SL_DATETIME,SLdateTime,100);
+    }
+
+    if(utils_nvs_get_str(NVS_PW_USERNAME,PWuserName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_PW_USERNAME,PWuserName,100);
+    }
+     if(utils_nvs_get_str(NVS_PW_DATETIME,PWdateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_PW_DATETIME,PWdateTime,100);
+    }
+
+    if(utils_nvs_get_str(NVS_SS1_USERNAME,SS1userName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_SS1_USERNAME,SS1userName,100);
+    }
+     if(utils_nvs_get_str(NVS_SS1_DATETIME,SS1dateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_SS1_DATETIME,SS1dateTime,100);
+    }
+
+    if(utils_nvs_get_str(NVS_PW1_USERNAME,PW1userName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_PW1_USERNAME,PW1userName,100);
+    }
+     if(utils_nvs_get_str(NVS_PW1_DATETIME,PW1dateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_PW1_DATETIME,PW1dateTime,100);
+    
+    }
+    if(utils_nvs_get_str(NVS_SS2_USERNAME,SS2userName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_SS2_USERNAME,SS2userName,100);
+    }
+     if(utils_nvs_get_str(NVS_SS2_DATETIME,SS2dateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_SS2_DATETIME,SS2dateTime,100);
+    }
+
+    if(utils_nvs_get_str(NVS_PW2_USERNAME,PW2userName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_PW2_USERNAME,PW2userName,100);
+    }
+     if(utils_nvs_get_str(NVS_PW2_DATETIME,PW2dateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_PW2_DATETIME,PW2dateTime,100);
+    }
+    if(utils_nvs_get_str(NVS_INH_USERNAME,INHuserName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_INH_USERNAME,INHuserName,100);
+    }
+     if(utils_nvs_get_str(NVS_INH_DATETIME,INHdateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_INH_DATETIME,INHdateTime,100);
+    }
+
+    if(utils_nvs_get_str(NVS_SP_USERNAME,SPuserName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_SP_USERNAME,SPuserName,100);
+    }
+     if(utils_nvs_get_str(NVS_SP_DATETIME,SPdateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_SP_DATETIME,SPdateTime,100);
     }
 
 

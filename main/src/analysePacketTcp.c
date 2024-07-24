@@ -37,6 +37,25 @@ static const char *TAG = "TCP";
 void tcpip_client_task(void);
 void sendHBT (void);
 void tcp_ip_client_send_str(const char *);
+
+
+
+void sendError(int sock, const char* errorMsg) {
+    send(sock, errorMsg, strlen(errorMsg), 0);
+}
+
+void sendSSIDData(int sock, const char* SSuserName, const char* SSdateTime, int WiFiNumber, const char* WIFI_SSID_1, const char* WIFI_SSID_2, const char* WIFI_SSID_3) {
+    char payload[256];  // Ensure this buffer is large enough to hold the formatted string
+
+    // Check if any of the first four parameters are missing
+    if (!SSuserName || !SSdateTime || WiFiNumber < 0 || !WIFI_SSID_1) {
+        sendError(sock, "Error: Missing or invalid parameters");
+        return;
+    }
+
+    sprintf(payload, "*SSID,%s,%s,%d,%s,%s,%s#", SSuserName, SSdateTime, WiFiNumber, WIFI_SSID_1, WIFI_SSID_2 ? WIFI_SSID_2 : "", WIFI_SSID_3 ? WIFI_SSID_3 : "");
+    send(sock, payload, strlen(payload), 0);
+}
 void tcpip_client_task(){
     char payload[700];
     char rx_buffer[128];
@@ -137,17 +156,51 @@ void tcpip_client_task(){
                                 ESP_LOGI(TAG, "%s", rx_buffer);
                                 char buf[len+1];
 
-                                if(strncmp(rx_buffer, "*SS:", 4) == 0){
-                                    sscanf(rx_buffer, "*SS:%[^:]:%[^:]:%[^#]#",SSuserName,SSdateTime, buf);
-                                    strcpy(WIFI_SSID_1, buf);
-                                    utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
-                                    utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
-                                    sprintf(payload, "*SS-OK,%s,%s#",SSuserName,SSdateTime);
-                                    utils_nvs_set_str(NVS_SS_USERNAME, SSuserName);
-                                    utils_nvs_set_str(NVS_SS_DATETIME, SSdateTime);
-                                    send(sock, payload, strlen(payload), 0);
-                                    tx_event_pending = 1;
+                                // if(strncmp(rx_buffer, "*SS:", 4) == 0){
+                                //     sscanf(rx_buffer, "*SS:%[^:]:%[^:]:%[^#]#",SSuserName,SSdateTime, buf);
+                                //     strcpy(WIFI_SSID_1, buf);
+                                //     utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
+                                //     utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
+                                //     sprintf(payload, "*SS-OK,%s,%s#",SSuserName,SSdateTime);
+                                //     utils_nvs_set_str(NVS_SS_USERNAME, SSuserName);
+                                //     utils_nvs_set_str(NVS_SS_DATETIME, SSdateTime);
+                                //     send(sock, payload, strlen(payload), 0);
+                                //     tx_event_pending = 1;
+                                // }
+                                if (strncmp(rx_buffer, "*SS:", 4) == 0) {
+                                    // Temporary buffers to read the values
+                                    char tempUserName[64], tempDateTime[64], tempBuf[64];
+
+                                    // Parse the input buffer
+                                    if (sscanf(rx_buffer, "*SS:%[^:]:%[^:]:%[^#]#", tempUserName, tempDateTime, tempBuf) == 3) {
+                                        // Check if any of the parsed values are empty
+                                        if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
+                                            // Send error message if any required parameters are missing or invalid
+                                            const char* errorMsg = "Error: Missing or invalid parameters";
+                                            send(sock, errorMsg, strlen(errorMsg), 0);
+                                        } else {
+                                            // Copy parsed values to the actual variables
+                                            strcpy(SSuserName, tempUserName);
+                                            strcpy(SSdateTime, tempDateTime);
+                                            strcpy(WIFI_SSID_1, tempBuf);
+
+                                            // Save the values to non-volatile storage
+                                            utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
+                                            utils_nvs_set_str(NVS_SS_USERNAME, SSuserName);
+                                            utils_nvs_set_str(NVS_SS_DATETIME, SSdateTime);
+
+                                            // Format the success message and send it
+                                            sprintf(payload, "*SS-OK,%s,%s#", SSuserName, SSdateTime);
+                                            send(sock, payload, strlen(payload), 0);
+                                            tx_event_pending = 1;
+                                        }
+                                    } else {
+                                        // Send error message if parsing failed
+                                        const char* errorMsg = "Error: Invalid format";
+                                        send(sock, errorMsg, strlen(errorMsg), 0);
+                                    }
                                 }
+
                                 // done by siddhi
                                 // totPolarity
                                 else if(strncmp(rx_buffer, "*CA?#", 5) == 0){
@@ -398,7 +451,7 @@ void tcpip_client_task(){
                                 else if(strncmp(rx_buffer, "*SL:", 4) == 0){
                                     if (edges == 0)
                                     {
-                                        sscanf(rx_buffer, "*SL:%[^:]:%[^:]:%d:%d#",userName,dateTime, &ledpin,&ledstatus);
+                                        sscanf(rx_buffer, "*SL:%[^:]:%[^:]:%d:%d#",SLuserName,SLdateTime,&ledpin,&ledstatus);
                                         // strcpy(WIFI_PASS_2, buf);
                                         // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
                                         ESP_LOGI(TAG, "Set LED @ Pin %d Status %d",ledpin,ledstatus);

@@ -10,6 +10,8 @@ wifi/server disconnection to be tested
 1.nvs recalled for SerialNumber.
 2.SN: ,SN? commands added in tcp.
 3. In mqttp subscribe topic is replaced with GVC/KP/SerialNumber.
+4. in SS: set ssid with 3 parameters if 3 parameters is not given then send error message.
+5. Nvs recalled for all username and dateTime.
 
 
 
