@@ -43,6 +43,7 @@ void app_main(void)
     //Initialize NVS
     //esp_log_level_set("*", ESP_LOG_NONE);
     // set totals to 0
+    MQTTRequired = 0;
     for (int i = 0 ; i < 7 ; i++)
     {
         Totals[i] = 0;
@@ -80,7 +81,9 @@ void app_main(void)
     xTaskCreate(BlinkLED, "BlinkLED", 2048, NULL, 6, NULL);
    
     xTaskCreate(TestCoin, "TestCoin", 2048, NULL, 6, NULL);
-//    InitMqtt();
+    if (MQTTRequired)
+        InitMqtt();
+
     for (;;) 
     {
         vTaskDelay(100);   

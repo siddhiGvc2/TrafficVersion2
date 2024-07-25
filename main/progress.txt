@@ -6,6 +6,10 @@ UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
 
+250724
+Add MQTTRequired
+remove MAC and HBT on UART 
+
 240723
 1.nvs recalled for SerialNumber.
 2.SN: ,SN? commands added in tcp.

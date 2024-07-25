@@ -18,6 +18,7 @@ extern char WIFI_PASS_3[64];
 extern char server_ip_addr[100];
 extern char ipstr[100]; // host mapped
 
+extern int MQTTRequired;
 extern char MAC_ADDRESS_ESP[40];
 extern char FOTA_URL[356];
 extern int16_t server_port;

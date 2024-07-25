@@ -85,6 +85,7 @@ char SPdateTime[100];
 char SPuserName[100];
 
 char SerialNumber[100];
+int MQTTRequired;
 
 
 

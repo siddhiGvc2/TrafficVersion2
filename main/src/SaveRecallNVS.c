@@ -103,6 +103,10 @@ void load_settings_nvs(){
     if(utils_nvs_get_str(NVS_SERIAL_NUMBER, SerialNumber,100) == ESP_OK){
        utils_nvs_get_str(NVS_SERIAL_NUMBER, SerialNumber,100);
     }
+    else
+    {
+        sprintf(SerialNumber,"999999");
+    }
     if(utils_nvs_get_str(NVS_SIP_USERNAME,SIPuserName,100) == ESP_OK){
       utils_nvs_get_str(NVS_SIP_USERNAME,SIPuserName,100);
     }

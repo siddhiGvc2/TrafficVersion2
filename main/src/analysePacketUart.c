@@ -47,10 +47,10 @@ void process_uart_packet(const char *pkt){
     char buf[200];
     char buffer[900]; 
     char payload[240]; 
-    sprintf(buffer,"*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber);
-    uart_write_string_ln(buffer);
-    sprintf(payload, "*HBT,%s,%s#", MAC_ADDRESS_ESP,SerialNumber);
-    uart_write_string_ln(payload);
+    // sprintf(buffer,"*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber);
+    // uart_write_string_ln(buffer);
+    // sprintf(payload, "*HBT,%s,%s#", MAC_ADDRESS_ESP,SerialNumber);
+    // uart_write_string_ln(payload);
       if(strncmp(pkt, "*CA?#", 5) == 0){
        
        sprintf(buffer,"*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity);

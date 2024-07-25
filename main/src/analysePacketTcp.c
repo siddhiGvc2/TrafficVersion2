@@ -691,10 +691,18 @@ void tcpip_client_task(){
                                 }
                                  else if(strncmp(rx_buffer, "*SN:", 4) == 0){
       
-                                        sscanf(rx_buffer, "*SN:%[^#]#",SerialNumber);
-                                        utils_nvs_set_str(NVS_SERIAL_NUMBER, SerialNumber);
-                                        send(sock, "*SN-OK#", strlen("*SN-OK#"), 0);
-                                        tx_event_pending = 1;
+                                        if (strstr(SerialNumber,"999999"))
+                                        {
+                                            sscanf(rx_buffer, "*SN:%[^#]#",SerialNumber);
+                                            utils_nvs_set_str(NVS_SERIAL_NUMBER, SerialNumber);
+                                            send(sock, "*SN-OK#", strlen("*SN-OK#"), 0);
+                                        }
+                                        else
+                                        {
+                                             send(sock, "*SN CAN NOT BE SET#", strlen("*SN CAN NOT BE SET#"), 0);
+
+                                        }
+                                            tx_event_pending = 1;
                                         
                                     }
                                     else if(strncmp(rx_buffer, "*SN?#", 5) == 0){

@@ -98,11 +98,11 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         
       
         sprintf(topic, "GVC/KP/%s", SerialNumber);
-
+        sprintf (payload,"Topic is %s",topic);
+        uart_write_string_ln(payload);
         msg_id = esp_mqtt_client_subscribe(client, topic, 0);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
 
-        msg_id = esp_mqtt_client_subscribe(client, "GVC/KP/00003", 1);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
         break;
 
