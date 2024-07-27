@@ -57,6 +57,9 @@ char FOTAuserName[100];
 char RSTdateTime[100];
 char RSTuserName[100];
 
+char SNdateTime[100];
+char SNuserName[100];
+
 char SSdateTime[100];
 char SSuserName[100];
 

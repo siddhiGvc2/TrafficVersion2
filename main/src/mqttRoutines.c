@@ -36,7 +36,8 @@ static const char *TAG = "MQTT";
 
 void InitMqtt (void);
 
-int32_t MQTT_CONNEECTED = 0;
+
+int32_t MQTT_CONNEECTED = 1;
 
 /*
  * @brief Event handler registered to receive MQTT events
@@ -51,6 +52,8 @@ int32_t MQTT_CONNEECTED = 0;
 
 
  esp_mqtt_client_handle_t client = NULL;
+
+ 
 
 
 void publish_message(const char *message, esp_mqtt_client_handle_t client) {
@@ -235,6 +238,24 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     utils_nvs_set_str(NVS_SS_DATETIME, SSdateTime);
                     publish_message(payload, client);
                     tx_event_pending = 1;
+                }
+                else  if(strncmp(data, "*SN:", 4) == 0){
+                    
+                    sscanf(data, "*SS:%[^#]#",buf);
+                    strcpy(SSuserName,"MQTT_LOCAL");
+                    strcpy(SSdateTime,"00/00/00");
+                  
+                    sprintf(payload, "*SN-OK,%s,%s#",SNuserName,SNdateTime);
+                    utils_nvs_set_str(NVS_SN_USERNAME, SNuserName);
+                    utils_nvs_set_str(NVS_SN_DATETIME, SNdateTime);
+                    publish_message(payload, client);
+                    tx_event_pending = 1;
+                }
+                else if(strncmp(data, "*SN?#",5) == 0){
+                   
+                    ESP_LOGI(TAG, "SN?# %s ",SerialNumber);
+                    sprintf(payload, "*SN,%s,%s,%s#",SNuserName,SNdateTime,SerialNumber); 
+                    publish_message(payload, client);
                 }
                 else if(strncmp(data, "*INH?#",6) == 0){
                     if (INHInputValue !=0)

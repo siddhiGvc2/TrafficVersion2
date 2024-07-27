@@ -148,6 +148,13 @@ void load_settings_nvs(){
      utils_nvs_get_str(NVS_RST_DATETIME,RSTdateTime,100);
     }
 
+    if(utils_nvs_get_str(NVS_SN_USERNAME,SNuserName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_SN_USERNAME,SNuserName,100);
+    }
+     if(utils_nvs_get_str(NVS_SN_DATETIME,SNdateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_SN_DATETIME,SNdateTime,100);
+    }
+
     if(utils_nvs_get_str(NVS_SS_USERNAME,SSuserName,100) == ESP_OK){
       utils_nvs_get_str(NVS_SS_USERNAME,SSuserName,100);
     }

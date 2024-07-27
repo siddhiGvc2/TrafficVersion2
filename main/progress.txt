@@ -6,6 +6,11 @@ UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
 
+260724
+1.SN added with userName .
+2.username set Local in uart.
+3.SN command added in mqttRoutine.
+
 250724
 Add MQTTRequired
 remove MAC and HBT on UART 

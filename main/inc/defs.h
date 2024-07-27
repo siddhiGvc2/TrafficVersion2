@@ -68,6 +68,9 @@ typedef enum TCPIP_SOCKET_STATE{
 #define NVS_RST_USERNAME     "USERNAME_RST"
 #define NVS_RST_DATETIME   "DATETIME_RST"
 
+#define NVS_SN_USERNAME     "USERNAME_SN"
+#define NVS_SN_DATETIME   "DATETIME_SN"
+
 #define NVS_SS_USERNAME     "USERNAME_SS"
 #define NVS_SS_DATETIME   "DATETIME_SS"
 
@@ -102,7 +105,7 @@ typedef enum TCPIP_SOCKET_STATE{
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL_TRY  "http://gvc.co.in/esp/esp_wifi_tcp_fota.bin"
 #define DEFAULT_FOTA_URL  "http://test-firmware.kwikpay.uk/firmware/fw250724_101.bin"
-#define FWVersion "*Kwikpay_250724_VER_1.01 Naico Ltd#"
+#define FWVersion "*Kwikpay_260724_VER_1.02 Naico Ltd#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12

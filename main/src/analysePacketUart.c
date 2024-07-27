@@ -95,7 +95,11 @@ void process_uart_packet(const char *pkt){
       
        sscanf(pkt, "*SN:%[^#]#",buf);
         strcpy(SerialNumber, buf);
+        strcpy(SNuserName, "LOCAL");
+        strcpy(SNdateTime, "00/00/00");
         utils_nvs_set_str(NVS_SERIAL_NUMBER, SerialNumber);
+        utils_nvs_set_str(NVS_SN_USERNAME,SNuserName);
+        utils_nvs_set_str(NVS_SN_DATETIME,SNdateTime);
         
       
         uart_write_string_ln("*SN-OK#");
@@ -104,7 +108,7 @@ void process_uart_packet(const char *pkt){
     }
      else if(strncmp(pkt, "*SN?#", 5) == 0){
       
-        sprintf(buffer, "*SN-OK,%s#",SerialNumber); //actual when in production
+        sprintf(buffer, "*SN,%s,%s,%s#",SNuserName,SNdateTime,SerialNumber); //actual when in production
         uart_write_string_ln(buffer);
       
       

@@ -74,3 +74,4 @@ extern uint32_t millis(void);
 // void
 extern void InitMqtt (void);
 extern void mqtt_app_start(void);
+// extern void publish_message(const char *, esp_mqtt_client_handle_t *)

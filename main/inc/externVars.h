@@ -60,6 +60,12 @@ extern char FOTAuserName[100];
 extern char RSTdateTime[100];
 extern char RSTuserName[100];
 
+extern char SNdateTime[100];
+extern char SNuserName[100];
+
+extern char SSdateTime[100];
+extern char SSuserName[100];
+
 extern char SSdateTime[100];
 extern char SSuserName[100];
 

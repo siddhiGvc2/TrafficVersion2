@@ -693,8 +693,10 @@ void tcpip_client_task(){
       
                                         if (strstr(SerialNumber,"999999"))
                                         {
-                                            sscanf(rx_buffer, "*SN:%[^#]#",SerialNumber);
+                                            sscanf(rx_buffer, "*SN:%[^:]:%[^:]%[^#]#",SNuserName,SNdateTime,SerialNumber);
                                             utils_nvs_set_str(NVS_SERIAL_NUMBER, SerialNumber);
+                                            utils_nvs_set_str(NVS_SN_USERNAME, SNuserName);
+                                            utils_nvs_set_str(NVS_SN_DATETIME, SNdateTime);
                                             send(sock, "*SN-OK#", strlen("*SN-OK#"), 0);
                                         }
                                         else
@@ -706,7 +708,7 @@ void tcpip_client_task(){
                                         
                                     }
                                     else if(strncmp(rx_buffer, "*SN?#", 5) == 0){
-                                        sprintf(payload, "*SN-OK,%s#",SerialNumber);
+                                        sprintf(payload, "*SN,%s,%s,%s#",SNuserName,SNdateTime,SerialNumber);
                                         send(sock, payload, strlen(payload), 0);
                                         tx_event_pending = 1;
                                         
