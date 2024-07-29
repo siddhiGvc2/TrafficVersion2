@@ -546,6 +546,7 @@ void tcpip_client_task(){
                                     send(sock, "*ERASE-OK#", strlen("*ERASE-OK#"), 0);
                                 }else if(strncmp(rx_buffer, "*RESTART#", 9) == 0){
                                     send(sock, "*RESTART-OK#", strlen("*RESTART-OK#"), 0);
+                                    uart_write_string_ln("*Resetting device#");
                                     tx_event_pending = 1;
                                     vTaskDelay(2000/portTICK_PERIOD_MS);
                                     esp_restart();
@@ -686,6 +687,7 @@ void tcpip_client_task(){
                                         utils_nvs_set_str(NVS_RST_DATETIME, RSTdateTime);
                                         send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
                                         ESP_LOGI(TAG, "*RST-OK#");
+                                        uart_write_string_ln("*Resetting device#");
                                         vTaskDelay(3000/portTICK_PERIOD_MS);
                                         esp_restart();
                                 }

@@ -56,6 +56,7 @@ void RestartDevice (void)
      ESP_LOGI(TAG, "**************Restarting after 3 second******#");
      send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
      ESP_LOGI(TAG, "*RST-OK#");
+     uart_write_string_ln("*Resetting device#");
      vTaskDelay(3000/portTICK_PERIOD_MS);
      esp_restart();
 }
@@ -331,6 +332,7 @@ void gpio_read_n_act(void)
                         ESP_LOGI(TAG, "**************Restarting after 3 second******#");
                         send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
                         ESP_LOGI(TAG, "*RST-OK#");
+                        uart_write_string_ln("*Resetting device#");
                         vTaskDelay(3000/portTICK_PERIOD_MS);
                         esp_restart();
                     }
@@ -702,6 +704,8 @@ void BlinkLED (void)
 
 void GeneratePulsesInBackGround (void)
 {
+    char buffer[100];
+    int pulses = 0;
     for (;;)
     {
         if (edges)
@@ -715,9 +719,14 @@ void GeneratePulsesInBackGround (void)
                 Out4094(8);
             }
             edges--;
+            pulses++;
             if (edges == 0)
+            {
                  ESP_LOGI("GenPulse","Pulse Width is %d ",pulseWitdh);
-
+                 sprintf(buffer,"*Generate Pulses %d on Pin %d#",pin,pulses/2);
+                 uart_write_string_ln(buffer);
+                 pulses=0;
+            }
         }
         vTaskDelay(pulseWitdh/portTICK_PERIOD_MS);
     }

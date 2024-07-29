@@ -750,6 +750,7 @@ void tcpip_client_task(){
                                 }else if(strncmp(rx_buffer, "*RESTART#", 9) == 0){
                                     send(sock, "*RESTART-OK#", strlen("*RESTART-OK#"), 0);
                                     tx_event_pending = 1;
+                                    uart_write_string_ln("*Resetting device#");
                                     vTaskDelay(2000/portTICK_PERIOD_MS);
                                     esp_restart();
                                 }
@@ -866,6 +867,7 @@ void tcpip_client_task(){
                                         ESP_LOGI(TAG, "**************Restarting after 3 second*******");
                                         send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
                                         ESP_LOGI(TAG, "*RST-OK#");
+                                        uart_write_string_ln("*Resetting device#");
                                         vTaskDelay(3000/portTICK_PERIOD_MS);
                                         esp_restart();
                                 }
@@ -1131,6 +1133,7 @@ void http_fota( void ){
     
     esp_http_client_cleanup(client);
     printf("OTA update successful! Restarting...\n");
+    uart_write_string_ln("*Resetting device#");
     vTaskDelay(2000/portTICK_PERIOD_MS);
     esp_restart();
     set_led_state(prev_state);

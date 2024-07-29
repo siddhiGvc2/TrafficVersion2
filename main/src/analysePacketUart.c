@@ -132,6 +132,7 @@ void process_uart_packet(const char *pkt){
     
         sprintf(buffer, "*RST-OK#");
         uart_write_string_ln(buffer);
+        uart_write_string_ln("*Resetting device#");
         vTaskDelay(3000/portTICK_PERIOD_MS);
         esp_restart();
     
@@ -206,6 +207,12 @@ void process_uart_packet(const char *pkt){
         strcpy(WIFI_SSID_2, buf);
         utils_nvs_set_str(NVS_SSID_2_KEY, WIFI_SSID_2);
         uart_write_string_ln("*SS1-OK#");
+        tx_event_pending = 1;
+    }else if(strncmp(pkt, "*SS2:", 5) == 0){
+        sscanf(pkt, "*SS2:%[^#]#", buf);
+        strcpy(WIFI_SSID_3, buf);
+        utils_nvs_set_str(NVS_SSID_3_KEY, WIFI_SSID_3);
+        uart_write_string_ln("*SS2-OK#");
         tx_event_pending = 1;
     }else if(strncmp(pkt, "*PW:", 4) == 0){
         sscanf(pkt, "*PW:%[^#]#", buf);
@@ -333,6 +340,7 @@ void process_uart_packet(const char *pkt){
         uart_write_string("*ERASE:OK#");
     }else if(strncmp(pkt, "*RESTART#", 9) == 0){
         uart_write_string("*RESTART:OK#");
+        uart_write_string_ln("*Resetting device#");
         tx_event_pending = 1;
         vTaskDelay(2000/portTICK_PERIOD_MS);
         esp_restart();

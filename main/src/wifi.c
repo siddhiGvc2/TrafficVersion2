@@ -89,6 +89,7 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
 {
+    char buffer[100];
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
          if (gpio_get_level(JUMPER2) == 0)
          {
@@ -101,6 +102,8 @@ void event_handler(void* arg, esp_event_base_t event_base,
     } 
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
             ESP_LOGI(TAG, "*WiFi Connected %d#",WiFiNumber);
+            sprintf(buffer,"*WiFi Connected %d#",WiFiNumber);
+            uart_write_string_ln(buffer);
             s_retry_num = 0;
             FirstWiFiConnection = 1;
             connected_to_wifi_and_internet = true;
@@ -122,6 +125,7 @@ void event_handler(void* arg, esp_event_base_t event_base,
             if ((FirstWiFiConnection == 1) || (WiFiNumber == 3))
             {
                 ESP_LOGI(TAG, "*restarting after 2 seconds#");
+                uart_write_string_ln("*Resetting device#");
                 vTaskDelay(2000/portTICK_PERIOD_MS);
                 esp_restart();
             }
@@ -296,6 +300,7 @@ void wifi_init_sta(void)
              if(!connect_to_wifi(WIFI_SSID_3, WIFI_PASS_3)){
                 ESP_LOGI(TAG, "Could not connect to SSID3. Restarting....");
                 ESP_LOGI(TAG, "*restarting after 2 seconds#");
+                uart_write_string_ln("*Resetting device - Could not connect to SSID3#");
                 vTaskDelay(2000/portTICK_PERIOD_MS);
                 esp_restart();
              }
@@ -477,6 +482,7 @@ void http_fota(void){
     printf("*OTA update successful! Restarting...\n#");
     send(sock, "*FOTA-OVER#", strlen("*FOTA-OVER#"), 0);
     uart_write_string_ln("OTA update successful! Restarting...");
+    uart_write_string_ln("*Resetting device-FOTA over#");
     vTaskDelay(2000/portTICK_PERIOD_MS);
     esp_restart();
     set_led_state(prev_state);
