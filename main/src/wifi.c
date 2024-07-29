@@ -248,7 +248,6 @@ void smartconfig_example_task(void * parm)
 void wifi_init_sta(void)
 {
 
-    load_settings_nvs();
     s_wifi_event_group = xEventGroupCreate();
 
     ESP_ERROR_CHECK(esp_netif_init());

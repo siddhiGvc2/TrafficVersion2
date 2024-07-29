@@ -65,13 +65,13 @@ void app_main(void)
     uart_write_string(FWVersion);
     read_mac_address();
     xTaskCreate(tcpip_client_task, "tcpip_client_task", 8192, NULL, 7, NULL);
-   
+    load_settings_nvs();
     ESP_LOGI(TAG, "*Starting ICH#");
     ICH_init();
-    ESP_LOGI(TAG, "*Starting WiFi#");
-    wifi_init_sta();
     ESP_LOGI(TAG, "*Starting S2P#");
     s2p_init();
+    ESP_LOGI(TAG, "*Starting WiFi#");
+    wifi_init_sta();
     ESP_LOGI(TAG, "*Testing RGB #");
     TestRGB();
     

@@ -445,6 +445,8 @@ void gpio_read_n_act(void)
                    {
                     edges = TotalPulses * 2;
                     pin = LastInputPin;
+                    sprintf(payload, "*Starting on Pin %d, Pulses %d, Pulse Width %d#",LastInputPin,TotalPulses,pulseWitdh); 
+                    uart_write_string(payload);
                    }
                    sprintf(payload, "*RP,%d,%d#",LastInputPin,TotalPulses); 
                    uart_write_string(payload);
