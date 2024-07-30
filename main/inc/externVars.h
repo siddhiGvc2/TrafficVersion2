@@ -95,7 +95,8 @@ extern char SPuserName[100];
 
 extern char SerialNumber[100];
 
-
+extern char LastTID[100];
+extern char TID[100];
 
 
 
@@ -116,8 +117,7 @@ extern uint16_t PulseStoppedDelay; // time delay when it is assumed that pulses 
 // uint16_t PulseTimeOut = 0;  // received pulses time out time in ticks* delay
 
 extern uint32_t ticks_100;
-extern int LastTID;
-extern int TID; // Transaction ID
+
 extern int pin; // output pin for Generating Pulses
 extern int pulses; // number of pulses for generating pulses on output pin
 extern int edges; // number of edges (pulses * 2) for generating pulses on output pin

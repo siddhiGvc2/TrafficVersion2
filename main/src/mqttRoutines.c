@@ -378,7 +378,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                 else if(strncmp(data, "*V:", 3) == 0){
                     if (edges == 0) 
                     {
-                        sscanf(data, "*V:%d:%d:%d#",&TID,&pin,&pulses);
+                        sscanf(data, "*V:%[^:]:%d:%d#",TID,&pin,&pulses);
                         // if (INHInputValue == INHIBITLevel)
                         // {
                         //     ESP_LOGI(TAG, "*UNIT DISABLED#");
@@ -387,21 +387,22 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                             
                         // }
 //                        else if (TID != LastTID)
-                        if (TID != LastTID)
+                         if (memcmp(TID, LastTID, 100) != 0)
                         {
                             edges = pulses*2;  // doubled edges
                             // strcpy(WIFI_PASS_2, buf);
                             // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
-                            ESP_LOGI(TAG, "*V-OK,%d,%d,%d#",TID,pin,pulses);
-                            sprintf(payload, "*V-OK,%d,%d,%d#", TID,pin,pulses); //actual when in production
+                            ESP_LOGI(TAG, "*V-OK,%s,%d,%d#",TID,pin,pulses);
+                            sprintf(payload, "*V-OK,%s,%d,%d#", TID,pin,pulses); //actual when in production
                             publish_message(payload, client);
                             vTaskDelay(1000/portTICK_PERIOD_MS);
-                            sprintf(payload, "*T-OK,%d,%d,%d#",TID,pin,pulses); //actual when in production
-                            ESP_LOGI(TAG, "*T-OK,%d,%d,%d#",TID,pin,pulses);
+                            sprintf(payload, "*T-OK,%s,%d,%d#",TID,pin,pulses); //actual when in production
+                            ESP_LOGI(TAG, "*T-OK,%s,%d,%d#",TID,pin,pulses);
                             publish_message(payload, client);
                             tx_event_pending = 1;
                             Totals[pin-1] += pulses;
-                            LastTID = TID;
+                            strcpy(LastTID,TID);
+                            utils_nvs_set_str(NVS_LAST_TID,LastTID);
                         }
                         else
                         {

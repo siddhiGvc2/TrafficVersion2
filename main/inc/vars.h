@@ -88,6 +88,10 @@ char SPdateTime[100];
 char SPuserName[100];
 
 char SerialNumber[100];
+
+char LastTID[100];
+char TID[100];
+
 int MQTTRequired;
 
 
@@ -111,8 +115,7 @@ uint16_t PulseStoppedDelay = 0; // time delay when it is assumed that pulses end
 // uint16_t PulseTimeOut = 0;  // received pulses time out time in ticks* delay
 
 uint32_t ticks_100 =0;;
-int LastTID = 0;
-int TID = 0; // Transaction ID
+
 int pin = 0; // output pin for Generating Pulses
 int pulses = 0; // number of pulses for generating pulses on output pin
 int edges = 0; // number of edges (pulses * 2) for generating pulses on output pin
