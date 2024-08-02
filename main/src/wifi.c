@@ -35,7 +35,8 @@
 static const char *TAG = "WIFI";
 static int s_retry_num = 0;
 static int FirstWiFiConnection = 0;
-
+static uint8_t WiFiLoopCount = 0;
+static uint8_t WiFiRetryAfterConnection = 0;
 
 bool connect_to_wifi(char *, char *);
 void event_handler(void* , esp_event_base_t , int32_t , void* );
@@ -86,6 +87,8 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 }
 
 
+// this is callback routine, called when some event happens
+
 void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
 {
@@ -98,8 +101,12 @@ void event_handler(void* arg, esp_event_base_t event_base,
             ESP_LOGI(TAG,"*Start Looking for ESP TOUCH#");
          }
          else
+         {
+             ESP_LOGI(TAG,"*WIFI CONNECTION ROUTINE CALLED#");
              esp_wifi_connect();
-    } 
+         }
+    }
+
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
             ESP_LOGI(TAG, "*WiFi Connected %d#",WiFiNumber);
             sprintf(buffer,"*WiFi Connected %d#",WiFiNumber);
@@ -115,20 +122,37 @@ void event_handler(void* arg, esp_event_base_t event_base,
         set_led_state(SEARCH_FOR_WIFI);
         ESP_LOGI(TAG,"*Connect WiFi after disconnection#");
         vTaskDelay(ESP_RETRY_GAP);
-        if (s_retry_num < ESP_MAXIMUM_RETRY) {
+        if (s_retry_num <= ESP_MAXIMUM_RETRY) {
+            ESP_LOGI(TAG,"*WIFI CONNECTION ROUTINE CALLED#");
             esp_wifi_connect();
             s_retry_num++;
             ESP_LOGI(TAG, "*retry to connect to the AP  %d#",s_retry_num);
+            sprintf (buffer,"*retry to connect to the AP  %d#",s_retry_num);
+            uart_write_string_ln(buffer);
         } else {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
             ESP_LOGI(TAG, "*WiFi failed bit set %d#",WiFiNumber);
-            if ((FirstWiFiConnection == 1) || (WiFiNumber == 3))
+            sprintf (buffer,"*WiFi failed bit set %d#",WiFiNumber);
+            uart_write_string_ln(buffer);
+            if (FirstWiFiConnection == 1)
             {
-                ESP_LOGI(TAG, "*restarting after 2 seconds#");
-                uart_write_string_ln("*Resetting device#");
-                vTaskDelay(2000/portTICK_PERIOD_MS);
-                esp_restart();
+                s_retry_num = 0;
+                esp_wifi_connect();
+                WiFiRetryAfterConnection++;
+                ESP_LOGI(TAG, "*Retry WiFi Aftre Connection %d#",WiFiRetryAfterConnection);
+                uart_write_string_ln("*Retry WiFi Aftre Connection#");
+                if (WiFiRetryAfterConnection > WIFIRETRYAFTERCONNECTIONLIMIT)
+                    RestartDevice();
             }
+
+
+            // if ((FirstWiFiConnection == 1) || (WiFiNumber == 3))
+            // {
+            //     ESP_LOGI(TAG, "*restarting after 2 seconds#");
+            //     uart_write_string_ln("*Resetting device#");
+            //     vTaskDelay(2000/portTICK_PERIOD_MS);
+            //     esp_restart();
+            // }
     }
         ESP_LOGI(TAG,"*connect to the AP fail#");
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
@@ -180,15 +204,18 @@ void event_handler(void* arg, esp_event_base_t event_base,
 
         ESP_ERROR_CHECK( esp_wifi_disconnect() );
         ESP_ERROR_CHECK( esp_wifi_set_config(WIFI_IF_STA, &wifi_config) );
+        ESP_LOGI(TAG,"*WIFI CONNECTION ROUTINE CALLED#");
         esp_wifi_connect();
     } else if (event_base == SC_EVENT && event_id == SC_EVENT_SEND_ACK_DONE) {
         xEventGroupSetBits(s_wifi_event_group, ESPTOUCH_DONE_BIT);
     }
 }
 
+// called from wifi_init_sta
 
 bool connect_to_wifi(char * ssid, char * psk){
     bool wifi_connected = false;
+    ESP_LOGI(TAG,"**********Start connecting to wifi#############");
     esp_wifi_stop();
     wifi_config_t wifi_config = {
         .sta = {
@@ -206,6 +233,7 @@ bool connect_to_wifi(char * ssid, char * psk){
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config) );
     ESP_ERROR_CHECK(esp_wifi_start() );
 
+    // wait till bits change
     EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
             WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
             pdFALSE,
@@ -222,7 +250,7 @@ bool connect_to_wifi(char * ssid, char * psk){
     }
 
     xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT);
-    ESP_LOGI(TAG,"*returning from connecting 2 wifi#");
+    ESP_LOGI(TAG,"*returning from connecting to wifi#");
     return wifi_connected;
 }
  
@@ -284,37 +312,50 @@ void wifi_init_sta(void)
     bool connected_to_wifi = false;
     //ESP_LOGI(TAG, "Trying to connect to SSID1 %s | %s",DEFAULT_SSID1,DEFAULT_PASS1);
     ESP_LOGI(TAG, "*Trying to connect to SSID1#");
+    uart_write_string_ln("*Trying to connect to SSID1#");
     WiFiNumber = 1;
-    if(!connect_to_wifi(WIFI_SSID_1, WIFI_PASS_1)){
-        //ESP_LOGI(TAG, "Trying to connect to SSID2 %S | %S",DEFAULT_SSID2, DEFAULT_PASS1);
-        ESP_LOGI(TAG, "*Trying to connect to SSID2# ");
-        WiFiNumber = 2;
+    WiFiLoopCount = 0;
+    while (WiFiLoopCount < MAXWIFILOOPCOUNT)
+    {
+        WiFiNumber = 1;
         s_retry_num = 0;
-        if(!connect_to_wifi(WIFI_SSID_2, WIFI_PASS_2)){
-
-            ESP_LOGI(TAG, "*Trying to connect to SSID3# ");
-            WiFiNumber = 3;
+        if(!connect_to_wifi(WIFI_SSID_1, WIFI_PASS_1)){
+            //ESP_LOGI(TAG, "Trying to connect to SSID2 %S | %S",DEFAULT_SSID2, DEFAULT_PASS1);
+            ESP_LOGI(TAG, "*Trying to connect to SSID2# ");
+            uart_write_string_ln("*Trying to connect to SSID2#");
+            WiFiNumber = 2;
             s_retry_num = 0;
+            if(!connect_to_wifi(WIFI_SSID_2, WIFI_PASS_2)){
 
-             if(!connect_to_wifi(WIFI_SSID_3, WIFI_PASS_3)){
-                ESP_LOGI(TAG, "Could not connect to SSID3. Restarting....");
-                ESP_LOGI(TAG, "*restarting after 2 seconds#");
-                uart_write_string_ln("*Resetting device - Could not connect to SSID3#");
-                vTaskDelay(2000/portTICK_PERIOD_MS);
-                esp_restart();
-             }
-             else{
-            ESP_LOGI(TAG, "*Connected To WiFi3#");
+                ESP_LOGI(TAG, "*Trying to connect to SSID3# ");
+                uart_write_string_ln("*Trying to connect to SSID3#");
+
+                WiFiNumber = 3;
+                s_retry_num = 0;
+
+                if(!connect_to_wifi(WIFI_SSID_3, WIFI_PASS_3)){
+                    ESP_LOGI(TAG, "Could not connect to SSID3. Ttrying from 1....");
+                    uart_write_string_ln("*Going back and trying from 1 again#");
+
+                    WiFiLoopCount++;
+                    continue;
+                }
+                else{
+                ESP_LOGI(TAG, "*Connected To WiFi3#");
+                connected_to_wifi = true;
+                break;
+            }
+            }
+            else{
+                ESP_LOGI(TAG, "*Connected To WiFi2#");
+                connected_to_wifi = true;
+                break;
+            }
+        }else{
+            ESP_LOGI(TAG, "*Connected To WiFi1#");
             connected_to_wifi = true;
+            break;
         }
-        }
-          else{
-            ESP_LOGI(TAG, "*Connected To WiFi2#");
-            connected_to_wifi = true;
-        }
-    }else{
-        ESP_LOGI(TAG, "*Connected To WiFi1#");
-        connected_to_wifi = true;
     }
   
     if(connected_to_wifi){
@@ -332,6 +373,12 @@ void wifi_init_sta(void)
         //     set_led_state(WIFI_FOUND_NO_INTERNET);
         // }
         // esp_http_client_cleanup(client);
+    }
+    else // restart
+    {
+        ESP_LOGI(TAG,"*All tries over");
+        uart_write_string_ln("*All tries over#");
+        RestartDevice();
     }
 
 }

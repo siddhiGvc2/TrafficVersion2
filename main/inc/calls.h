@@ -35,7 +35,6 @@ extern esp_err_t _http_event_handler(esp_http_client_event_t *);
 // fota
 extern void http_fota (void);
 
-extern void set_led_state(Led_State_t);
 
 // general
 extern void resolve_hostname(const char *);

@@ -1,9 +1,47 @@
 /*     
 
+wifi sequence
+Connect WiFi at Power On
+
+** repeat for next SSID
+Trying to connect to SSID1
+*** repeat next 3 lines - this is in event handler
+Connect WiFi after disconnection
+retry to connect to the AP
+connect to the AP fail 
+
+failed to connect to SSID
+returning from connecting 2 wifi
+
+
+What is happening
+1 Try 3 times
+2 try 3 times
+3 try 3 times
+
+what clients needs
+Try 1
+Try 2
+Try 3
+
+Try above sequence for 10 times
+
+
+
 Challenge -once wifi disconnected, it does not sense that and change status
 s2pinit if added will set a test output , normally keep it off
 UART2 not yet tested/not working
 wifi/server disconnection to be tested
+esp touch - wait for connector removal
+Change in LEDs blinking
+LR and LC commands
+
+
+020824
+wifi - 1/2/3 X 20 times before restart at power on
+once connected then try 20 times same wifi.
+20 is set in def.h
+
 
 30724
 TID & LastTid stored as in buffer.
