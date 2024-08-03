@@ -32,13 +32,15 @@ Challenge -once wifi disconnected, it does not sense that and change status
 s2pinit if added will set a test output , normally keep it off
 UART2 not yet tested/not working
 wifi/server disconnection to be tested
-esp touch - wait for connector removal
+
+
 Change in LEDs blinking
 LR and LC commands
 
 
 030824
 split FOTA
+esp touch - wait for connector removal
 
 020824
 wifi - 1/2/3 X 20 times before restart at power on
