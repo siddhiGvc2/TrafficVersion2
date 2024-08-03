@@ -97,7 +97,8 @@ void event_handler(void* arg, esp_event_base_t event_base,
     {
          if (gpio_get_level(JUMPER2) == 0)
          {
-            ESP_LOGI(TAG,"*Waiting for jumper to be removed#");
+             set_led_state(WAIT4ESPTOUCH);
+             ESP_LOGI(TAG,"*Waiting for jumper to be removed#");
             uart_write_string_ln("*Waiting for jumper to be removed#");
             while (1)
             {
@@ -325,6 +326,7 @@ void wifi_init_sta(void)
     ESP_LOGI(TAG,"*Connect WiFi at Power On#");
     bool connected_to_wifi = false;
     //ESP_LOGI(TAG, "Trying to connect to SSID1 %s | %s",DEFAULT_SSID1,DEFAULT_PASS1);
+    set_led_state(SEARCH_FOR_WIFI1);
     ESP_LOGI(TAG, "*Trying to connect to SSID1#");
     uart_write_string_ln("*Trying to connect to SSID1#");
     WiFiNumber = 1;
@@ -335,6 +337,7 @@ void wifi_init_sta(void)
         s_retry_num = 0;
         if(!connect_to_wifi(WIFI_SSID_1, WIFI_PASS_1)){
             //ESP_LOGI(TAG, "Trying to connect to SSID2 %S | %S",DEFAULT_SSID2, DEFAULT_PASS1);
+            set_led_state(SEARCH_FOR_WIFI2);
             ESP_LOGI(TAG, "*Trying to connect to SSID2# ");
             uart_write_string_ln("*Trying to connect to SSID2#");
             WiFiNumber = 2;
@@ -348,7 +351,8 @@ void wifi_init_sta(void)
                 s_retry_num = 0;
 
                 if(!connect_to_wifi(WIFI_SSID_3, WIFI_PASS_3)){
-                    ESP_LOGI(TAG, "Could not connect to SSID3. Ttrying from 1....");
+                     set_led_state(SEARCH_FOR_WIFI3);
+                     ESP_LOGI(TAG, "Could not connect to SSID3. Ttrying from 1....");
                     uart_write_string_ln("*Going back and trying from 1 again#");
 
                     WiFiLoopCount++;

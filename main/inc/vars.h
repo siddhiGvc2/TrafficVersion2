@@ -108,7 +108,7 @@ uint16_t Counter,InputPin,LastValue,LastInputPin;
 
 
 uint32_t current_interval = 0;
-uint32_t numberOfPulses = 0;
+int numberOfPulses = 0;
 uint16_t TotalPulses = 0; // total received pulses for coin input
 uint16_t PulseStoppedDelay = 0; // time delay when it is assumed that pulses end
 // uint16_t PulseCount =0; // for received pulses for coin input

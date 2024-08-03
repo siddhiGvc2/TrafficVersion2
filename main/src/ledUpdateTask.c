@@ -30,10 +30,15 @@
 #include "externVars.h"
 #include "calls.h"
 
+
+
 void led_set_level(gpio_num_t , int);
 void status_leds_init();
 void leds_update_task();
 void set_led_state(Led_State_t);
+
+static const char *TAG = "LED";
+
 
 void led_set_level(gpio_num_t gpio_num, int state){
     #ifdef LED_ACTIVE_HIGH
@@ -44,40 +49,74 @@ void led_set_level(gpio_num_t gpio_num, int state){
 }
 
 
+/*
+    STANDBY_LED,
+    SEARCH_FOR_WIFI, NOT USED
+    WAIT4ESPTOUCH, red blink once Green ON
+    SEARCH_FOR_ESPTOUCH,red blink twice Green ON
+    SEARCH_FOR_WIFI1, green blink once 
+    SEARCH_FOR_WIFI2, green blink twice 
+    SEARCH_FOR_WIFI3, green blink thrice 
+    WIFI_FOUND_NO_INTERNET,
+    WIFI_AND_INTERNET_NO_SERVER, GREEN ON, RED blinking continously
+    EVERYTHING_OK_LED, RED and GREEN ON
+    OTA_IN_PROGRESS RED and GREEN ALTERNATE ON
+*/
+
 void leds_update_task(){
+    int LedInUse = 0;
+    int LedMode = 0;
     for(;;){
-
-        //Handle Led 1 States
-
-        ticks_100 = ticks_100+1;
+        // program comes here after every 100 msec
+        // ticks_100 move from 0 to 19 in 2 second perioud
+        ticks_100 = ticks_100+1;    
         if (ticks_100 >= 20)
         {
             ticks_100 = 0;
-         }    
-        if (led_state == SEARCH_FOR_ESPTOUCH)
-        {
-            current_interval = 0;
-            if(led2_gpio_state == 1){
-                led2_gpio_state = 0;
-                led_set_level(LEDG, led2_gpio_state);
-            }
-            
-        }
+            LedMode = led_state;
+            led1_gpio_state = 0;
+            led2_gpio_state = 0;
+         }
+
         if(led_state == STANDBY_LED){
             current_interval = 0;
             if(led1_gpio_state == 1){
                 led1_gpio_state = 0;
                 led_set_level(LEDR, led1_gpio_state);
             }
-        }else if(led_state == SEARCH_FOR_WIFI){
-            numberOfPulses = 20;
-        }else if(led_state == WIFI_FOUND_NO_INTERNET){
+        }else if(led_state == SEARCH_FOR_WIFI1){
+            numberOfPulses = 2;
+            LedInUse= 1;            
+        }else if(led_state == SEARCH_FOR_WIFI2){
+            numberOfPulses = 4;
+            LedInUse= 1;            
+        }else if(led_state == SEARCH_FOR_WIFI3){
             numberOfPulses = 6;
+            LedInUse= 1;            
+        }else if(led_state == WIFI_FOUND_NO_INTERNET){
+            numberOfPulses = 2;
+            LedInUse= 2;            
         }else if(led_state == WIFI_AND_INTERNET_NO_SERVER){
             numberOfPulses = 4;
+            LedInUse= 2;            
         }else if(led_state == EVERYTHING_OK_LED){
+            numberOfPulses = 0;
+            LedInUse= 3;            
+
+        }else if(led_state == SEARCH_FOR_ESPTOUCH){
+            numberOfPulses = 4;
+            LedInUse= 3;            
+        }else if(led_state == WAIT4ESPTOUCH){
             numberOfPulses = 2;
-        }    
+            LedInUse= 3;            
+
+        }else if(led_state == OTA_IN_PROGRESS){
+            numberOfPulses = 20;
+            LedInUse= 3;            
+        }
+
+
+    
         //     // if(rx_event_pending){
         //     //     rx_event_pending = 0; 
         //     //     led_set_level(LEDG, 0);
@@ -99,50 +138,48 @@ void leds_update_task(){
         //     // }
 
         // }
-           else if (led_state == OTA_IN_PROGRESS){
-            led2_gpio_state = !led2_gpio_state;
-            led_set_level(LEDG, led2_gpio_state);
+        // when number of pulses = 0, led are on 
+        if (numberOfPulses == 0)
+        {
+            led_set_level(LEDR, 1);
+            led_set_level(LEDG, 1);
+
+        }
+        else if (numberOfPulses == 20)
+        {
+                led2_gpio_state ^= led2_gpio_state;
+                led1_gpio_state ^= led2_gpio_state;
+                led_set_level(LEDG, led2_gpio_state);
+                led_set_level(LEDR, led1_gpio_state);
         }
 
-        if (numberOfPulses>ticks_100)
+        else if (numberOfPulses>ticks_100)
         {
-            // if (led_state == SEARCH_FOR_ESPTOUCH)
-            // {
-            //     led2_gpio_state = !led2_gpio_state;
-            //     led_set_level(LEDG, led2_gpio_state);
-            //     led_set_level(LEDR, 0);
-
-            // }
-            // else
-            // {
-            if (led_state == EVERYTHING_OK_LED)
-                led1_gpio_state = 1;
-            else
-            {
-                led1_gpio_state = !led1_gpio_state;
+            if (LedInUse == 1)
+            {   
+                led1_gpio_state ^= 0x01;
+                led_set_level(LEDR, led1_gpio_state);
+                led_set_level(LEDG, 0);
             }
-            led_set_level(LEDR, led1_gpio_state);
-            led2_gpio_state = 1;
-            led_set_level(LEDG, led2_gpio_state);
-            // }
+            if (LedInUse == 2)
+            {   
+                led2_gpio_state ^= 0x01;
+                led_set_level(LEDG, led2_gpio_state);
+                led_set_level(LEDR, 0);
+            }
+            if (LedInUse == 3)
+            {   
+                led2_gpio_state ^= 0x01;
+                led1_gpio_state = led2_gpio_state;
+                led_set_level(LEDG, led2_gpio_state);
+                led_set_level(LEDR, led1_gpio_state);
+            }
         }
         else
-        {
-            if (led_state == EVERYTHING_OK_LED)
-                led1_gpio_state = 1;
-            else
-                led1_gpio_state = 0;
-
-            led_set_level(LEDR, led1_gpio_state);
-            led2_gpio_state = 1;
-            led_set_level(LEDG, led2_gpio_state);
+        { 
+            led_set_level(LEDR, 0);
+            led_set_level(LEDG, 0);
         }
-        // // if(((last_update_led1 == 0) || (millis() - last_update_led1 > current_interval)) && (current_interval != 0)){
-        // //     //This will be only called when there is some error
-        // //     last_update_led1 = millis();
-        // //     led1_gpio_state = !led1_gpio_state;
-        // //     led_set_level(LEDR, led1_gpio_state);
-        // // }
         vTaskDelay(200/portTICK_PERIOD_MS);
     }
 }

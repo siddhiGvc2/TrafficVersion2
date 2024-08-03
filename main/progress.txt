@@ -34,7 +34,13 @@ UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
 
-Change in LEDs blinking
+Change in LEDs blinking - 
+ESP Touch in progress, waiting for esp touch, 
+waiting for wifi 1, waiing for wifi 2, waiting for wifi3
+fota in progress
+command received
+reply sent
+
 LR and LC commands
 
 

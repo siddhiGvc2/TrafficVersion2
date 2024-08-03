@@ -70,6 +70,19 @@ void app_main(void)
     ICH_init();
     ESP_LOGI(TAG, "*Starting S2P#");
     s2p_init();
+
+    // for (int i = 0 ; i < 3 ; i++)
+    // {
+    //     led_set_level(LEDR, 1);
+    //     led_set_level(LEDG, 0);
+    //     vTaskDelay(500/portTICK_PERIOD_MS);   
+    //     led_set_level(LEDR, 0);
+    //     led_set_level(LEDG, 1);
+    //     vTaskDelay(500/portTICK_PERIOD_MS);   
+    //     led_set_level(LEDR, 0);
+    //     led_set_level(LEDG, 0);
+    //     vTaskDelay(500/portTICK_PERIOD_MS);   
+    // }
     ESP_LOGI(TAG, "*Starting WiFi#");
     wifi_init_sta();
     ESP_LOGI(TAG, "*Testing RGB #");

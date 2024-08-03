@@ -110,7 +110,7 @@ extern uint16_t Counter,InputPin,LastValue,LastInputPin;
 
 
 extern uint32_t current_interval;
-extern uint32_t numberOfPulses;
+extern int numberOfPulses;
 extern uint16_t TotalPulses; // total received pulses for coin input
 extern uint16_t PulseStoppedDelay; // time delay when it is assumed that pulses end
 // uint16_t PulseCount =0; // for received pulses for coin input
