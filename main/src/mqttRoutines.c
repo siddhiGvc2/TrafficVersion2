@@ -210,8 +210,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                          publish_message(payload, client);
                         ESP_LOGI(TAG, "*RST-OK#");
                         uart_write_string_ln("*Resetting device#");
-                        vTaskDelay(3000/portTICK_PERIOD_MS);
-                        esp_restart();
+                       RestartDevice();
                 }
                  else if(strncmp(data, "*URL?#", 6) == 0){
                     ESP_LOGI(TAG,"URL RECEIVED,%s,%s,%s",URLuserName,URLdateTime,FOTA_URL);
@@ -372,8 +371,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     publish_message("*RESTART-OK#", client);
                     uart_write_string_ln("*Resetting device#");
                     tx_event_pending = 1;
-                    vTaskDelay(2000/portTICK_PERIOD_MS);
-                    esp_restart();
+                   RestartDevice();
                 }
                 else if(strncmp(data, "*V:", 3) == 0){
                     if (edges == 0) 

@@ -128,13 +128,12 @@ void process_uart_packet(const char *pkt){
         
     }
    
-     else if(strncmp(pkt, "*RST:", 5) == 0){
+     else if(strncmp(pkt, "*RST#", 5) == 0){
     
         sprintf(buffer, "*RST-OK#");
         uart_write_string_ln(buffer);
         uart_write_string_ln("*Resetting device#");
-        vTaskDelay(3000/portTICK_PERIOD_MS);
-        esp_restart();
+        RestartDevice();
     
       
     }

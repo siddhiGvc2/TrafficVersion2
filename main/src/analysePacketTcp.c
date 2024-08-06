@@ -548,8 +548,7 @@ void tcpip_client_task(){
                                     send(sock, "*RESTART-OK#", strlen("*RESTART-OK#"), 0);
                                     uart_write_string_ln("*Resetting device#");
                                     tx_event_pending = 1;
-                                    vTaskDelay(2000/portTICK_PERIOD_MS);
-                                    esp_restart();
+                                    RestartDevice();
                                 }
 //                                 start genertaing pulses
 //                                  INPUT  -   *V:{TID},{pin},{Pulses}#
@@ -689,8 +688,7 @@ void tcpip_client_task(){
                                         send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
                                         ESP_LOGI(TAG, "*RST-OK#");
                                         uart_write_string_ln("*Resetting device#");
-                                        vTaskDelay(3000/portTICK_PERIOD_MS);
-                                        esp_restart();
+                                        RestartDevice();
                                 }
                                  else if(strncmp(rx_buffer, "*SN:", 4) == 0){
       

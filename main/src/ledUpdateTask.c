@@ -84,7 +84,12 @@ void leds_update_task(){
                 led1_gpio_state = 0;
                 led_set_level(LEDR, led1_gpio_state);
             }
-        }else if(led_state == SEARCH_FOR_WIFI1){
+        }
+        else if (led_state == WAITING_FOR_RESTART){
+            numberOfPulses = 20;
+            LedInUse= 3;  
+        }
+        else if(led_state == SEARCH_FOR_WIFI1){
             numberOfPulses = 2;
             LedInUse= 1;            
         }else if(led_state == SEARCH_FOR_WIFI2){
@@ -184,7 +189,22 @@ void leds_update_task(){
     }
 }
 
+// waiting for restart does not allow any other change in led state
 void set_led_state(Led_State_t st){
+    if (led_state == WAITING_FOR_RESTART) 
+        return;    
+    if (led_state == SEARCH_FOR_ESPTOUCH)
+    {   
+        last_update_led1 = 0;
+        led_state = st;
+        return;
+    }
+    if (led_state == WAIT4ESPTOUCH)
+    {
+        last_update_led1 = 0;
+        led_state = st;
+        return;
+    }
     last_update_led1 = 0;
     led_state = st;
 }

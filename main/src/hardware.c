@@ -53,7 +53,10 @@ void RestartDevice (void)
      send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
      ESP_LOGI(TAG, "*RST-OK#");
      uart_write_string_ln("*Resetting device#");
-     vTaskDelay(3000/portTICK_PERIOD_MS);
+     led_state = WAITING_FOR_RESTART;
+     vTaskDelay(4000/portTICK_PERIOD_MS);
+     while ((edges !=0) || (PulseStoppedDelay!=0))
+        vTaskDelay(1000/portTICK_PERIOD_MS);
      esp_restart();
 }
 
@@ -203,8 +206,7 @@ void gpio_read_n_act(void)
                         send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
                         ESP_LOGI(TAG, "*RST-OK#");
                         uart_write_string_ln("*Resetting device#");
-                        vTaskDelay(3000/portTICK_PERIOD_MS);
-                        esp_restart();
+                        RestartDevice();
                     }
                 }
 

@@ -43,6 +43,11 @@ reply sent
 
 LR and LC commands
 
+060824
+if edges or PulseStoppedDelay !=0 then do not restart
+Check led pulses
+if les_state is wait4restart, wait 4 esp touch , wait 4 jumper removal then do not allow any other condition
+
 
 030824
 split FOTA

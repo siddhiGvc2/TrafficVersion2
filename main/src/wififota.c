@@ -177,7 +177,6 @@ void http_fota(void){
     send(sock, "*FOTA-OVER#", strlen("*FOTA-OVER#"), 0);
     uart_write_string_ln("OTA update successful! Restarting...");
     uart_write_string_ln("*Resetting device-FOTA over#");
-    vTaskDelay(2000/portTICK_PERIOD_MS);
-    esp_restart();
+    RestartDevice();
     set_led_state(prev_state);
 }
