@@ -152,8 +152,8 @@ void leds_update_task(){
         }
         else if (numberOfPulses == 20)
         {
-                led2_gpio_state ^= led2_gpio_state;
-                led1_gpio_state ^= led2_gpio_state;
+                led2_gpio_state ^= 1;
+                led1_gpio_state = !led2_gpio_state;
                 led_set_level(LEDG, led2_gpio_state);
                 led_set_level(LEDR, led1_gpio_state);
         }
@@ -164,7 +164,7 @@ void leds_update_task(){
             {   
                 led1_gpio_state ^= 0x01;
                 led_set_level(LEDR, led1_gpio_state);
-                led_set_level(LEDG, 0);
+                led_set_level(LEDG, 1);
             }
             if (LedInUse == 2)
             {   
@@ -182,8 +182,11 @@ void leds_update_task(){
         }
         else
         { 
+            if ((led_state == SEARCH_FOR_WIFI) || (led_state == SEARCH_FOR_WIFI1) || (led_state == SEARCH_FOR_WIFI2)  || (led_state == SEARCH_FOR_WIFI3))
+                led_set_level(LEDG, 1);
+            else         
+                led_set_level(LEDG, 0);
             led_set_level(LEDR, 0);
-            led_set_level(LEDG, 0);
         }
         vTaskDelay(200/portTICK_PERIOD_MS);
     }

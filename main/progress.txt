@@ -45,6 +45,8 @@ LR and LC commands
 
 070824
 
+change LED blinking pattern when searching for wifi - green led should be on
+
 1.SS: - storing of SSID1
   PW: - storing of SSID1
   other ss and pw removed

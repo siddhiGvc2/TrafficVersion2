@@ -341,10 +341,15 @@ void process_uart_packet(const char *pkt){
     }else if(strncmp(pkt, "*RESTART#", 9) == 0){
         uart_write_string("*RESTART:OK#");
         uart_write_string_ln("*Resetting device#");
-        tx_event_pending = 1;
-        vTaskDelay(2000/portTICK_PERIOD_MS);
-        esp_restart();
-    }else{
+        RestartDevice();
+    }
+    else if(strncmp(pkt, "*LS?#", 5) == 0){
+        sprintf(payload,"LED State is %d",led_state);
+        uart_write_string_ln(payload);
+    }
+    
+    
+    else{
         uart_write_string_ln(pkt);
         int l = strlen(pkt);
         char buff[l+1];

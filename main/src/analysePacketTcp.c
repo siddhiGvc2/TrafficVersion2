@@ -100,7 +100,7 @@ void tcpip_client_task(){
                         sprintf(payload, "*MAC,%s,%s#", MAC_ADDRESS_ESP,SerialNumber);  // for GVC use ,
                     else
                         sprintf(payload, "*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber);  // for KP use :
-
+                    uart_write_string_ln(payload);
                     int err = send(sock, payload, strlen(payload), 0);
                     ESP_LOGI(TAG, "*Successfully connected#");  
                     if (gpio_get_level(JUMPER) == 0)
