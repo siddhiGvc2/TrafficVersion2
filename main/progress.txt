@@ -43,6 +43,12 @@ reply sent
 
 LR and LC commands
 
+070824
+
+SS: - storing of SSID1
+PW: - storing of SSID1
+other ss and pw removed
+
 060824
 if edges or PulseStoppedDelay !=0 then do not restart
 Check led pulses

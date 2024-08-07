@@ -167,43 +167,43 @@ void tcpip_client_task(){
                                 //     send(sock, payload, strlen(payload), 0);
                                 //     tx_event_pending = 1;
                                 // }
-                                if (strncmp(rx_buffer, "*SS:", 4) == 0) {
-                                    // Temporary buffers to read the values
-                                    char tempUserName[64], tempDateTime[64], tempBuf[64];
+                                // if (strncmp(rx_buffer, "*SS:", 4) == 0) {
+                                //     // Temporary buffers to read the values
+                                //     char tempUserName[64], tempDateTime[64], tempBuf[64];
 
-                                    // Parse the input buffer
-                                    if (sscanf(rx_buffer, "*SS:%[^:]:%[^:]:%[^#]#", tempUserName, tempDateTime, tempBuf) == 3) {
-                                        // Check if any of the parsed values are empty
-                                        if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
-                                            // Send error message if any required parameters are missing or invalid
-                                            const char* errorMsg = "Error: Missing or invalid parameters";
-                                            send(sock, errorMsg, strlen(errorMsg), 0);
-                                        } else {
-                                            // Copy parsed values to the actual variables
-                                            strcpy(SSuserName, tempUserName);
-                                            strcpy(SSdateTime, tempDateTime);
-                                            strcpy(WIFI_SSID_1, tempBuf);
+                                //     // Parse the input buffer
+                                //     if (sscanf(rx_buffer, "*SS:%[^:]:%[^:]:%[^#]#", tempUserName, tempDateTime, tempBuf) == 3) {
+                                //         // Check if any of the parsed values are empty
+                                //         if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
+                                //             // Send error message if any required parameters are missing or invalid
+                                //             const char* errorMsg = "Error: Missing or invalid parameters";
+                                //             send(sock, errorMsg, strlen(errorMsg), 0);
+                                //         } else {
+                                //             // Copy parsed values to the actual variables
+                                //             strcpy(SSuserName, tempUserName);
+                                //             strcpy(SSdateTime, tempDateTime);
+                                //             strcpy(WIFI_SSID_1, tempBuf);
 
-                                            // Save the values to non-volatile storage
-                                            utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
-                                            utils_nvs_set_str(NVS_SS_USERNAME, SSuserName);
-                                            utils_nvs_set_str(NVS_SS_DATETIME, SSdateTime);
+                                //             // Save the values to non-volatile storage
+                                //             utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
+                                //             utils_nvs_set_str(NVS_SS_USERNAME, SSuserName);
+                                //             utils_nvs_set_str(NVS_SS_DATETIME, SSdateTime);
 
-                                            // Format the success message and send it
-                                            sprintf(payload, "*SS-OK,%s,%s#", SSuserName, SSdateTime);
-                                            send(sock, payload, strlen(payload), 0);
-                                            tx_event_pending = 1;
-                                        }
-                                    } else {
-                                        // Send error message if parsing failed
-                                        const char* errorMsg = "Error: Invalid format";
-                                        send(sock, errorMsg, strlen(errorMsg), 0);
-                                    }
-                                }
+                                //             // Format the success message and send it
+                                //             sprintf(payload, "*SS-OK,%s,%s#", SSuserName, SSdateTime);
+                                //             send(sock, payload, strlen(payload), 0);
+                                //             tx_event_pending = 1;
+                                //         }
+                                //     } else {
+                                //         // Send error message if parsing failed
+                                //         const char* errorMsg = "Error: Invalid format";
+                                //         send(sock, errorMsg, strlen(errorMsg), 0);
+                                //     }
+                                // }
 
                                 // done by siddhi
                                 // totPolarity
-                                else if(strncmp(rx_buffer, "*CA?#", 5) == 0){
+                                 if(strncmp(rx_buffer, "*CA?#", 5) == 0){
                                         ESP_LOGI(TAG, "CA Values @ numValue %d polarity %d username %s dateTime %s",pulseWitdh,polarity,CAuserName,CAdateTime);
                                         
                                         sprintf(payload, "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity); //actual when in production
@@ -319,11 +319,11 @@ void tcpip_client_task(){
                                     }
 
                                 }
-                                else if(strncmp(rx_buffer, "*SS1:", 5) == 0){
+                                else if(strncmp(rx_buffer, "*SS:", 4) == 0){
                                   char tempUserName[64], tempDateTime[64], tempBuf[64];
 
                                     // Parse the input buffer
-                                    if (sscanf(rx_buffer, "*SS1:%[^:]:%[^:]:%[^#]#", tempUserName, tempDateTime, tempBuf) == 3) {
+                                    if (sscanf(rx_buffer, "*SS:%[^:]:%[^:]:%[^#]#", tempUserName, tempDateTime, tempBuf) == 3) {
                                         // Check if any of the parsed values are empty
                                         if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
                                             // Send error message if any required parameters are missing or invalid
@@ -331,17 +331,17 @@ void tcpip_client_task(){
                                             send(sock, errorMsg, strlen(errorMsg), 0);
                                         } else {
                                             // Copy parsed values to the actual variables
-                                            strcpy(SS1userName, tempUserName);
-                                            strcpy(SS1dateTime, tempDateTime);
+                                            strcpy(SSuserName, tempUserName);
+                                            strcpy(SSdateTime, tempDateTime);
                                             strcpy(WIFI_SSID_2, tempBuf);
 
                                             // Save the values to non-volatile storage
                                             utils_nvs_set_str(NVS_SSID_2_KEY, WIFI_SSID_2);
-                                            utils_nvs_set_str(NVS_SS1_USERNAME, SS1userName);
-                                            utils_nvs_set_str(NVS_SS1_DATETIME, SS1dateTime);
+                                            utils_nvs_set_str(NVS_SS_USERNAME, SSuserName);
+                                            utils_nvs_set_str(NVS_SS_DATETIME, SSdateTime);
 
                                             // Format the success message and send it
-                                            sprintf(payload, "*SS1-OK,%s,%s#", SS1userName, SS1dateTime);
+                                            sprintf(payload, "*SS-OK,%s,%s#", SSuserName, SSdateTime);
                                             send(sock, payload, strlen(payload), 0);
                                             tx_event_pending = 1;
                                         }
@@ -351,39 +351,71 @@ void tcpip_client_task(){
                                         send(sock, errorMsg, strlen(errorMsg), 0);
                                     }
                                 }
-                                else if(strncmp(rx_buffer, "*SS2:", 5) == 0){
-                                   char tempUserName[64], tempDateTime[64], tempBuf[64];
+                                // else if(strncmp(rx_buffer, "*SS2:", 5) == 0){
+                                //    char tempUserName[64], tempDateTime[64], tempBuf[64];
 
-                                    // Parse the input buffer
-                                    if (sscanf(rx_buffer, "*SS2:%[^:]:%[^:]:%[^#]#", tempUserName, tempDateTime, tempBuf) == 3) {
-                                        // Check if any of the parsed values are empty
-                                        if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
-                                            // Send error message if any required parameters are missing or invalid
-                                            const char* errorMsg = "Error: Missing or invalid parameters";
-                                            send(sock, errorMsg, strlen(errorMsg), 0);
-                                        } else {
-                                            // Copy parsed values to the actual variables
-                                            strcpy(SS2userName, tempUserName);
-                                            strcpy(SS2dateTime, tempDateTime);
-                                            strcpy(WIFI_SSID_3, tempBuf);
+                                //     // Parse the input buffer
+                                //     if (sscanf(rx_buffer, "*SS2:%[^:]:%[^:]:%[^#]#", tempUserName, tempDateTime, tempBuf) == 3) {
+                                //         // Check if any of the parsed values are empty
+                                //         if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
+                                //             // Send error message if any required parameters are missing or invalid
+                                //             const char* errorMsg = "Error: Missing or invalid parameters";
+                                //             send(sock, errorMsg, strlen(errorMsg), 0);
+                                //         } else {
+                                //             // Copy parsed values to the actual variables
+                                //             strcpy(SS2userName, tempUserName);
+                                //             strcpy(SS2dateTime, tempDateTime);
+                                //             strcpy(WIFI_SSID_3, tempBuf);
 
-                                            // Save the values to non-volatile storage
-                                            utils_nvs_set_str(NVS_SSID_3_KEY, WIFI_SSID_3);
-                                            utils_nvs_set_str(NVS_SS2_USERNAME, SS2userName);
-                                            utils_nvs_set_str(NVS_SS2_DATETIME, SS2dateTime);
+                                //             // Save the values to non-volatile storage
+                                //             utils_nvs_set_str(NVS_SSID_3_KEY, WIFI_SSID_3);
+                                //             utils_nvs_set_str(NVS_SS2_USERNAME, SS2userName);
+                                //             utils_nvs_set_str(NVS_SS2_DATETIME, SS2dateTime);
 
-                                            // Format the success message and send it
-                                            sprintf(payload, "*SS2-OK,%s,%s#", SS2userName, SS2dateTime);
-                                            send(sock, payload, strlen(payload), 0);
-                                            tx_event_pending = 1;
-                                        }
-                                    } else {
-                                        // Send error message if parsing failed
-                                        const char* errorMsg = "Error: Invalid format";
-                                        send(sock, errorMsg, strlen(errorMsg), 0);
-                                    }
-                                }else if(strncmp(rx_buffer, "*PW:", 4) == 0){
+                                //             // Format the success message and send it
+                                //             sprintf(payload, "*SS2-OK,%s,%s#", SS2userName, SS2dateTime);
+                                //             send(sock, payload, strlen(payload), 0);
+                                //             tx_event_pending = 1;
+                                //         }
+                                //     } else {
+                                //         // Send error message if parsing failed
+                                //         const char* errorMsg = "Error: Invalid format";
+                                //         send(sock, errorMsg, strlen(errorMsg), 0);
+                                //     }
+                                // }else if(strncmp(rx_buffer, "*PW:", 4) == 0){
                                     
+                                //     char tempUserName[64], tempDateTime[64], tempBuf[64];
+
+                                //     // Parse the input buffer
+                                //     if (sscanf(rx_buffer, "*PW:%[^:]:%[^:]:%[^#]#", tempUserName, tempDateTime, tempBuf) == 3) {
+                                //         // Check if any of the parsed values are empty
+                                //         if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
+                                //             // Send error message if any required parameters are missing or invalid
+                                //             const char* errorMsg = "Error: Missing or invalid parameters";
+                                //             send(sock, errorMsg, strlen(errorMsg), 0);
+                                //         } else {
+                                //             // Copy parsed values to the actual variables
+                                //             strcpy(PWuserName, tempUserName);
+                                //             strcpy(PWdateTime, tempDateTime);
+                                //             strcpy(WIFI_PASS_1, tempBuf);
+
+                                //             // Save the values to non-volatile storage
+                                //             utils_nvs_set_str(NVS_PASS_1_KEY, WIFI_PASS_1);
+                                //             utils_nvs_set_str(NVS_PW_USERNAME, PWuserName);
+                                //             utils_nvs_set_str(NVS_PW_DATETIME, PWdateTime);
+
+                                //             // Format the success message and send it
+                                //             sprintf(payload, "*PW-OK,%s,%s#", PWuserName, PWdateTime);
+                                //             send(sock, payload, strlen(payload), 0);
+                                //             tx_event_pending = 1;
+                                //         }
+                                //     } else {
+                                //         // Send error message if parsing failed
+                                //         const char* errorMsg = "Error: Invalid format";
+                                //         send(sock, errorMsg, strlen(errorMsg), 0);
+                                //     }
+                                // }
+                                else if(strncmp(rx_buffer, "*PW:", 4) == 0){
                                     char tempUserName[64], tempDateTime[64], tempBuf[64];
 
                                     // Parse the input buffer
@@ -397,10 +429,10 @@ void tcpip_client_task(){
                                             // Copy parsed values to the actual variables
                                             strcpy(PWuserName, tempUserName);
                                             strcpy(PWdateTime, tempDateTime);
-                                            strcpy(WIFI_PASS_1, tempBuf);
+                                            strcpy(WIFI_PASS_2, tempBuf);
 
                                             // Save the values to non-volatile storage
-                                            utils_nvs_set_str(NVS_PASS_1_KEY, WIFI_PASS_1);
+                                            utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
                                             utils_nvs_set_str(NVS_PW_USERNAME, PWuserName);
                                             utils_nvs_set_str(NVS_PW_DATETIME, PWdateTime);
 
@@ -414,70 +446,41 @@ void tcpip_client_task(){
                                         const char* errorMsg = "Error: Invalid format";
                                         send(sock, errorMsg, strlen(errorMsg), 0);
                                     }
-                                }else if(strncmp(rx_buffer, "*PW1:", 5) == 0){
-                                    char tempUserName[64], tempDateTime[64], tempBuf[64];
+                                }
+                                // else if(strncmp(rx_buffer, "*PW2:", 5) == 0){
+                                //      char tempUserName[64], tempDateTime[64], tempBuf[64];
 
-                                    // Parse the input buffer
-                                    if (sscanf(rx_buffer, "*PW1:%[^:]:%[^:]:%[^#]#", tempUserName, tempDateTime, tempBuf) == 3) {
-                                        // Check if any of the parsed values are empty
-                                        if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
-                                            // Send error message if any required parameters are missing or invalid
-                                            const char* errorMsg = "Error: Missing or invalid parameters";
-                                            send(sock, errorMsg, strlen(errorMsg), 0);
-                                        } else {
-                                            // Copy parsed values to the actual variables
-                                            strcpy(PW1userName, tempUserName);
-                                            strcpy(PW1dateTime, tempDateTime);
-                                            strcpy(WIFI_PASS_2, tempBuf);
+                                //     // Parse the input buffer
+                                //     if (sscanf(rx_buffer, "*PW2:%[^:]:%[^:]:%[^#]#", tempUserName, tempDateTime, tempBuf) == 3) {
+                                //         // Check if any of the parsed values are empty
+                                //         if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
+                                //             // Send error message if any required parameters are missing or invalid
+                                //             const char* errorMsg = "Error: Missing or invalid parameters";
+                                //             send(sock, errorMsg, strlen(errorMsg), 0);
+                                //         } else {
+                                //             // Copy parsed values to the actual variables
+                                //             strcpy(PW2userName, tempUserName);
+                                //             strcpy(PW2dateTime, tempDateTime);
+                                //             strcpy(WIFI_PASS_3, tempBuf);
 
-                                            // Save the values to non-volatile storage
-                                            utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
-                                            utils_nvs_set_str(NVS_PW1_USERNAME, PW1userName);
-                                            utils_nvs_set_str(NVS_PW1_DATETIME, PW1dateTime);
+                                //             // Save the values to non-volatile storage
+                                //             utils_nvs_set_str(NVS_PASS_3_KEY, WIFI_PASS_3);
+                                //             utils_nvs_set_str(NVS_PW2_USERNAME, PW2userName);
+                                //             utils_nvs_set_str(NVS_PW2_DATETIME, PW2dateTime);
 
-                                            // Format the success message and send it
-                                            sprintf(payload, "*PW1-OK,%s,%s#", PW1userName, PW1dateTime);
-                                            send(sock, payload, strlen(payload), 0);
-                                            tx_event_pending = 1;
-                                        }
-                                    } else {
-                                        // Send error message if parsing failed
-                                        const char* errorMsg = "Error: Invalid format";
-                                        send(sock, errorMsg, strlen(errorMsg), 0);
-                                    }
-                                }else if(strncmp(rx_buffer, "*PW2:", 5) == 0){
-                                     char tempUserName[64], tempDateTime[64], tempBuf[64];
-
-                                    // Parse the input buffer
-                                    if (sscanf(rx_buffer, "*PW2:%[^:]:%[^:]:%[^#]#", tempUserName, tempDateTime, tempBuf) == 3) {
-                                        // Check if any of the parsed values are empty
-                                        if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
-                                            // Send error message if any required parameters are missing or invalid
-                                            const char* errorMsg = "Error: Missing or invalid parameters";
-                                            send(sock, errorMsg, strlen(errorMsg), 0);
-                                        } else {
-                                            // Copy parsed values to the actual variables
-                                            strcpy(PW2userName, tempUserName);
-                                            strcpy(PW2dateTime, tempDateTime);
-                                            strcpy(WIFI_PASS_3, tempBuf);
-
-                                            // Save the values to non-volatile storage
-                                            utils_nvs_set_str(NVS_PASS_3_KEY, WIFI_PASS_3);
-                                            utils_nvs_set_str(NVS_PW2_USERNAME, PW2userName);
-                                            utils_nvs_set_str(NVS_PW2_DATETIME, PW2dateTime);
-
-                                            // Format the success message and send it
-                                            sprintf(payload, "*PW2-OK,%s,%s#", PW2userName, PW2dateTime);
-                                            send(sock, payload, strlen(payload), 0);
-                                            tx_event_pending = 1;
-                                        }
-                                    } else {
-                                        // Send error message if parsing failed
-                                        const char* errorMsg = "Error: Invalid format";
-                                        send(sock, errorMsg, strlen(errorMsg), 0);
-                                    }
+                                //             // Format the success message and send it
+                                //             sprintf(payload, "*PW2-OK,%s,%s#", PW2userName, PW2dateTime);
+                                //             send(sock, payload, strlen(payload), 0);
+                                //             tx_event_pending = 1;
+                                //         }
+                                //     } else {
+                                //         // Send error message if parsing failed
+                                //         const char* errorMsg = "Error: Invalid format";
+                                //         send(sock, errorMsg, strlen(errorMsg), 0);
+                                //     }
                                    
-                                }else if(strncmp(rx_buffer, "*URL:", 5) == 0){
+                                // }
+                                else if(strncmp(rx_buffer, "*URL:", 5) == 0){
                                       char tempUserName[64], tempDateTime[64], tempBuf[64];
 
                                     // Parse the input buffer
