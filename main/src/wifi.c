@@ -205,8 +205,11 @@ void event_handler(void* arg, esp_event_base_t event_base,
         ESP_LOGI(TAG, "*SSID3:%s#", ssid);
         ESP_LOGI(TAG, "*PASSWORD3:%s#", password);
         // memorise in NV RAM
-        utils_nvs_set_str(NVS_SSID_3_KEY, ssid);
-        utils_nvs_set_str(NVS_PASS_3_KEY, password);
+
+        strcpy(WIFI_SSID_3,ssid);
+        strcpy(WIFI_PASS_3,password);
+        utils_nvs_set_str(NVS_SSID_3_KEY, WIFI_SSID_3);
+        utils_nvs_set_str(NVS_PASS_3_KEY, WIFI_PASS_3);
 
         if (evt->type == SC_TYPE_ESPTOUCH_V2) {
             ESP_ERROR_CHECK( esp_smartconfig_get_rvd_data(rvd_data, sizeof(rvd_data)) );
