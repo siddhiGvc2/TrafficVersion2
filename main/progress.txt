@@ -47,6 +47,10 @@ LR and LC commands
 
 change LED blinking pattern when searching for wifi - green led should be on
 
+prodction ip address added
+restart time increased
+bug of LED not blinking solved when wifi disconnected
+
 1.SS: - storing of SSID1
   PW: - storing of SSID1
   other ss and pw removed

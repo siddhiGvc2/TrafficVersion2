@@ -134,7 +134,12 @@ void event_handler(void* arg, esp_event_base_t event_base,
     
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         connected_to_wifi_and_internet = false;
-        set_led_state(SEARCH_FOR_WIFI);
+        if (WiFiNumber == 1)
+            set_led_state(SEARCH_FOR_WIFI1);
+        if (WiFiNumber == 2)
+            set_led_state(SEARCH_FOR_WIFI2);
+        if (WiFiNumber == 3)
+            set_led_state(SEARCH_FOR_WIFI3);
         ESP_LOGI(TAG,"*Connect WiFi after disconnection#");
         vTaskDelay(ESP_RETRY_GAP);
         if (s_retry_num <= ESP_MAXIMUM_RETRY) {
@@ -155,7 +160,8 @@ void event_handler(void* arg, esp_event_base_t event_base,
                 esp_wifi_connect();
                 WiFiRetryAfterConnection++;
                 ESP_LOGI(TAG, "*Retry WiFi Aftre Connection %d#",WiFiRetryAfterConnection);
-                uart_write_string_ln("*Retry WiFi Aftre Connection#");
+                sprintf (buffer,"*Retry WiFi Aftre Connection Try Number %d#",WiFiRetryAfterConnection);
+                uart_write_string_ln(buffer);
                 if (WiFiRetryAfterConnection > WIFIRETRYAFTERCONNECTIONLIMIT)
                     RestartDevice();
             }
@@ -296,7 +302,7 @@ void smartconfig_example_task(void * parm)
 
 void wifi_init_sta(void)
 {
-
+    char buffer[100];
     s_wifi_event_group = xEventGroupCreate();
 
     ESP_ERROR_CHECK(esp_netif_init());
@@ -358,10 +364,10 @@ void wifi_init_sta(void)
                 set_led_state(SEARCH_FOR_WIFI3);
                 if(!connect_to_wifi(WIFI_SSID_3, WIFI_PASS_3)){
                      ESP_LOGI(TAG, "Could not connect to SSID3. Ttrying from 1....");
-                    uart_write_string_ln("*Going back and trying from 1 again#");
-
-                    WiFiLoopCount++;
-                    continue;
+                     WiFiLoopCount++;
+                     sprintf (buffer,"*Trying from 1. Retry Count is %d",WiFiLoopCount);
+                     uart_write_string_ln(buffer);
+                     continue;
                 }
                 else{
                 ESP_LOGI(TAG, "*Connected To WiFi3#");

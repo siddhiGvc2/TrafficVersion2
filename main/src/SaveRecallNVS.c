@@ -310,7 +310,9 @@ void load_settings_nvs(){
 
 
 // if jumper set server address and server port as jumperPort
-    if (gpio_get_level(JUMPER) == 0)
+//    if (gpio_get_level(JUMPER) == 0)
+#ifdef GVCOptionRequired
+      if (gpio_get_level(JUMPER) == 0)    // disable jumper sensing
     {        
         strcpy(server_ip_addr, DEFAULT_SERVER_IP_ADDR_TRY);
         strcpy(FOTA_URL, DEFAULT_FOTA_URL_TRY);
@@ -324,7 +326,7 @@ void load_settings_nvs(){
         }
         
     }
-
+#endif
     if(utils_nvs_get_int(NVS_CASH1_KEY, &cashValue) == ESP_OK){
         CashTotals[0] = cashValue;
     }

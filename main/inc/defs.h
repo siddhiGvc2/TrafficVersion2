@@ -1,3 +1,10 @@
+#define GVCOptionRequired 0
+//90 second before restart in loop count is 3
+#define WIFIRETRYAFTERCONNECTIONLIMIT 75 // As proposed by NB 20 How many minutes 30 minutes
+// 75 seconds for one loop
+#define MAXWIFILOOPCOUNT 24 // As proposed by NB 10  // how many minutes? 30 minutes
+
+
 typedef enum LED_STATES{
     STANDBY_LED,
     SEARCH_FOR_WIFI,
@@ -22,8 +29,6 @@ typedef enum TCPIP_SOCKET_STATE{
 
 #define LED_ACTIVE_HIGH
 #define ESP_MAXIMUM_RETRY       0
-#define WIFIRETRYAFTERCONNECTIONLIMIT 3
-#define MAXWIFILOOPCOUNT 3
 
 #define ESP_RETRY_GAP           2000
 #define Production          1
@@ -111,11 +116,11 @@ typedef enum TCPIP_SOCKET_STATE{
 #define NVS_LAST_TID   "LAST_TID"
 
 #define DEFAULT_SERVER_IP_ADDR_TRY "gvc.co.in"
-#define DEFAULT_SERVER_IP_ADDR "157.245.29.144"
+#define DEFAULT_SERVER_IP_ADDR "159.89.248.57"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL_TRY  "http://gvc.co.in/esp/esp_wifi_tcp_fota.bin"
-#define DEFAULT_FOTA_URL  "http://test-firmware.kwikpay.uk/firmware/fw030824_105.bin"
-#define FWVersion "*Kwikpay_070824_VER_1.06 Naico Ltd#"
+#define DEFAULT_FOTA_URL  "http://test-firmware.kwikpay.uk/firmware/fw070824_108.bin"
+#define FWVersion "*Kwikpay_070824_VER_1.08 Naico Ltd#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
