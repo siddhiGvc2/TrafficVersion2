@@ -128,6 +128,7 @@ int blinkLEDNumber = 0;
 Led_State_t led_state = STANDBY_LED;
 TCPIP_Socket_State socket_state;
 bool connected_to_wifi_and_internet = false;
+bool LED4TCPPacket = 0;
 int WiFiNumber = 0;
 
 

@@ -137,7 +137,7 @@ extern nvs_handle_t utils_nvs_handle;
 
 extern Led_State_t led_state;
 extern TCPIP_Socket_State socket_state;
-extern bool connected_to_wifi_and_internet;
+extern bool connected_to_wifi_and_internet,LED4TCPPacket;
 extern int WiFiNumber;
 extern int rx_event_pending;
 extern int tx_event_pending;

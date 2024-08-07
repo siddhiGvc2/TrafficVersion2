@@ -143,12 +143,52 @@ void leds_update_task(){
         //     // }
 
         // }
-        // when number of pulses = 0, led are on 
+        // when number of pulses = 0, led are on
+        // this is every thing okay 
+        // if any data received on TCPIP
+        // switch off leds for 500 msec, then swithc on for 500 msecs and then switch off for 500 msec
+
         if (numberOfPulses == 0)
         {
-            led_set_level(LEDR, 1);
-            led_set_level(LEDG, 1);
-
+            if (LED4TCPPacket)
+            {
+                if (ticks_100 < 4)
+                {
+                    led_set_level(LEDR, 0);
+                    led_set_level(LEDG, 0);
+                }                
+                else if (ticks_100 <6)
+                {
+                    led_set_level(LEDR, 1);
+                    led_set_level(LEDG, 1);
+                }
+                else if (ticks_100 <10)
+                {
+                    led_set_level(LEDR, 0);
+                    led_set_level(LEDG, 0);
+                }
+                else if (ticks_100 <12)
+                {
+                    led_set_level(LEDR, 1);
+                    led_set_level(LEDG, 1);
+                }
+                else if (ticks_100 <16)
+                {
+                    led_set_level(LEDR, 0);
+                    led_set_level(LEDG, 0);
+                }
+                else
+                {
+                    led_set_level(LEDR, 1);
+                    led_set_level(LEDG, 1);
+                    LED4TCPPacket = 0;
+                }
+            }
+            else
+            {
+                led_set_level(LEDR, 1);
+                led_set_level(LEDG, 1);
+            }
         }
         else if (numberOfPulses == 20)
         {
