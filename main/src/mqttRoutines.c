@@ -154,19 +154,26 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                 } 
                 else if(strncmp(data, "*SIP:", 5) == 0){
                                   
-                    sscanf(data, "*SIP:%[^:]:%d#",server_ip_addr,
-                        &sp_port);
+                    sscanf(data, "*SIP:%d#",&SipNumber);
                     strcpy(SIPuserName,"MQTT_LOCAL");
                     strcpy(SIPdateTime,"00/00/00");
                     char buf[100];
                     sprintf(payload, "*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
                     sprintf(buf, "%s",server_ip_addr);
-                    
 
-                    utils_nvs_set_str(NVS_SERVER_IP_KEY, buf);
-                    utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
-                    utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
-                    utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
+                     if ((atoi(SipNumber) == 0) || (atoi(SipNumber) >MAXSIPNUMBER))  
+                        {  
+                            sprintf(payload, "*SIP-Error#");
+                            ESP_LOGI(TAG,"*SIP-ERROR#");
+                        }else 
+                        {
+                            sprintf(payload, "*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);                                                   
+                            utils_nvs_set_int(NVS_SIP_NUMBER, atoi(SipNumber));
+                            utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
+                            utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
+                            ESP_LOGI(TAG,"*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
+                        } 
+                
                     
                      publish_message(payload, client);
                     // send(sock, payload, strlen(payload), 0);

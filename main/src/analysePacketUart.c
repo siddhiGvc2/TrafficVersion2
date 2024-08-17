@@ -311,15 +311,26 @@ void process_uart_packet(const char *pkt){
     }
     else if(strncmp(pkt, "*SIP:", 5) == 0){
       
-        sscanf(pkt, "*SIP:%[^:]:%d#",server_ip_addr,
-                                        &sp_port);
+        sscanf(pkt, "*SIP:%d#",&SipNumber);
         strcpy(SIPuserName,"LOCAL");
         strcpy(SIPdateTime,"00/00/00");
+          if ((atoi(SipNumber) == 0) || (atoi(SipNumber) >MAXSIPNUMBER))  
+            {  
+                sprintf(payload, "*SIP-Error#");
+                ESP_LOGI(TAG,"*SIP-ERROR#");
+            }else 
+            {
+                sprintf(payload, "*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);                                                   
+                utils_nvs_set_int(NVS_SIP_NUMBER, atoi(SipNumber));
+                utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
+                utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
+                ESP_LOGI(TAG,"*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
+            } 
 
-        sprintf(buf, "%s", server_ip_addr);
+        // sprintf(buf, "%s", server_ip_addr);
         
-        utils_nvs_set_str(NVS_SERVER_IP_KEY, buf);
-        utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
+        // utils_nvs_set_str(NVS_SERVER_IP_KEY, buf);
+        // utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
 
         utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
         utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
