@@ -335,10 +335,24 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
     
     }
-    else if (strncmp(pkt, "*ERASE#", 7) == 0){
+    else if (strncmp(pkt, "*ERASE:", 7) == 0){
+        sscanf(pkt, "*ERASE:%[^:#]",ErasedSerialNumber);
+        strcpy(ERASEuserName,"LOCAL");
+        strcpy(ERASEdateTime,"00/00/00");
+        utils_nvs_set_str(NVS_ERASE_USERNAME, ERASEuserName);
+        utils_nvs_set_str(NVS_ERASE_DATETIME, ERASEdateTime);
+        utils_nvs_set_str(NVS_ERASED_SERIAL_NUMBER, ErasedSerialNumber);
         utils_nvs_erase_all();
         uart_write_string("*ERASE:OK#");
-    }else if(strncmp(pkt, "*RESTART#", 9) == 0){
+        
+    }
+     else if (strncmp(pkt, "*ERASE?", 7) == 0){
+   
+     sprintf(buffer,"*ERASE,%s,%s,%s#",ERASEuserName,ERASEdateTime,ErasedSerialNumber); 
+      uart_write_string_ln(payload);
+        
+    }
+    else if(strncmp(pkt, "*RESTART#", 9) == 0){
         uart_write_string("*RESTART:OK#");
         uart_write_string_ln("*Resetting device#");
         RestartDevice();

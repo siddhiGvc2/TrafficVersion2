@@ -93,10 +93,16 @@ extern char INHuserName[100];
 extern char SPdateTime[100];
 extern char SPuserName[100];
 
+extern char ERASEdateTime[100];
+extern char ERASEuserName[100];
+
 extern char SerialNumber[100];
 
 extern char LastTID[100];
 extern char TID[100];
+
+extern char ErasedSerialNumber[100];
+
 
 
 

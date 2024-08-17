@@ -87,10 +87,15 @@ char INHuserName[100];
 char SPdateTime[100];
 char SPuserName[100];
 
+char ERASEdateTime[100];
+char ERASEuserName[100];
+
 char SerialNumber[100];
 
 char LastTID[100];
 char TID[100];
+
+char ErasedSerialNumber[100];
 
 int MQTTRequired;
 

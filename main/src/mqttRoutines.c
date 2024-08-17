@@ -364,10 +364,23 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     publish_message(payload, client);
                     tx_event_pending = 1;
                 }
-                else if (strncmp(data, "*ERASE#", 7) == 0){
+                else if (strncmp(data, "*ERASE:", 7) == 0){
+                    sscanf(payload, "*ERASE:%[^:]#",ErasedSerialNumber);
+                    strcpy(ERASEuserName,"LOCAL");
+                    strcpy(ERASEdateTime,"00/00/00");
+                    utils_nvs_set_str(NVS_ERASE_USERNAME, ERASEuserName);
+                    utils_nvs_set_str(NVS_ERASE_DATETIME, ERASEdateTime);
+                    utils_nvs_set_str(NVS_ERASED_SERIAL_NUMBER, ErasedSerialNumber);
                     utils_nvs_erase_all();
                     publish_message("*ERASE-OK#", client);
-                }else if(strncmp(data, "*RESTART#", 9) == 0){
+                }
+                 else if (strncmp(data, "*ERASE?", 7) == 0){
+            
+                sprintf(payload,"*ERASE,%s,%s,%s#",ERASEuserName,ERASEdateTime,ErasedSerialNumber); 
+                  publish_message(payload, client);
+                    
+                }
+                else if(strncmp(data, "*RESTART#", 9) == 0){
                     publish_message("*RESTART-OK#", client);
                     uart_write_string_ln("*Resetting device#");
                     tx_event_pending = 1;

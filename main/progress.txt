@@ -34,6 +34,10 @@ UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
 
+170824
+ERASE command syntax changed , ERASE? added
+
+
 Change in LEDs blinking - 
 ESP Touch in progress, waiting for esp touch, 
 waiting for wifi 1, waiing for wifi 2, waiting for wifi3

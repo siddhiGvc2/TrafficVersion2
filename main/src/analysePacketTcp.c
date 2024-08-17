@@ -546,10 +546,21 @@ void tcpip_client_task(){
                                     
                                     send(sock, payload, strlen(payload), 0);
                                     tx_event_pending = 1;
-                                }else if (strncmp(rx_buffer, "*ERASE#", 7) == 0){
+                                }else if (strncmp(rx_buffer, "*ERASE:", 7) == 0){
+                                    sscanf(rx_buffer, "*ERASE:%[^:]:%[^:]:%[^:]#",ERASEuserName,ERASEdateTime,ErasedSerialNumber);
+                                    utils_nvs_set_str(NVS_ERASE_USERNAME, ERASEuserName);
+                                    utils_nvs_set_str(NVS_ERASE_DATETIME, ERASEdateTime);
+                                    utils_nvs_set_str(NVS_ERASED_SERIAL_NUMBER, ErasedSerialNumber);
                                     utils_nvs_erase_all();
                                     send(sock, "*ERASE-OK#", strlen("*ERASE-OK#"), 0);
-                                }else if(strncmp(rx_buffer, "*RESTART#", 9) == 0){
+                                }
+                                else if (strncmp(rx_buffer, "*ERASE?", 7) == 0){
+                                char msg[600];
+                                sprintf(msg,"*ERASE,%s,%s,%s#",ERASEuserName,ERASEdateTime,ErasedSerialNumber); 
+                                send(sock, msg, strlen(msg), 0);
+                                   
+                                }
+                                else if(strncmp(rx_buffer, "*RESTART#", 9) == 0){
                                     send(sock, "*RESTART-OK#", strlen("*RESTART-OK#"), 0);
                                     uart_write_string_ln("*Resetting device#");
                                     tx_event_pending = 1;

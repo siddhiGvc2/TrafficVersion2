@@ -103,7 +103,15 @@ void load_settings_nvs(){
        utils_nvs_get_str(NVS_LAST_TID, LastTID,100);
     }
 
-    
+     if(utils_nvs_get_str(NVS_ERASE_DATETIME,ERASEdateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_ERASE_DATETIME,ERASEdateTime,100);
+    }
+     if(utils_nvs_get_str(NVS_ERASE_USERNAME,ERASEuserName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_ERASE_USERNAME,ERASEuserName,100);
+    }
+     if(utils_nvs_get_str(NVS_ERASED_SERIAL_NUMBER,ErasedSerialNumber,100) == ESP_OK){
+      utils_nvs_get_str(NVS_ERASED_SERIAL_NUMBER,ErasedSerialNumber,100);
+    }
     
     if(utils_nvs_get_str(NVS_SERIAL_NUMBER, SerialNumber,100) == ESP_OK){
        utils_nvs_get_str(NVS_SERIAL_NUMBER, SerialNumber,100);
