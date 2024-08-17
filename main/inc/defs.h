@@ -133,7 +133,7 @@ typedef enum TCPIP_SOCKET_STATE{
 #define FOTA_URL2  "TESTTCP.KWIKPAY.COM"
 #define FOTA_URL3  "GVCTCP.KWIKPAY.COM"
 
-#define FWVersion "*Kwikpay_070824_VER_1.08 Naico Ltd#"
+#define FWVersion "*Kwikpay_170824_VER_1.08 Naico Ltd#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
