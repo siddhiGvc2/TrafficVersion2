@@ -132,6 +132,7 @@ extern int CashTotals[7];
 extern int ledpin;
 extern int ledstatus;
 extern int blinkLEDNumber;
+extern int SipNumber;
 
 #define EX_UART_NUM UART_NUM_2
 #define BUF_SIZE (1024)

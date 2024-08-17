@@ -36,6 +36,12 @@ wifi/server disconnection to be tested
 
 170824
 ERASE command syntax changed , ERASE? added
+1. If less parameters do not erased and return erase - error - done
+2. If serial number of erase command not matching with device serial number then do not erase - done
+3. After erase command save serial number as in erase command - done
+4. Remove *SN : command from TCP- done
+5. Change SIP command. Only 1/2/3 is sent and saved old *SIP:X:Y:UR:#  new *SIP:X:Y:SIPNUMBER 1/2/3# 
+    If 1 then set SIP as URL 1 , if 2 then set SIP as URL 2 , If 3 then set SIP as URL3  - done
 
 
 Change in LEDs blinking - 

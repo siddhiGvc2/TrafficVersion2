@@ -365,14 +365,22 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     tx_event_pending = 1;
                 }
                 else if (strncmp(data, "*ERASE:", 7) == 0){
+
                     sscanf(payload, "*ERASE:%[^:]#",ErasedSerialNumber);
-                    strcpy(ERASEuserName,"LOCAL");
+                     if (strcmp(ErasedSerialNumber, SerialNumber) != 0) {
+                        const char* errorMsg = "Erase:Serial Not Matched";
+                       publish_message("Erase:Serial Not Matched", client);
+                    }
+                    else{
+                    strcpy(ERASEuserName,"MQTT_LOCAL");
                     strcpy(ERASEdateTime,"00/00/00");
                     utils_nvs_set_str(NVS_ERASE_USERNAME, ERASEuserName);
                     utils_nvs_set_str(NVS_ERASE_DATETIME, ERASEdateTime);
                     utils_nvs_set_str(NVS_ERASED_SERIAL_NUMBER, ErasedSerialNumber);
                     utils_nvs_erase_all();
+                    utils_nvs_set_str(NVS_SERIAL_NUMBER, ErasedSerialNumber);
                     publish_message("*ERASE-OK#", client);
+                    }
                 }
                  else if (strncmp(data, "*ERASE?", 7) == 0){
             

@@ -530,29 +530,90 @@ void tcpip_client_task(){
                                     http_fota();
                                 }else if(strncmp(rx_buffer, "*SIP:", 5) == 0){
                                     
-                                  
-                                    sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%[^:]:%d#",SIPuserName,SIPdateTime,server_ip_addr,
-                                        &sp_port);
-                                    char buf[100];
-                                    sprintf(payload, "*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
-                                    sprintf(buf, "%s",server_ip_addr);
-                                  
+                                    char tempUserName[64], tempDateTime[64], tempBuf[64] ,tempBuf2[64];
 
-                                    utils_nvs_set_str(NVS_SERVER_IP_KEY, buf);
-                                    utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
-                                    utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
-                                    utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
-                                    
-                                    
-                                    send(sock, payload, strlen(payload), 0);
-                                    tx_event_pending = 1;
+                                    if (sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%[^:]:%[^:#]", tempUserName, tempDateTime, tempBuf,tempBuf2) == 4) { 
+                                          if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0 || strlen(tempBuf2) ==0 ) {
+                                            // Send error message if any required parameters are missing or invalid
+                                            const char* errorMsg = "Error: Missing or invalid parameters";
+                                            send(sock, errorMsg, strlen(errorMsg), 0);
+                                        }
+                                        else{
+                                                // sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%[^:]:%d#",SIPuserName,SIPdateTime,server_ip_addr,
+                                                //     &sp_port);
+
+                                                strcpy(SIPuserName, tempUserName);
+                                                strcpy(SIPdateTime, tempDateTime);
+                                               
+                                              
+                                                sp_port= atoi(tempBuf2);
+                                                char buf[100];
+                                                sprintf(payload, "*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
+
+                                               if (atoi(tempBuf) == 1) {
+                                                    utils_nvs_set_str(NVS_SERVER_IP_KEY, FOTA_URL1);
+                                                }
+                                                else if (atoi(tempBuf) == 2) {
+                                                    utils_nvs_set_str(NVS_SERVER_IP_KEY, FOTA_URL2);
+                                                }
+                                                if (atoi(tempBuf) == 3) {
+                                                    utils_nvs_set_str(NVS_SERVER_IP_KEY, FOTA_URL3);
+                                                }
+
+                                              
+
+                                               
+                                                utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
+                                                utils_nvs_set_int(NVS_SIP_NUMBER, atoi(tempBuf));
+                                                utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
+                                                utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
+                                                
+                                                
+                                                send(sock, payload, strlen(payload), 0);
+                                                tx_event_pending = 1;
+
+                                        }
+                                  
+                                    }
+                                    else{
+                                        const char* errorMsg = "Error: Invalid format";
+                                        send(sock, errorMsg, strlen(errorMsg), 0);  
+                                    }
                                 }else if (strncmp(rx_buffer, "*ERASE:", 7) == 0){
-                                    sscanf(rx_buffer, "*ERASE:%[^:]:%[^:]:%[^:]#",ERASEuserName,ERASEdateTime,ErasedSerialNumber);
-                                    utils_nvs_set_str(NVS_ERASE_USERNAME, ERASEuserName);
-                                    utils_nvs_set_str(NVS_ERASE_DATETIME, ERASEdateTime);
-                                    utils_nvs_set_str(NVS_ERASED_SERIAL_NUMBER, ErasedSerialNumber);
-                                    utils_nvs_erase_all();
-                                    send(sock, "*ERASE-OK#", strlen("*ERASE-OK#"), 0);
+                                      char tempUserName[64], tempDateTime[64], tempBuf[64];
+                                       // if seria no of device != ErasedSerialNumber then do not erase
+                                            // if all values are not avalible then do not erase
+
+                                    if (sscanf(rx_buffer, "*ERASE:%[^:]:%[^:]:%[^:]#", tempUserName, tempDateTime, tempBuf) == 3) { 
+                                        if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0 ) {
+                                            // Send error message if any required parameters are missing or invalid
+                                            const char* errorMsg = "Error: Missing or invalid parameters";
+                                            send(sock, errorMsg, strlen(errorMsg), 0);
+                                        }
+                                        else if (strcmp(tempBuf, SerialNumber) != 0) {
+                                            const char* errorMsg = "Erase:Serial Not Matched";
+                                            send(sock, errorMsg, strlen(errorMsg), 0);
+                                        }
+
+                                        else{
+                                        
+                                           
+                                            strcpy(ERASEuserName, tempUserName);
+                                            strcpy(ERASEdateTime, tempDateTime);
+                                            strcpy(ErasedSerialNumber,tempBuf);
+
+                                            utils_nvs_set_str(NVS_ERASE_USERNAME, ERASEuserName);
+                                            utils_nvs_set_str(NVS_ERASE_DATETIME, ERASEdateTime);
+                                            utils_nvs_set_str(NVS_ERASED_SERIAL_NUMBER, ErasedSerialNumber);
+                                            utils_nvs_erase_all();
+                                            utils_nvs_set_str(NVS_SERIAL_NUMBER, ErasedSerialNumber);
+                                            send(sock, "*ERASE-OK#", strlen("*ERASE-OK#"), 0);
+                                        }
+                                    }
+                                    else{
+                                          const char* errorMsg = "Erase: error";
+                                        send(sock, errorMsg, strlen(errorMsg), 0);  
+                                    }
                                 }
                                 else if (strncmp(rx_buffer, "*ERASE?", 7) == 0){
                                 char msg[600];
@@ -706,24 +767,24 @@ void tcpip_client_task(){
                                         uart_write_string_ln("*Resetting device#");
                                         RestartDevice();
                                 }
-                                 else if(strncmp(rx_buffer, "*SN:", 4) == 0){
+                                //  else if(strncmp(rx_buffer, "*SN:", 4) == 0){
       
-                                        if (strstr(SerialNumber,"999999"))
-                                        {
-                                            sscanf(rx_buffer, "*SN:%[^:]:%[^:]%[^#]#",SNuserName,SNdateTime,SerialNumber);
-                                            utils_nvs_set_str(NVS_SERIAL_NUMBER, SerialNumber);
-                                            utils_nvs_set_str(NVS_SN_USERNAME, SNuserName);
-                                            utils_nvs_set_str(NVS_SN_DATETIME, SNdateTime);
-                                            send(sock, "*SN-OK#", strlen("*SN-OK#"), 0);
-                                        }
-                                        else
-                                        {
-                                             send(sock, "*SN CAN NOT BE SET#", strlen("*SN CAN NOT BE SET#"), 0);
+                                //         if (strstr(SerialNumber,"999999"))
+                                //         {
+                                //             sscanf(rx_buffer, "*SN:%[^:]:%[^:]%[^#]#",SNuserName,SNdateTime,SerialNumber);
+                                //             utils_nvs_set_str(NVS_SERIAL_NUMBER, SerialNumber);
+                                //             utils_nvs_set_str(NVS_SN_USERNAME, SNuserName);
+                                //             utils_nvs_set_str(NVS_SN_DATETIME, SNdateTime);
+                                //             send(sock, "*SN-OK#", strlen("*SN-OK#"), 0);
+                                //         }
+                                //         else
+                                //         {
+                                //              send(sock, "*SN CAN NOT BE SET#", strlen("*SN CAN NOT BE SET#"), 0);
 
-                                        }
-                                            tx_event_pending = 1;
+                                //         }
+                                //             tx_event_pending = 1;
                                         
-                                    }
+                                //     }
                                     else if(strncmp(rx_buffer, "*SN?#", 5) == 0){
                                         sprintf(payload, "*SN,%s,%s,%s#",SNuserName,SNdateTime,SerialNumber);
                                         send(sock, payload, strlen(payload), 0);

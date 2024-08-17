@@ -129,6 +129,7 @@ int CashTotals[7];
 int ledpin = 0;
 int ledstatus = 0;
 int blinkLEDNumber = 0;
+int SipNumber=0;
 
 Led_State_t led_state = STANDBY_LED;
 TCPIP_Socket_State socket_state;

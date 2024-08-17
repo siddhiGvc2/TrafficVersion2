@@ -336,15 +336,23 @@ void process_uart_packet(const char *pkt){
     
     }
     else if (strncmp(pkt, "*ERASE:", 7) == 0){
-        sscanf(pkt, "*ERASE:%[^:#]",ErasedSerialNumber);
+         sscanf(pkt, "*ERASE:%[^:#]",ErasedSerialNumber);
+         if (strcmp(ErasedSerialNumber, SerialNumber) != 0) {
+            const char* errorMsg = "Erase:Serial Not Matched";
+            send(sock, errorMsg, strlen(errorMsg), 0);
+        }
+        else{
+       
         strcpy(ERASEuserName,"LOCAL");
         strcpy(ERASEdateTime,"00/00/00");
         utils_nvs_set_str(NVS_ERASE_USERNAME, ERASEuserName);
         utils_nvs_set_str(NVS_ERASE_DATETIME, ERASEdateTime);
         utils_nvs_set_str(NVS_ERASED_SERIAL_NUMBER, ErasedSerialNumber);
         utils_nvs_erase_all();
+        utils_nvs_set_str(NVS_SERIAL_NUMBER, ErasedSerialNumber);
         uart_write_string("*ERASE:OK#");
-        
+        }
+
     }
      else if (strncmp(pkt, "*ERASE?", 7) == 0){
    

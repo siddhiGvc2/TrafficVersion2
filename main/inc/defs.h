@@ -120,6 +120,10 @@ typedef enum TCPIP_SOCKET_STATE{
 
 #define NVS_LAST_TID   "LAST_TID"
 
+#define NVS_SIP_NUMBER   "SIP_NUMBER"
+
+
+
 #define DEFAULT_SERVER_IP_ADDR_TRY "gvc.co.in"
 #define DEFAULT_SERVER_IP_ADDR "159.89.248.57"
 #define DEFAULT_SERVER_PORT    6666
@@ -127,7 +131,7 @@ typedef enum TCPIP_SOCKET_STATE{
 #define DEFAULT_FOTA_URL  "http://test-firmware.kwikpay.uk/firmware/fw070824_108.bin"
 #define FOTA_URL1  "TCP.KWIKPAY.COM"
 #define FOTA_URL2  "TESTTCP.KWIKPAY.COM"
-#define FOTA_URL2  "GVCTCP.KWIKPAY.COM"
+#define FOTA_URL3  "GVCTCP.KWIKPAY.COM"
 
 #define FWVersion "*Kwikpay_070824_VER_1.08 Naico Ltd#"
 #define HBTDelay    300000
