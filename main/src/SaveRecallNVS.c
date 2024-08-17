@@ -28,6 +28,8 @@
 #include <arpa/inet.h>
 
 #include "externVars.h"
+#include "calls.h"
+
 
 static const char *TAG = "NVS";
 
@@ -97,17 +99,46 @@ void utils_nvs_set_str(const char * key , const char * val){
 
 void load_settings_nvs(){
     
+    char payload[150];
     ESP_LOGI(TAG, "*NVS Reading Started#");
    
     if(utils_nvs_get_str(NVS_LAST_TID, LastTID,100) == ESP_OK){
        utils_nvs_get_str(NVS_LAST_TID, LastTID,100);
     }
 
+
+
+    ESP_LOGI(TAG,"*Reading SIP Number#");
     if(utils_nvs_get_int(NVS_SIP_NUMBER,&SipNumber) == ESP_OK){
        utils_nvs_get_int(NVS_SIP_NUMBER,&SipNumber);
     }
+    else {
+        SipNumber = 1;
+    }
+    ESP_LOGI(TAG,"*SIP Number %d#",SipNumber);
+    if ((SipNumber == 0) || (SipNumber > MAXSIPNUMBER))
+        SipNumber = 1;
 
-     if(utils_nvs_get_str(NVS_ERASE_DATETIME,ERASEdateTime,100) == ESP_OK){
+    if (SipNumber == 1)
+    {
+        strcpy(server_ip_addr, TCP_URL1);
+        server_port = TCP_PORT1;
+    }
+    if (SipNumber == 2)
+    {
+        strcpy(server_ip_addr, TCP_URL2);
+        server_port = TCP_PORT2;
+    }
+    if (SipNumber == 3)
+    {
+        strcpy(server_ip_addr, TCP_URL3);
+        server_port = TCP_PORT3;
+    }
+    ESP_LOGI(TAG, "*Server IP Address : %s#", server_ip_addr);
+    sprintf(payload,"*Server IP Address : %s#", server_ip_addr);
+    uart_write_string_ln(payload);
+    
+    if(utils_nvs_get_str(NVS_ERASE_DATETIME,ERASEdateTime,100) == ESP_OK){
      utils_nvs_get_str(NVS_ERASE_DATETIME,ERASEdateTime,100);
     }
      if(utils_nvs_get_str(NVS_ERASE_USERNAME,ERASEuserName,100) == ESP_OK){
@@ -274,20 +305,21 @@ void load_settings_nvs(){
 
 
 
-    if(utils_nvs_get_int(NVS_SERVER_PORT_KEY, &server_port) == ESP_OK){
-        ESP_LOGI(TAG, "*Server Port From NVS %d#", server_port);
-    }else{
-        server_port = DEFAULT_SERVER_PORT;
-        ESP_LOGI(TAG, "*Default Server Port %d#", server_port);
-        utils_nvs_set_int(NVS_SERVER_PORT_KEY, server_port);
-    }
+    // if(utils_nvs_get_int(NVS_SERVER_PORT_KEY, &server_port) == ESP_OK){
+    //     ESP_LOGI(TAG, "*Server Port From NVS %d#", server_port);
+    // }else{
+    //     server_port = DEFAULT_SERVER_PORT;
+    //     ESP_LOGI(TAG, "*Default Server Port %d#", server_port);
+    //     utils_nvs_set_int(NVS_SERVER_PORT_KEY, server_port);
+    // }
+
 
     if(utils_nvs_get_int(NVS_INH_KEY, &INHOutputValue) == ESP_OK){
         if (INHOutputValue != 0)
             INHOutputValue = 1;
         ESP_LOGI(TAG, "*INH Value is %d#", INHOutputValue);
     }else{
-        strcpy(server_ip_addr, DEFAULT_SERVER_IP_ADDR);
+        // strcpy(server_ip_addr, DEFAULT_SERVER_IP_ADDR);
         ESP_LOGI(TAG, "*Default INH Output Value is 0#" );
         utils_nvs_set_int(NVS_INH_KEY, 0);
         INHOutputValue = 0;
@@ -304,13 +336,13 @@ void load_settings_nvs(){
    
 
 
-    if(utils_nvs_get_str(NVS_SERVER_IP_KEY, server_ip_addr, 100) == ESP_OK){
-        ESP_LOGI(TAG, "*Server IP From NVS %s#", server_ip_addr);
-    }else{
-        strcpy(server_ip_addr, DEFAULT_SERVER_IP_ADDR);
-        ESP_LOGI(TAG, "*Default Server IP : %s#", server_ip_addr);
-        utils_nvs_set_str(NVS_SERVER_IP_KEY, server_ip_addr);
-    }
+    // if(utils_nvs_get_str(NVS_SERVER_IP_KEY, server_ip_addr, 100) == ESP_OK){
+    //     ESP_LOGI(TAG, "*Server IP From NVS %s#", server_ip_addr);
+    // }else{
+    //     strcpy(server_ip_addr, DEFAULT_SERVER_IP_ADDR);
+    //     ESP_LOGI(TAG, "*Default Server IP : %s#", server_ip_addr);
+    //     utils_nvs_set_str(NVS_SERVER_IP_KEY, server_ip_addr);
+    // }
    
     if(utils_nvs_get_str(NVS_OTA_URL_KEY, FOTA_URL, 256) == ESP_OK){
         ESP_LOGI(TAG, "*FOTA URL From NVS %s#", FOTA_URL);

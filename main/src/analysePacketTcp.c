@@ -532,8 +532,8 @@ void tcpip_client_task(){
                                     
                                     char tempUserName[64], tempDateTime[64], tempBuf[64] ,tempBuf2[64];
 
-                                    if (sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%[^:]:%[^:#]", tempUserName, tempDateTime, tempBuf,tempBuf2) == 4) { 
-                                          if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0 || strlen(tempBuf2) ==0 ) {
+                                    if (sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%[^:]#", tempUserName, tempDateTime, tempBuf) == 3) { 
+                                          if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0  ) {
                                             // Send error message if any required parameters are missing or invalid
                                             const char* errorMsg = "Error: Missing or invalid parameters";
                                             send(sock, errorMsg, strlen(errorMsg), 0);
@@ -546,30 +546,21 @@ void tcpip_client_task(){
                                                 strcpy(SIPdateTime, tempDateTime);
                                                
                                               
-                                                sp_port= atoi(tempBuf2);
                                                 char buf[100];
-                                                sprintf(payload, "*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
-
-                                               if (atoi(tempBuf) == 1) {
-                                                    utils_nvs_set_str(NVS_SERVER_IP_KEY, FOTA_URL1);
-                                                }
-                                                else if (atoi(tempBuf) == 2) {
-                                                    utils_nvs_set_str(NVS_SERVER_IP_KEY, FOTA_URL2);
-                                                }
-                                                if (atoi(tempBuf) == 3) {
-                                                    utils_nvs_set_str(NVS_SERVER_IP_KEY, FOTA_URL3);
-                                                }
-
-                                              
-
-                                               
-                                                utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
-                                                utils_nvs_set_int(NVS_SIP_NUMBER, atoi(tempBuf));
-                                                utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
-                                                utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
-                                                
-                                                
+                                                if ((atoi(tempBuf) == 0) || (atoi(tempBuf) >MAXSIPNUMBER))  
+                                                {  
+                                                    sprintf(payload, "*SIP-Error#");
+                                                    ESP_LOGI(TAG,"*SIP-ERROR#");
+                                                }else 
+                                                {
+                                                    sprintf(payload, "*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);                                                   
+                                                    utils_nvs_set_int(NVS_SIP_NUMBER, atoi(tempBuf));
+                                                    utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
+                                                    utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
+                                                    ESP_LOGI(TAG,"*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
+                                                }    
                                                 send(sock, payload, strlen(payload), 0);
+                                                uart_write_string_ln(payload);
                                                 tx_event_pending = 1;
 
                                         }
@@ -587,12 +578,14 @@ void tcpip_client_task(){
                                     if (sscanf(rx_buffer, "*ERASE:%[^:]:%[^:]:%[^:]#", tempUserName, tempDateTime, tempBuf) == 3) { 
                                         if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0 ) {
                                             // Send error message if any required parameters are missing or invalid
-                                            const char* errorMsg = "Error: Missing or invalid parameters";
+                                            const char* errorMsg = "*Error: Missing or invalid parameters#";
                                             send(sock, errorMsg, strlen(errorMsg), 0);
+                                            uart_write_string_ln(errorMsg);
                                         }
                                         else if (strcmp(tempBuf, SerialNumber) != 0) {
-                                            const char* errorMsg = "Erase:Serial Not Matched";
+                                            const char* errorMsg = "*Erase:Serial Not Matched#";
                                             send(sock, errorMsg, strlen(errorMsg), 0);
+                                            uart_write_string_ln(errorMsg);
                                         }
 
                                         else{
@@ -608,11 +601,12 @@ void tcpip_client_task(){
                                             utils_nvs_erase_all();
                                             utils_nvs_set_str(NVS_SERIAL_NUMBER, ErasedSerialNumber);
                                             send(sock, "*ERASE-OK#", strlen("*ERASE-OK#"), 0);
-                                        }
+                                            uart_write_string_ln("*ERASE-OK#");  }
                                     }
                                     else{
-                                          const char* errorMsg = "Erase: error";
-                                        send(sock, errorMsg, strlen(errorMsg), 0);  
+                                          const char* errorMsg = "*Erase: error#";
+                                        send(sock, errorMsg, strlen(errorMsg), 0);
+                                        uart_write_string_ln(errorMsg);  
                                     }
                                 }
                                 else if (strncmp(rx_buffer, "*ERASE?", 7) == 0){

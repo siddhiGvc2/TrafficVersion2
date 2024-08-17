@@ -202,6 +202,8 @@ void gpio_read_n_act(void)
                         ESP_LOGI(TAG,"*Eraseing All Parameters#");
                         send(sock, "*ERASE-LOCAL#", strlen("*ERASE-LOCAL#"), 0);
                         utils_nvs_erase_all();
+                        utils_nvs_set_str(NVS_SERIAL_NUMBER,SerialNumber);
+
                         ESP_LOGI(TAG, "**************Restarting after 3 second******#");
                         send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
                         ESP_LOGI(TAG, "*RST-OK#");

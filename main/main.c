@@ -43,6 +43,7 @@ void app_main(void)
     //Initialize NVS
     //esp_log_level_set("*", ESP_LOG_NONE);
     // set totals to 0
+
     MQTTRequired = 0;
     for (int i = 0 ; i < 7 ; i++)
     {
@@ -70,6 +71,7 @@ void app_main(void)
     ICH_init();
     ESP_LOGI(TAG, "*Starting S2P#");
     s2p_init();
+    Out4094(0x00);; // set all outputs inactive
 
     // for (int i = 0 ; i < 3 ; i++)
     // {
@@ -88,8 +90,6 @@ void app_main(void)
     ESP_LOGI(TAG, "*Testing RGB #");
     TestRGB();
     
-    ESP_LOGI(TAG, "*Clearing 4094 Output#");
-    Out4094(0x00);; // set all outputs inactive
     xTaskCreate(sendHBT, "sendHBT", 2048, NULL, 6, NULL);
     xTaskCreate(BlinkLED, "BlinkLED", 2048, NULL, 6, NULL);
    

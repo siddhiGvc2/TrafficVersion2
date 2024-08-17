@@ -1,8 +1,9 @@
-#define GVCOptionRequired 0
+//#define GVCOptionRequired 0
 //90 second before restart in loop count is 3
 #define WIFIRETRYAFTERCONNECTIONLIMIT 75 // As proposed by NB 20 How many minutes 30 minutes
 // 75 seconds for one loop
-#define MAXWIFILOOPCOUNT 24 // As proposed by NB 10  // how many minutes? 30 minutes
+#define MAXWIFILOOPCOUNT 25 // As proposed by NB 10  // how many minutes? 30 minutes
+#define MAXSIPNUMBER 3
 
 
 typedef enum LED_STATES{
@@ -124,16 +125,20 @@ typedef enum TCPIP_SOCKET_STATE{
 
 
 
-#define DEFAULT_SERVER_IP_ADDR_TRY "gvc.co.in"
-#define DEFAULT_SERVER_IP_ADDR "159.89.248.57"
+// #define DEFAULT_SERVER_IP_ADDR_TRY "gvc.co.in"
+// #define DEFAULT_SERVER_IP_ADDR "159.89.248.57"
 #define DEFAULT_SERVER_PORT    6666
 #define DEFAULT_FOTA_URL_TRY  "http://gvc.co.in/esp/esp_wifi_tcp_fota.bin"
-#define DEFAULT_FOTA_URL  "http://test-firmware.kwikpay.uk/firmware/fw070824_108.bin"
-#define FOTA_URL1  "TCP.KWIKPAY.COM"
-#define FOTA_URL2  "TESTTCP.KWIKPAY.COM"
-#define FOTA_URL3  "GVCTCP.KWIKPAY.COM"
+#define DEFAULT_FOTA_URL  "http://test-firmware.kwikpay.uk/firmware/fw180824_109.bin"
+#define TCP_URL1  "TCP.KWIKPAY.COM"
+#define TCP_URL2  "TESTTCP.KWIKPAY.COM"
+#define TCP_URL3  "GVCTCP.KWIKPAY.COM"
+#define TCP_PORT1   6666
+#define TCP_PORT2   6666
+#define TCP_PORT3   6666
 
-#define FWVersion "*Kwikpay_170824_VER_1.08 Naico Ltd#"
+
+#define FWVersion "*Kwikpay_180824_VER_1.09 Naico Ltd#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
