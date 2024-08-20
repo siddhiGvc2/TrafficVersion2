@@ -352,7 +352,7 @@ void process_uart_packet(const char *pkt){
             // send (payload,"*Erase:Serial Not Matched Command:%s Actual:%s#",tempBuf,SerialNumber);
             const char* errorMsg = "Erase:Serial Not Matched";
             // send(sock, errorMsg, strlen(errorMsg), 0);
-            uart_write_string(errorMsg);
+            uart_write_string_ln(errorMsg);
         }
         else{
        
@@ -363,7 +363,7 @@ void process_uart_packet(const char *pkt){
         utils_nvs_set_str(NVS_ERASED_SERIAL_NUMBER, ErasedSerialNumber);
         utils_nvs_erase_all();
         utils_nvs_set_str(NVS_SERIAL_NUMBER, ErasedSerialNumber);
-        uart_write_string("*ERASE:OK#");
+        uart_write_string_ln("*ERASE:OK#");
         }
 
     }

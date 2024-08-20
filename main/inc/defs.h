@@ -138,7 +138,7 @@ typedef enum TCPIP_SOCKET_STATE{
 #define TCP_PORT3   6666
 
 
-#define FWVersion "*Kwikpay_180824_VER_1.09 Naico Ltd#"
+#define FWVersion "*Kwikpay_200824_VER_1.10 Naico Ltd#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
