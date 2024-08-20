@@ -128,8 +128,8 @@ typedef enum TCPIP_SOCKET_STATE{
 // #define DEFAULT_SERVER_IP_ADDR_TRY "gvc.co.in"
 // #define DEFAULT_SERVER_IP_ADDR "159.89.248.57"
 #define DEFAULT_SERVER_PORT    6666
-#define DEFAULT_FOTA_URL_TRY  "http://gvc.co.in/esp/esp_wifi_tcp_fota.bin"
-#define DEFAULT_FOTA_URL  "http://test-firmware.kwikpay.uk/firmware/fw180824_109.bin"
+// #define DEFAULT_FOTA_URL_TRY  "http://gvc.co.in/esp/esp_wifi_tcp_fota.bin"
+#define DEFAULT_FOTA_URL  "http://test-firmware.kwikpay.uk/firmware/fw200824_110.bin"
 #define TCP_URL1  "TCP.KWIKPAY.COM"
 #define TCP_URL2  "TESTTCP.KWIKPAY.COM"
 #define TCP_URL3  "GVCTCP.KWIKPAY.COM"
