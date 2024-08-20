@@ -349,8 +349,10 @@ void process_uart_packet(const char *pkt){
     else if (strncmp(pkt, "*ERASE:", 7) == 0){
          sscanf(pkt, "*ERASE:%[^:#]",ErasedSerialNumber);
          if (strcmp(ErasedSerialNumber, SerialNumber) != 0) {
+            // send (payload,"*Erase:Serial Not Matched Command:%s Actual:%s#",tempBuf,SerialNumber);
             const char* errorMsg = "Erase:Serial Not Matched";
-            send(sock, errorMsg, strlen(errorMsg), 0);
+            // send(sock, errorMsg, strlen(errorMsg), 0);
+            uart_write_string(errorMsg);
         }
         else{
        

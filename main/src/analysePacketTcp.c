@@ -575,7 +575,7 @@ void tcpip_client_task(){
                                        // if seria no of device != ErasedSerialNumber then do not erase
                                             // if all values are not avalible then do not erase
 
-                                    if (sscanf(rx_buffer, "*ERASE:%[^:]:%[^:]:%[^:]#", tempUserName, tempDateTime, tempBuf) == 3) { 
+                                    if (sscanf(rx_buffer, "*ERASE:%[^:]:%[^:]:%[^:#]", tempUserName, tempDateTime, tempBuf) == 3) { 
                                         if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0 ) {
                                             // Send error message if any required parameters are missing or invalid
                                             const char* errorMsg = "*Error: Missing or invalid parameters#";
