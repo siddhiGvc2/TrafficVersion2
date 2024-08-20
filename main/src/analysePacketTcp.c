@@ -583,9 +583,9 @@ void tcpip_client_task(){
                                             uart_write_string_ln(errorMsg);
                                         }
                                         else if (strcmp(tempBuf, SerialNumber) != 0) {
-                                            const char* errorMsg = "*Erase:Serial Not Matched#";
-                                            send(sock, errorMsg, strlen(errorMsg), 0);
-                                            uart_write_string_ln(errorMsg);
+                                            sprintf (payload,"*Erase:Serial Not Matched Command:%s Actual:%s#",tempBuf,SerialNumber);
+                                            send(sock, payload, strlen(payload), 0);
+                                            uart_write_string_ln(payload);
                                         }
 
                                         else{
