@@ -310,18 +310,21 @@ void process_uart_packet(const char *pkt){
     
     }
     else if(strncmp(pkt, "*SIP:", 5) == 0){
-      
         sscanf(pkt, "*SIP:%d#",&SipNumber);
         strcpy(SIPuserName,"LOCAL");
         strcpy(SIPdateTime,"00/00/00");
-          if ((atoi(SipNumber) == 0) || (atoi(SipNumber) >MAXSIPNUMBER))  
+
+          if ( (SipNumber == 0) || (SipNumber > MAXSIPNUMBER) )  
             {  
-                sprintf(payload, "*SIP-Error#");
+                //sprintf(payload, "*SIP-Error#");
                 ESP_LOGI(TAG,"*SIP-ERROR#");
+                uart_write_string_ln("*SIP-ERROR#");
+
             }else 
             {
                 sprintf(payload, "*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);                                                   
-                utils_nvs_set_int(NVS_SIP_NUMBER, atoi(SipNumber));
+                uart_write_string_ln(payload);
+                utils_nvs_set_int(NVS_SIP_NUMBER, SipNumber);
                 utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
                 utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
                 ESP_LOGI(TAG,"*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
@@ -332,9 +335,9 @@ void process_uart_packet(const char *pkt){
         // utils_nvs_set_str(NVS_SERVER_IP_KEY, buf);
         // utils_nvs_set_int(NVS_SERVER_PORT_KEY, sp_port);
 
-        utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
-        utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
-        uart_write_string_ln("*SIP-OK#");
+        // utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
+        // utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
+        // uart_write_string_ln("*SIP-OK#");
         tx_event_pending = 1;
     } else if(strncmp(pkt, "*SIP?#", 6) == 0){
         

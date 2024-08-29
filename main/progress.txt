@@ -33,6 +33,8 @@ s2pinit if added will set a test output , normally keep it off
 UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
+290824
+bug of *SIP:X# in UART solved. SIPNumber was integer but handled as string and that was causing error 
 
 170824
 ERASE command syntax changed , ERASE? added
