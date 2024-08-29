@@ -761,24 +761,24 @@ void tcpip_client_task(){
                                         uart_write_string_ln("*Resetting device#");
                                         RestartDevice();
                                 }
-                                //  else if(strncmp(rx_buffer, "*SN:", 4) == 0){
+                                 else if(strncmp(rx_buffer, "*SN:", 4) == 0){
       
-                                //         if (strstr(SerialNumber,"999999"))
-                                //         {
-                                //             sscanf(rx_buffer, "*SN:%[^:]:%[^:]%[^#]#",SNuserName,SNdateTime,SerialNumber);
-                                //             utils_nvs_set_str(NVS_SERIAL_NUMBER, SerialNumber);
-                                //             utils_nvs_set_str(NVS_SN_USERNAME, SNuserName);
-                                //             utils_nvs_set_str(NVS_SN_DATETIME, SNdateTime);
-                                //             send(sock, "*SN-OK#", strlen("*SN-OK#"), 0);
-                                //         }
-                                //         else
-                                //         {
-                                //              send(sock, "*SN CAN NOT BE SET#", strlen("*SN CAN NOT BE SET#"), 0);
+                                        if (strstr(SerialNumber,"999999"))
+                                        {
+                                            sscanf(rx_buffer, "*SN:%[^:]:%[^:]:%[^#]#",SNuserName,SNdateTime,SerialNumber);
+                                            utils_nvs_set_str(NVS_SERIAL_NUMBER, SerialNumber);
+                                            utils_nvs_set_str(NVS_SN_USERNAME, SNuserName);
+                                            utils_nvs_set_str(NVS_SN_DATETIME, SNdateTime);
+                                            send(sock, "*SN-OK#", strlen("*SN-OK#"), 0);
+                                        }
+                                        else
+                                        {
+                                             send(sock, "*SN CAN NOT BE SET#", strlen("*SN CAN NOT BE SET#"), 0);
 
-                                //         }
-                                //             tx_event_pending = 1;
+                                        }
+                                            tx_event_pending = 1;
                                         
-                                //     }
+                                    }
                                     else if(strncmp(rx_buffer, "*SN?#", 5) == 0){
                                         sprintf(payload, "*SN,%s,%s,%s#",SNuserName,SNdateTime,SerialNumber);
                                         send(sock, payload, strlen(payload), 0);
