@@ -284,9 +284,7 @@ void load_settings_nvs(){
      utils_nvs_get_str(NVS_PT_DATETIME,PTdateTime,100);
     }
 
-    if(utils_nvs_get_str(NVS_PASS_THRU,PassThruValue,100) == ESP_OK){
-     utils_nvs_get_str(NVS_PASS_THRU,PassThruValue,100);
-    }
+   
 
 
 
@@ -374,6 +372,14 @@ void load_settings_nvs(){
         strcpy(FOTA_URL, DEFAULT_FOTA_URL);
         ESP_LOGI(TAG, "*Default FOTA URL : %s#", FOTA_URL);
         utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
+    }
+
+     if(utils_nvs_get_str(NVS_PASS_THRU, PassThruValue, 256) == ESP_OK){
+        ESP_LOGI(TAG, "*Pass Thru %s#", PassThruValue);
+    }else{
+        strcpy(PassThruValue, PASS_THRU);
+        ESP_LOGI(TAG, "*Pass Thru : %s#", PassThruValue);
+        utils_nvs_set_str(NVS_PASS_THRU, PassThruValue);
     }
 
 
