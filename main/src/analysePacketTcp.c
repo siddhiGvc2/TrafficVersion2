@@ -259,7 +259,42 @@ void tcpip_client_task(){
                                         // sprintf(payload, "*INH-DONE,%d#",INHOutputValue); //actual when in production
                                         // send(sock, payload, strlen(payload), 0);
                                         utils_nvs_set_int(NVS_INH_KEY, INHOutputValue);
-                                }    
+                                }   
+                                 else if(strncmp(rx_buffer, "*PT:", 4) == 0){
+                                        char tempUserName[64], tempDateTime[64], tempBuf[64] ;
+                                         if (sscanf(rx_buffer, "*CA:%[^:]:%[^:]:%[^:#]#", tempUserName, tempDateTime, tempBuf) == 3) {
+                                        // Check if any of the parsed values are empty
+                                        if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0 ) {
+                                            // Send error message if any required parameters are missing or invalid
+                                            const char* errorMsg = "Error: Missing or invalid parameters";
+                                            send(sock, errorMsg, strlen(errorMsg), 0);
+                                        }
+                                        else{
+                                       
+                                        strcpy(PTuserName, tempUserName);
+                                         strcpy(PTdateTime, tempDateTime);
+                                         strcpy(PassThruValue, tempBuf);
+                                       
+                                        if (strstr(PassThruValue, "Y") == NULL && strstr(PassThruValue, "N") == NULL) {
+                                            strcpy(PassThruValue, "Y");
+                                        }
+
+                                        ESP_LOGI (TAG, "Pass Thru %s",PassThruValue);
+                                        sprintf(payload, "*PT-OK,%s,%s,%s#",PTuserName,PTdateTime,PassThruValue);
+                                        utils_nvs_set_str(NVS_PT_USERNAME, PTuserName);
+                                        utils_nvs_set_str(NVS_PT_DATETIME, PTdateTime);
+                                        send(sock, payload, strlen(payload), 0);
+                                   
+                                        utils_nvs_set_str(NVS_PASS_THRU, PassThruValue);
+                                        }
+                                    }
+                                }
+                                  else if(strncmp(rx_buffer, "*PT?#",5) == 0){
+                                    
+                                        ESP_LOGI(TAG, "Pass Thru %s ",PassThruValue);
+                                        sprintf(payload, "*PT,%s,%s,%s#",PTuserName,PTdateTime,PassThruValue); 
+                                        send(sock, payload, strlen(payload), 0);
+                                 }     
 
 
                                 else if(strncmp(rx_buffer, "*SP:", 4) == 0){

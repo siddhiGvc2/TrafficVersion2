@@ -106,6 +106,30 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
         
     }
+     else if(strncmp(pkt, "*PT:", 4) == 0){
+      
+       sscanf(pkt, "*PT:%[^#]#",PassThruValue);
+      
+        strcpy(PTuserName, "LOCAL");
+        strcpy(PTdateTime, "00/00/00");
+        utils_nvs_set_str(NVS_PASS_THRU, PassThruValue);
+        utils_nvs_set_str(NVS_PT_USERNAME,PTuserName);
+        utils_nvs_set_str(NVS_PT_DATETIME,PTdateTime);
+        
+      
+        uart_write_string_ln("*PT-OK#");
+        tx_event_pending = 1;
+        
+    }
+       else if(strncmp(pkt, "*PT?#", 5) == 0){
+      
+        sprintf(buffer, "*PT,%s,%s,%s#",PTuserName,PTdateTime,PassThruValue); //actual when in production
+        uart_write_string_ln(buffer);
+      
+      
+        tx_event_pending = 1;
+        
+    }
      else if(strncmp(pkt, "*SN?#", 5) == 0){
       
         sprintf(buffer, "*SN,%s,%s,%s#",SNuserName,SNdateTime,SerialNumber); //actual when in production

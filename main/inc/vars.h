@@ -90,6 +90,11 @@ char SPuserName[100];
 char ERASEdateTime[100];
 char ERASEuserName[100];
 
+char PTdateTime[100];
+char PTuserName[100];
+
+char PassThruValue[100];
+
 char SerialNumber[100];
 
 char LastTID[100];

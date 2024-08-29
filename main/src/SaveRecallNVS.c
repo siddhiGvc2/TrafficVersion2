@@ -276,6 +276,19 @@ void load_settings_nvs(){
      utils_nvs_get_str(NVS_SP_DATETIME,SPdateTime,100);
     }
 
+     if(utils_nvs_get_str(NVS_PT_USERNAME,PTuserName,100) == ESP_OK){
+      utils_nvs_get_str(NVS_PT_USERNAME,PTuserName,100);
+    }
+
+     if(utils_nvs_get_str(NVS_PT_DATETIME,PTdateTime,100) == ESP_OK){
+     utils_nvs_get_str(NVS_PT_DATETIME,PTdateTime,100);
+    }
+
+    if(utils_nvs_get_str(NVS_PASS_THRU,PassThruValue,100) == ESP_OK){
+     utils_nvs_get_str(NVS_PASS_THRU,PassThruValue,100);
+    }
+
+
 
     if(utils_nvs_get_str(NVS_SSID_1_KEY, WIFI_SSID_1, 64) == ESP_OK){
         utils_nvs_get_str(NVS_PASS_1_KEY, WIFI_PASS_1, 64);

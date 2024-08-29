@@ -96,6 +96,11 @@ extern char SPuserName[100];
 extern char ERASEdateTime[100];
 extern char ERASEuserName[100];
 
+extern char PTdateTime[100];
+extern char PTuserName[100];
+
+extern char PassThruValue[100];
+
 extern char SerialNumber[100];
 
 extern char LastTID[100];

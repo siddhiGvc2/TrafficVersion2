@@ -36,6 +36,7 @@ wifi/server disconnection to be tested
 290824
 1. Allow Setting serial number from TCP if number is 999999
 2. if number is 4003 then make it NA-1507-4003
+3. added PT: PT? added in tcp and uart
 290824
 bug of *SIP:X# in UART solved. SIPNumber was integer but handled as string and that was causing error 
 
