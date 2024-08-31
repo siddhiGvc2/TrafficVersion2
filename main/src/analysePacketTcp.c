@@ -262,7 +262,7 @@ void tcpip_client_task(){
                                 }   
                                  else if(strncmp(rx_buffer, "*PT:", 4) == 0){
                                         char tempUserName[64], tempDateTime[64], tempBuf[64] ;
-                                         if (sscanf(rx_buffer, "*CA:%[^:]:%[^:]:%[^:#]#", tempUserName, tempDateTime, tempBuf) == 3) {
+                                         if (sscanf(rx_buffer, "*PT:%[^:]:%[^:]:%[^:#]#", tempUserName, tempDateTime, tempBuf) == 3) {
                                         // Check if any of the parsed values are empty
                                         if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0 ) {
                                             // Send error message if any required parameters are missing or invalid
