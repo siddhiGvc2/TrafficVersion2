@@ -33,10 +33,14 @@ s2pinit if added will set a test output , normally keep it off
 UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
+300824
+if PT:N then do not forward incoming pulses to output
+
 290824
 1. Allow Setting serial number from TCP if number is 999999
 2. if number is 4003 then make it NA-1507-4003
 3. added PT: PT? added in tcp and uart
+
 290824
 bug of *SIP:X# in UART solved. SIPNumber was integer but handled as string and that was causing error 
 

@@ -315,7 +315,13 @@ void gpio_read_n_act(void)
                    }
                    // create same pules on same output pin 17-06-24
                    // provided this is not hardware test mode
-                   if (HardwareTestMode == 0)
+                   // or PT? is N
+
+
+// Do not Send Pulses when HardwareTestMode == 1
+// Do not send pulses when PassThruValue != "Y" 
+
+                   if ( (HardwareTestMode == 0) && (strstr(PassThruValue, "Y") != NULL  ) )
                    {
                     edges = TotalPulses * 2;
                     pin = LastInputPin;
