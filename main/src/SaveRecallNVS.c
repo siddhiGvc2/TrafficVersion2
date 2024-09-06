@@ -431,7 +431,7 @@ void load_settings_nvs(){
     else
     {
         SignalPolarity = 0;
-        pulseWitdh = 50;
+        pulseWitdh = 100;
         ESP_LOGI(TAG, "Default CA Values %d - %d", pulseWitdh,SignalPolarity);
     }
 

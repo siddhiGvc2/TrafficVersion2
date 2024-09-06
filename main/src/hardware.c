@@ -339,7 +339,7 @@ void gpio_read_n_act(void)
         if (LastValue != InputPin)
         {
             LastValue = InputPin;
-            DebounceCount = 5;
+            DebounceCount = 2;
         }
         else
         {
@@ -595,17 +595,19 @@ void GeneratePulsesInBackGround (void)
             if (edges%2 == 0)
             {
                 Out4094(pin);
+//                 uart_write_string_ln("Set Low");
             }
             else
             {    
                 Out4094(8);
+//                uart_write_string_ln("Set High");
             }
             edges--;
             pulses++;
             if (edges == 0)
             {
-                 ESP_LOGI("GenPulse","*Generate Pulses %d on Pin %d# ",pin,pulses/2);
-                 sprintf(buffer,"*Generate Pulses %d on Pin %d#",pin,pulses/2);
+                 ESP_LOGI("GenPulse","*Generate Pulses %d on Pin %d, gap %d# ",pulses/2,pin,pulseWitdh/(int)portTICK_PERIOD_MS);
+                 sprintf(buffer,"*Generate Pulses %d on Pin %d, gap %d#",pulses/2,pin,pulseWitdh/(int)portTICK_PERIOD_MS);
                  uart_write_string_ln(buffer);
                  pulses=0;
             }

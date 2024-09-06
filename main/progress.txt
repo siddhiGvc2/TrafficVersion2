@@ -33,6 +33,12 @@ s2pinit if added will set a test output , normally keep it off
 UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
+060924
+debounce count changed from 5 to 3 so that even 25 msec pulses can be capatured.
+040924
+default value of Pulsewidth set to 100 as requested by Neeraj Bhatia
+
+
 300824
 if PT:N then do not forward incoming pulses to output
 
