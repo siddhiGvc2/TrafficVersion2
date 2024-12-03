@@ -166,7 +166,12 @@ void process_uart_packet(const char *pkt){
         utils_nvs_set_str(NVS_UNIQUE_TIMESTAMP,UniqueTimeStamp);
         sprintf(buffer, "*D-OK#"); 
         uart_write_string_ln(buffer);
-    }      
+    }
+    else if(strncmp(pkt, "*D?#",4) == 0){
+        
+        sprintf(buffer, "*D:%s#",UniqueTimeStamp); 
+        uart_write_string_ln(buffer);
+    }            
     else if(strncmp(pkt, "*V:", 3) == 0){
         if(edges==0)
         {

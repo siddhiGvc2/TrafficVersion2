@@ -35,8 +35,10 @@ wifi/server disconnection to be tested
 
 
 031224
-adde *D:uniquetimestamp# command in tcp, uart an mqtt.
+added *D:uniquetimestamp# command in tcp, uart an mqtt.
 sent uniquetimestamp in TC? response.
+added *D?# command in tcp,uart,mqtt.
+
 
 060924
 debounce count changed from 5 to 3 so that even 25 msec pulses can be capatured.
