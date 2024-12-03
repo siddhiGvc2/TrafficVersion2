@@ -232,7 +232,13 @@ void tcpip_client_task(){
                                     uart_write_string_ln("*Hardware Test Stopped#");
                                     RestartDevice();
 
-                            }        
+                            }  
+                               else if(strncmp(rx_buffer, "*D:",3) == 0){
+                                        sscanf(rx_buffer, "*D:%[^:#]#",UniqueTimeStamp);
+                                        utils_nvs_set_str(NVS_UNIQUE_TIMESTAMP,UniqueTimeStamp);
+                                        sprintf(payload, "*D-OK#"); 
+                                        send(sock, payload, strlen(payload), 0);
+                                 }      
                                 else if(strncmp(rx_buffer, "*INH?#",6) == 0){
                                         if (INHInputValue !=0)
                                             INHInputValue = 1;
@@ -738,9 +744,9 @@ void tcpip_client_task(){
                                 }
 
                                 else if(strncmp(rx_buffer, "*TC?#", 5) == 0){
-                                        sprintf(payload, "*TC,%d,%d,%d,%d,%d,%d,%d#", CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]); //actual when in production
+                                        sprintf(payload, "*TC,%s,%d,%d,%d,%d,%d,%d,%d#",UniqueTimeStamp,CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]); //actual when in production
                                         send(sock, payload, strlen(payload), 0);
-                                        ESP_LOGI(TAG, "*TC,%d,%d,%d,%d,%d,%d,%d#", CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6] );
+                                        ESP_LOGI(TAG, "*TC,%s,%d,%d,%d,%d,%d,%d,%d#",UniqueTimeStamp, CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6] );
                                         
                                 }
                                   else if(strncmp(rx_buffer, "*SIP?#", 6) == 0){

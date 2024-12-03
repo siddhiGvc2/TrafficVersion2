@@ -137,7 +137,10 @@ void load_settings_nvs(){
     ESP_LOGI(TAG, "*Server IP Address : %s#", server_ip_addr);
     sprintf(payload,"*Server IP Address : %s#", server_ip_addr);
     uart_write_string_ln(payload);
-    
+     if(utils_nvs_get_str(NVS_UNIQUE_TIMESTAMP,UniqueTimeStamp,100) == ESP_OK){
+     utils_nvs_get_str(NVS_UNIQUE_TIMESTAMP,UniqueTimeStamp,100);
+    }
+
     if(utils_nvs_get_str(NVS_ERASE_DATETIME,ERASEdateTime,100) == ESP_OK){
      utils_nvs_get_str(NVS_ERASE_DATETIME,ERASEdateTime,100);
     }

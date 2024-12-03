@@ -36,6 +36,8 @@ int numValue=0;
 int polarity=0;
 int pulseWitdh=0;
 int SignalPolarity=0;
+char UniqueTimeStamp[100];
+
 char dateTime[100];
 char userName[100];
 

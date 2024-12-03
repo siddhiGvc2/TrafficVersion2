@@ -39,6 +39,8 @@ extern int numValue;
 extern int polarity;
 extern int pulseWitdh;
 extern int SignalPolarity;
+extern char UniqueTimeStamp[100];
+
 extern char dateTime[100];
 extern char userName[100];
 

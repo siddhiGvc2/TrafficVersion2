@@ -186,6 +186,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     ESP_LOGI(TAG, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
                     sp_port );
                 }
+                 else if(strncmp(data, "*D:",3) == 0){
+                    sscanf(data, "*D:%[^:#]#",UniqueTimeStamp);
+                    utils_nvs_set_str(NVS_UNIQUE_TIMESTAMP,UniqueTimeStamp);
+                    sprintf(payload, "*D-OK#"); 
+                    publish_message(payload, client);
+                }      
                 else if(strncmp(data, "*CC#", 4) == 0){
                   
                     ESP_LOGI(TAG, "*CC-OK#");
@@ -464,9 +470,9 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                         
                 }
                 else if(strncmp(data, "*TC?#", 5) == 0){
-                        sprintf(payload, "*TC,%d,%d,%d,%d,%d,%d,%d#", CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]); //actual when in production
+                        sprintf(payload, "*TC,%s,%d,%d,%d,%d,%d,%d,%d#",UniqueTimeStamp, CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]); //actual when in production
                         publish_message(payload, client);
-                        ESP_LOGI(TAG, "*TC,%d,%d,%d,%d,%d,%d,%d#", CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6] );
+                        ESP_LOGI(TAG, "*TC,%s,%d,%d,%d,%d,%d,%d,%d#",UniqueTimeStamp, CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6] );
                         
                 }
                  else if(strncmp(data, "*FW?#", 5) == 0){

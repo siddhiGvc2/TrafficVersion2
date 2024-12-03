@@ -161,6 +161,12 @@ void process_uart_packet(const char *pkt){
     
       
     }
+     else if(strncmp(pkt, "*D:",3) == 0){
+        sscanf(pkt, "*D:%[^:#]#",UniqueTimeStamp);
+        utils_nvs_set_str(NVS_UNIQUE_TIMESTAMP,UniqueTimeStamp);
+        sprintf(buffer, "*D-OK#"); 
+        uart_write_string_ln(buffer);
+    }      
     else if(strncmp(pkt, "*V:", 3) == 0){
         if(edges==0)
         {
@@ -316,8 +322,8 @@ void process_uart_packet(const char *pkt){
     
     else if(strncmp(pkt, "*TC?#", 5) == 0){
       
-        sprintf(buffer, "*TC,%d,%d,%d,%d,%d,%d,%d#", 
-             CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]);
+        sprintf(buffer, "*TC,%s,%d,%d,%d,%d,%d,%d,%d#", 
+             UniqueTimeStamp,CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]);
 
    
         uart_write_string_ln(buffer);
