@@ -188,13 +188,13 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                 }
                  else if(strncmp(data, "*D:",3) == 0){
                     sscanf(data, "*D:%[^:#]#",UniqueTimeStamp);
-                    utils_nvs_set_str(NVS_UNIQUE_TIMESTAMP,UniqueTimeStamp);
-                    sprintf(payload, "*D-OK#"); 
+                    utils_nvs_set_str(NVS_UNIX_TS,UniqueTimeStamp);
+                    sprintf(payload, "*D-OK,%s#",UniqueTimeStamp); 
                     publish_message(payload, client);
                 }  
                  else if(strncmp(data, "*D?#",4) == 0){
                     
-                    sprintf(payload, "*D:%s#",UniqueTimeStamp); 
+                    sprintf(payload,"*D-OK,%s#",UniqueTimeStamp); 
                     publish_message(payload, client);
                 }  
                 else if(strncmp(data, "*CC#", 4) == 0){

@@ -163,13 +163,13 @@ void process_uart_packet(const char *pkt){
     }
      else if(strncmp(pkt, "*D:",3) == 0){
         sscanf(pkt, "*D:%[^:#]#",UniqueTimeStamp);
-        utils_nvs_set_str(NVS_UNIQUE_TIMESTAMP,UniqueTimeStamp);
-        sprintf(buffer, "*D-OK#"); 
+        utils_nvs_set_str(NVS_UNIX_TS,UniqueTimeStamp);
+        sprintf(buffer,"*D-OK,%s#",UniqueTimeStamp); 
         uart_write_string_ln(buffer);
     }
     else if(strncmp(pkt, "*D?#",4) == 0){
         
-        sprintf(buffer, "*D:%s#",UniqueTimeStamp); 
+        sprintf(buffer, "*D-OK,%s#",UniqueTimeStamp); 
         uart_write_string_ln(buffer);
     }            
     else if(strncmp(pkt, "*V:", 3) == 0){

@@ -237,14 +237,14 @@ void tcpip_client_task(){
                                     char tempBuf[100];
                                         sscanf(rx_buffer, "*D:%[^:#]#",tempBuf);
                                         strcpy(UniqueTimeStamp,tempBuf);
-                                        sprintf(payload, "*D-OK:%s#",UniqueTimeStamp);
-                                        utils_nvs_set_str(NVS_UNIQUE_TIMESTAMP,UniqueTimeStamp); 
+                                        sprintf(payload, "*D-OK,%s#",UniqueTimeStamp);
+                                        utils_nvs_set_str(NVS_UNIX_TS,UniqueTimeStamp);
                                        
                                         send(sock, payload, strlen(payload), 0);
                                  }
                                   else if(strncmp(rx_buffer, "*D?#",4) == 0){
                                      
-                                        sprintf(payload, "*D:%s#",UniqueTimeStamp); 
+                                        sprintf(payload, "*D-OK,%s#",UniqueTimeStamp); 
                                         send(sock, payload, strlen(payload), 0);
                                  }      
                                 else if(strncmp(rx_buffer, "*INH?#",6) == 0){

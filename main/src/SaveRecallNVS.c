@@ -102,12 +102,12 @@ void load_settings_nvs(){
     char payload[150];
     ESP_LOGI(TAG, "*NVS Reading Started#");
 
-      if(utils_nvs_get_str(NVS_UNIQUE_TIMESTAMP,UniqueTimeStamp,100) == ESP_OK){
-     utils_nvs_get_str(NVS_UNIQUE_TIMESTAMP,UniqueTimeStamp,100);
+      if(utils_nvs_get_str(NVS_UNIX_TS,UniqueTimeStamp,100) == ESP_OK){
+     utils_nvs_get_str(NVS_UNIX_TS,UniqueTimeStamp,100);
     }
     else{
         strcpy(UniqueTimeStamp,DEFAULT_TIMESTAMP);
-       utils_nvs_set_str(NVS_UNIQUE_TIMESTAMP,UniqueTimeStamp); 
+       utils_nvs_set_str(NVS_UNIX_TS,UniqueTimeStamp); 
     }
  
    
