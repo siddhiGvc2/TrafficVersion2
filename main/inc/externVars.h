@@ -31,8 +31,8 @@ extern int sp_port;
 
 
 // values used in erase pin
-extern bool ErasePinStatus,LastErasePinStatus;
-extern int ErasePinDebounce;
+extern bool ErasePinStatus,LastErasePinStatus,Jumper2Status,LastJumper2Status;
+extern int ErasePinDebounce,Jumper2Debounce;
 
 // valuses used in CA command
 extern int numValue;
@@ -163,3 +163,4 @@ extern uint8_t led1_gpio_state;
 extern uint8_t led2_gpio_state;
 
 extern int32_t MQTT_CONNEECTED;
+extern int AckPulseReceived;

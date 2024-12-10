@@ -28,8 +28,8 @@ int16_t cashValue;
 int sock = -1;
 
 // values used in erase pin
-bool ErasePinStatus,LastErasePinStatus;
-int ErasePinDebounce;
+bool ErasePinStatus,LastErasePinStatus,Jumper2Status,LastJumper2Status;
+int ErasePinDebounce,Jumper2Debounce;
 
 // valuses used in CA command
 int numValue=0;
@@ -152,6 +152,7 @@ char tcp_packet[200];
 uint32_t last_update_led1 = 0;
 uint8_t led1_gpio_state = 0;
 uint8_t led2_gpio_state = 0;
+int AckPulseReceived = 0;
 
 
 nvs_handle_t utils_nvs_handle;

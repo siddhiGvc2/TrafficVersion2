@@ -242,6 +242,12 @@ void tcpip_client_task(){
                                        
                                         send(sock, payload, strlen(payload), 0);
                                  }
+                                  else if(strncmp(rx_buffer, "*VS?#",5) == 0){
+                                     
+                                        sprintf(payload, "*VS,%s,%d#",TID,AckPulseReceived); 
+                                        send(sock, payload, strlen(payload), 0);
+                                 }      
+
                                   else if(strncmp(rx_buffer, "*D?#",4) == 0){
                                      
                                         sprintf(payload, "*D-OK,%s#",UniqueTimeStamp); 
@@ -688,6 +694,7 @@ void tcpip_client_task(){
                                 else if(strncmp(rx_buffer, "*V:", 3) == 0){
                                     if (edges == 0) 
                                     {
+                                        AckPulseReceived = 0;
                                         sscanf(rx_buffer, "*V:%[^:]:%d:%d#",TID,&pin,&pulses);
                                         // if (INHInputValue == INHIBITLevel)
                                         // {
