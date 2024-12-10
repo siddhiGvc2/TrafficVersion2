@@ -147,7 +147,7 @@ typedef enum TCPIP_SOCKET_STATE{
 
 #define PASS_THRU   "Y"
 
-#define FWVersion "*Kwikpay_041224_VER_1.14 Naico Ltd#"
+#define FWVersion "*Kwikpay_041224_VER_1.15 Naico Ltd#"
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
