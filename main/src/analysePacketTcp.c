@@ -242,6 +242,12 @@ void tcpip_client_task(){
                                        
                                         send(sock, payload, strlen(payload), 0);
                                  }
+                                  else if(strncmp(rx_buffer, "*VS?#",5) == 0){
+                                     
+                                        sprintf(payload, "*VS,%s,%d#",TID,AckPulseReceived); 
+                                        send(sock, payload, strlen(payload), 0);
+                                 }      
+
                                   else if(strncmp(rx_buffer, "*D?#",4) == 0){
                                      
                                         sprintf(payload, "*D-OK,%s#",UniqueTimeStamp); 
@@ -688,6 +694,7 @@ void tcpip_client_task(){
                                 else if(strncmp(rx_buffer, "*V:", 3) == 0){
                                     if (edges == 0) 
                                     {
+                                        AckPulseReceived = 0;
                                         sscanf(rx_buffer, "*V:%[^:]:%d:%d#",TID,&pin,&pulses);
                                         // if (INHInputValue == INHIBITLevel)
                                         // {
@@ -766,12 +773,13 @@ void tcpip_client_task(){
                                         
                                 }
                                 else if(strncmp(rx_buffer, "*CC:", 4) == 0){
-                                    sscanf(rx_buffer, "*CC:%[^:]:%[^#]#",CCuserName,CCdateTime);
+                                    sscanf(rx_buffer, "*CC:%[^:]:%[^:]:%[^#]#",CCuserName,CCdateTime,UniqueTimeStamp);
                                         ESP_LOGI(TAG, "*CC-OK#");
                                         // sprintf(payload, "*CC-OK#"); //actual when in production
-                                          sprintf(payload, "*CC-OK,%s,%s#",CCuserName,CCdateTime);
+                                          sprintf(payload, "*CC-OK,%s,%s,%s#",CCuserName,CCdateTime,UniqueTimeStamp);
                                     utils_nvs_set_str(NVS_CC_USERNAME, CCuserName);
                                     utils_nvs_set_str(NVS_CC_DATETIME, CCdateTime);
+                                    utils_nvs_set_str(NVS_UNIX_TS, UniqueTimeStamp);
                                     send(sock, payload, strlen(payload), 0);
                                         // send(sock, payload, strlen(payload), 0);
                                         for (int i = 0 ; i < 7 ; i++)
@@ -787,6 +795,13 @@ void tcpip_client_task(){
                                         utils_nvs_set_int(NVS_CASH6_KEY, CashTotals[5]);
                                         utils_nvs_set_int(NVS_CASH7_KEY, CashTotals[6]);
                                  }
+                                   else if(strncmp(rx_buffer, "*CC?#", 5) == 0){
+                                         sprintf(payload,"*CC,%s,%s,%s#",CCuserName,CCdateTime,UniqueTimeStamp);
+                                        send(sock, payload, strlen(payload), 0);
+                                        tx_event_pending = 1;
+                                      
+                                        
+                                    }
 
 
                                 else if(strncmp(rx_buffer, "*FW?#", 5) == 0){

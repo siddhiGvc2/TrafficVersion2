@@ -34,6 +34,22 @@ UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
 
+201224
+In CC: command saved Unix Timestamp in tcp.
+CC? command added in tcp.
+
+091224
+Default Time Stamp changed to 1733663095 as request by Prashant Ji
+New command added *VS?#
+reply as *VS,user id, 1/0#
+
+Time : no time limit - till next V command
+Pulse width : 50 msec - 200 msec
+Resonse 1 - received. 0 - not received
+User ID - sent as received in last V command
+Plan code - drop
+
+
 031224
 added *D:uniquetimestamp# command in tcp, uart an mqtt.
 sent uniquetimestamp in TC? response.

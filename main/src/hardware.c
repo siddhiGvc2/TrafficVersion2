@@ -219,7 +219,7 @@ void gpio_read_n_act(void)
             if (LastErasePinStatus == 0)
             {
                 ErasePinDebounce = 200; 
-                LastErasePinStatus = 0;
+                LastErasePinStatus = 1;
             }
             else
             {
@@ -228,6 +228,48 @@ void gpio_read_n_act(void)
                     ErasePinDebounce = ErasePinDebounce-1;
                     if (ErasePinDebounce == 0)
                         ErasePinStatus = 1;
+                }
+
+            }
+        }
+
+
+        if (gpio_get_level(JUMPER) == 0)
+        {
+            if (LastJumper2Status == 1)    
+            {
+                Jumper2Debounce = 4;        
+                LastJumper2Status = 0;
+            }
+            else
+            {
+                if (Jumper2Debounce)
+                { 
+                    Jumper2Debounce = Jumper2Debounce-1;
+                    if (Jumper2Debounce == 0)
+                    {
+                        uart_write_string_ln("*Jumper Debounced Low#");
+                        Jumper2Status = 0;
+                        AckPulseReceived++;
+                    }
+                }
+
+            }
+        }
+        else
+        {
+            if (LastJumper2Status == 0)
+            {
+                Jumper2Debounce = 2; 
+                LastJumper2Status = 1;
+            }
+            else
+            {
+                if (Jumper2Debounce)
+                { 
+                    Jumper2Debounce = Jumper2Debounce-1;
+                    if (Jumper2Debounce == 0)
+                        Jumper2Status = 1;
                 }
 
             }
