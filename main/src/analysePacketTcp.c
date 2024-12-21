@@ -773,12 +773,12 @@ void tcpip_client_task(){
                                         
                                 }
                                 else if(strncmp(rx_buffer, "*CC:", 4) == 0){
-                                    sscanf(rx_buffer, "*CC:%[^:]:%[^:]:%[^#]#",CCuserName,CCdateTime,UniqueTimeStamp);
+                                    sscanf(rx_buffer, "*CC:%[^:]:%[^:]:%[^#]#",CCuserName,CCdateTime,UniqueTimeStamp); // changed on 20-12-24 as per EC10
                                         ESP_LOGI(TAG, "*CC-OK#");
                                         // sprintf(payload, "*CC-OK#"); //actual when in production
-                                          sprintf(payload, "*CC-OK,%s,%s,%s#",CCuserName,CCdateTime,UniqueTimeStamp);
+                                          sprintf(payload, "*CC-OK,%s,%s,%s#",CCuserName,CCdateTime,UniqueTimeStamp);  // changed on 20-12-24 as per EC10
                                     utils_nvs_set_str(NVS_CC_USERNAME, CCuserName);
-                                    utils_nvs_set_str(NVS_CC_DATETIME, CCdateTime);
+                                    utils_nvs_set_str(NVS_CC_DATETIME, CCdateTime);  // added on 20-12-24 as per EC10
                                     utils_nvs_set_str(NVS_UNIX_TS, UniqueTimeStamp);
                                     send(sock, payload, strlen(payload), 0);
                                         // send(sock, payload, strlen(payload), 0);
@@ -795,6 +795,7 @@ void tcpip_client_task(){
                                         utils_nvs_set_int(NVS_CASH6_KEY, CashTotals[5]);
                                         utils_nvs_set_int(NVS_CASH7_KEY, CashTotals[6]);
                                  }
+                                 // added on 20-12-24 as per EC10
                                    else if(strncmp(rx_buffer, "*CC?#", 5) == 0){
                                          sprintf(payload,"*CC,%s,%s,%s#",CCuserName,CCdateTime,UniqueTimeStamp);
                                         send(sock, payload, strlen(payload), 0);
