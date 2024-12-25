@@ -104,7 +104,7 @@ void app_main(void)
         // display No HBT For X minutes once every minute
         // and restart if no HBT for Y minutes
         ServerHBTTimeOut++;
-        if ((ServerHBTTimeOut % 600) == 0)
+        if ( ((ServerHBTTimeOut % 600) == 40) && (ServerHBTTimeOut > 620))
         {
             sprintf(payload,"*No HBT For %d Minutes",ServerHBTTimeOut/600);
             uart_write_string_ln(payload);
