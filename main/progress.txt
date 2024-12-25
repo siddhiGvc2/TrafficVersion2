@@ -34,6 +34,10 @@ UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
 
+25-12-24
+*HBT# command added in tsp.
+
+
 201224
 In CC: command saved Unix Timestamp in tcp.
 CC? command added in tcp.

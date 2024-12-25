@@ -233,6 +233,12 @@ void tcpip_client_task(){
                                     RestartDevice();
 
                             }  
+                               else if(strncmp(rx_buffer, "*HBT#",5) == 0)
+                                {
+                                    sprintf(payload, "*HBT-OK#");
+                                    send(sock, payload, strlen(payload), 0);
+
+                            }  
                                else if(strncmp(rx_buffer, "*D:",3) == 0){
                                     char tempBuf[100];
                                         sscanf(rx_buffer, "*D:%[^:#]#",tempBuf);
