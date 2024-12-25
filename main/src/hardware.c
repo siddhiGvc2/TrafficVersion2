@@ -181,8 +181,19 @@ void gpio_read_n_act(void)
     int testCounter = 0;
     int BlinkMode = 0;
     char payload[100];
+    int TimeToBlinkLed = 0;
+    Led_State_t prev_state = STANDBY_LED;
     for (;;)
     {
+        if (TimeToBlinkLed)
+        {
+            TimeToBlinkLed--;
+            if (TimeToBlinkLed == 0)
+                set_led_state(prev_state);
+        }
+ 
+ 
+ 
         if (gpio_get_level(ErasePin) == 0)
         {
             if (LastErasePinStatus == 1)    
@@ -373,7 +384,10 @@ void gpio_read_n_act(void)
                    sprintf(payload, "*RP,%d,%d#",LastInputPin,TotalPulses); 
                    uart_write_string(payload);
                    ESP_LOGI(TAG,"*RP,%d,%d#",LastInputPin,TotalPulses);
-
+                   prev_state = led_state;
+                   ticks_100 = 0;
+                   set_led_state(INCOMING_PULSE_DETECTED);
+                   TimeToBlinkLed = 400;
                    TotalPulses = 0;
                 }
             }

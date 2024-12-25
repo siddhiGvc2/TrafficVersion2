@@ -119,7 +119,10 @@ void leds_update_task(){
             numberOfPulses = 20;
             LedInUse= 3;            
         }
-
+        else if(led_state == INCOMING_PULSE_DETECTED){
+            numberOfPulses = 6;
+            LedInUse= 3;            
+        }
 
     
         //     // if(rx_event_pending){

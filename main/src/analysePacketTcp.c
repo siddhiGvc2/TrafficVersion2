@@ -233,11 +233,13 @@ void tcpip_client_task(){
                                     RestartDevice();
 
                             }  
+                            // added *HBT# on 251224
                                else if(strncmp(rx_buffer, "*HBT#",5) == 0)
                                 {
                                     sprintf(payload, "*HBT-OK#");
                                     send(sock, payload, strlen(payload), 0);
-
+                                    ServerHBTTimeOut = 0;
+                                    uart_write_string_ln("*SERVER HBT-OK#");
                             }  
                                else if(strncmp(rx_buffer, "*D:",3) == 0){
                                     char tempBuf[100];

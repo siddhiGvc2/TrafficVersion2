@@ -43,7 +43,7 @@ void app_main(void)
     //Initialize NVS
     //esp_log_level_set("*", ESP_LOG_NONE);
     // set totals to 0
-
+    char payload[100];
     MQTTRequired = 0;
     for (int i = 0 ; i < 7 ; i++)
     {
@@ -99,6 +99,21 @@ void app_main(void)
 
     for (;;) 
     {
-        vTaskDelay(100);   
+        vTaskDelay(100/portTICK_PERIOD_MS);  // 100 msec delay
+        // logic added on 251224
+        // display No HBT For X minutes once every minute
+        // and restart if no HBT for Y minutes
+        ServerHBTTimeOut++;
+        if ((ServerHBTTimeOut % 600) == 0)
+        {
+            sprintf(payload,"*No HBT For %d Minutes",ServerHBTTimeOut/600);
+            uart_write_string_ln(payload);
+        }
+        if (ServerHBTTimeOut > HBTTIMEBEFORERESTART)
+        {
+            RestartDevice();
+        }
+        // 1 min = 60 sec, 30 min  = 1800 seconds = 18000 X 100 msec ticks  
+        // 35 mins = 2100 seconds = 21000 X 100 msecs ticks
     }
 }
