@@ -103,16 +103,18 @@ void app_main(void)
         // logic added on 251224
         // display No HBT For X minutes once every minute
         // and restart if no HBT for Y minutes
-        ServerHBTTimeOut++;
-        if ( ((ServerHBTTimeOut % 600) == 40) && (ServerHBTTimeOut > 620))
-        {
-            sprintf(payload,"*No HBT For %d Minutes",ServerHBTTimeOut/600);
-            uart_write_string_ln(payload);
-        }
-        if (ServerHBTTimeOut > HBTTIMEBEFORERESTART)
-        {
-            RestartDevice();
-        }
+
+        // removed on 301224 as advised by Neeraj Ji
+        // ServerHBTTimeOut++;
+        // if ( ((ServerHBTTimeOut % 600) == 40) && (ServerHBTTimeOut > 620))
+        // {
+        //     sprintf(payload,"*No HBT For %d Minutes",ServerHBTTimeOut/600);
+        //     uart_write_string_ln(payload);
+        // }
+        // if (ServerHBTTimeOut > HBTTIMEBEFORERESTART)
+        // {
+        //     RestartDevice();
+        // }
         // 1 min = 60 sec, 30 min  = 1800 seconds = 18000 X 100 msec ticks  
         // 35 mins = 2100 seconds = 21000 X 100 msecs ticks
     }

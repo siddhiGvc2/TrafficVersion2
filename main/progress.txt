@@ -33,6 +33,8 @@ s2pinit if added will set a test output , normally keep it off
 UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
+30-12-24
+removed restart if HBT not received.
 
 25-12-24
 *HBT# command added in tsp.
