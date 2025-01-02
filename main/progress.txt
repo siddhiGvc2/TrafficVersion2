@@ -33,6 +33,12 @@ s2pinit if added will set a test output , normally keep it off
 UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
+
+020125
+added *QR:string# command in  main/src/anaysePacketTcp.c/tcpip_client_task
+added *QR?# command in  main/src/anaysePacketTcp.c/tcpip_client_task
+
+
 30-12-24
 removed restart if HBT not received.
 

@@ -109,7 +109,7 @@ extern char LastTID[100];
 extern char TID[100];
 
 extern char ErasedSerialNumber[100];
-
+extern char QrString[100];
 
 
 

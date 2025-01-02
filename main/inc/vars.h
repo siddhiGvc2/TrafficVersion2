@@ -104,6 +104,8 @@ char TID[100];
 
 char ErasedSerialNumber[100];
 
+char QrString[100];
+
 int MQTTRequired;
 
 

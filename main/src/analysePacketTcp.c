@@ -250,6 +250,20 @@ void tcpip_client_task(){
                                        
                                         send(sock, payload, strlen(payload), 0);
                                  }
+                                  else if(strncmp(rx_buffer, "*QR:",4) == 0){
+                                        char tempBuf[100];
+                                        sscanf(rx_buffer, "*QR:%[^:#]#",tempBuf);
+                                        strcpy(QrString,tempBuf);
+                                        sprintf(payload, "*QR-OK,%s#",QrString);
+                                        utils_nvs_set_str(NVS_QR_STRING,QrString);
+                                       
+                                        send(sock, payload, strlen(payload), 0);
+                                 }
+                                  else if(strncmp(rx_buffer, "*QR?#",5) == 0){
+                                     
+                                        sprintf(payload, "*QR-OK,%s#",QrString); 
+                                        send(sock, payload, strlen(payload), 0);
+                                 }      
                                   else if(strncmp(rx_buffer, "*VS?#",5) == 0){
                                      
                                         sprintf(payload, "*VS,%s,%d#",TID,AckPulseReceived); 

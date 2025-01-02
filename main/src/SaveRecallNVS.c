@@ -109,6 +109,11 @@ void load_settings_nvs(){
         strcpy(UniqueTimeStamp,DEFAULT_TIMESTAMP);
        utils_nvs_set_str(NVS_UNIX_TS,UniqueTimeStamp); 
     }
+
+      if(utils_nvs_get_str(NVS_QR_STRING,QrString,100) == ESP_OK){
+     utils_nvs_get_str(NVS_QR_STRING,QrString,100);
+    }
+   
  
    
     if(utils_nvs_get_str(NVS_LAST_TID, LastTID,100) == ESP_OK){
