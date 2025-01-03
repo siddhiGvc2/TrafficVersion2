@@ -89,6 +89,7 @@ void tcpip_client_task(){
                 if (err != 0) {
                     ESP_LOGE(TAG, "*Socket unable to connect: errno %d#", errno);
                     ESP_LOGE(TAG, "*Shutting down socket and restarting...#");
+                    sprintf(payload, "*SERVER:0#");
                     shutdown(sock, 0);
                     close(sock);
                     sock = -1;
@@ -101,8 +102,12 @@ void tcpip_client_task(){
                     else
                         sprintf(payload, "*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber);  // for KP use :
                     uart_write_string_ln(payload);
+
+                    
                     int err = send(sock, payload, strlen(payload), 0);
-                    ESP_LOGI(TAG, "*Successfully connected#");  
+                    ESP_LOGI(TAG, "*Successfully connected#"); 
+                    sprintf(payload, "*SERVER:1#");  // for KP use :
+                    uart_write_string_ln(payload); 
                     if (gpio_get_level(JUMPER) == 0)
                         ESP_LOGI(TAG, "*MAC,%s,%s#", MAC_ADDRESS_ESP,SerialNumber) ;
                     else
@@ -113,6 +118,14 @@ void tcpip_client_task(){
 
                     ESP_LOGI(TAG, "*%s#",FWVersion);
                     err = send(sock, FWVersion, strlen(FWVersion), 0);
+
+                    sprintf(payload, "*QR-OK,%s#",QrString); 
+          
+                    uart_write_string_ln(payload);
+                    uart_write_string_ln('*BOOTING#');
+
+                    sprintf(payload,"*FW:%s#",FWVersion);
+                    uart_write_string_ln(payload);
 
 
                     if (err < 0) {
@@ -258,11 +271,13 @@ void tcpip_client_task(){
                                         utils_nvs_set_str(NVS_QR_STRING,QrString);
                                        
                                         send(sock, payload, strlen(payload), 0);
+                                        uart_write_string_ln(payload);
                                  }
                                   else if(strncmp(rx_buffer, "*QR?#",5) == 0){
                                      
                                         sprintf(payload, "*QR-OK,%s#",QrString); 
                                         send(sock, payload, strlen(payload), 0);
+                                        uart_write_string_ln(payload);
                                  }      
                                   else if(strncmp(rx_buffer, "*VS?#",5) == 0){
                                      
@@ -601,7 +616,7 @@ void tcpip_client_task(){
                                 tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*FOTA:", 6) == 0){
                                     send(sock, "*FOTA-OK#", strlen("*FOTA-OK#"), 0);
-                                  
+                                     uart_write_string_ln("FOTA-OK");
                                     send(sock,FOTA_URL,strlen(FOTA_URL),0);
                                     tx_event_pending = 1;
                                     http_fota();
@@ -829,7 +844,9 @@ void tcpip_client_task(){
 
                                 else if(strncmp(rx_buffer, "*FW?#", 5) == 0){
                                         ESP_LOGI(TAG, "*%s#",FWVersion);
+                                        sprintf(payload,"*FW:%s#",FWVersion);
                                         send(sock, FWVersion, strlen(FWVersion), 0);
+                                        uart_write_string_ln(payload);
                                         tx_event_pending = 1;
                                         if (ledpin == 1)
                                             gpio_set_level(L1, ledstatus);

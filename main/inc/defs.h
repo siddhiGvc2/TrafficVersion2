@@ -141,7 +141,7 @@ typedef enum TCPIP_SOCKET_STATE{
 // #define DEFAULT_SERVER_IP_ADDR "159.89.248.57"
 #define DEFAULT_SERVER_PORT    6666
 //#define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/esp_wifi_tcp_fota.bin"
-#define DEFAULT_FOTA_URL  "http://test-firmware.kwikpay.uk/firmware/fw020125_118.bin"
+#define DEFAULT_FOTA_URL  "http://test-firmware.kwikpay.uk/firmware/fw030125_118B.bin"
 //#define TCP_URL1  "gvc.co.in"
 #define TCP_URL1  "TCP.KWIKPAY.COM"
 #define TCP_URL2  "TESTTCP.KWIKPAY.COM"
@@ -152,7 +152,7 @@ typedef enum TCPIP_SOCKET_STATE{
 
 #define PASS_THRU   "Y"
 
-#define FWVersion "*Kwikpay_020125_VER_1.18 Naico Ltd#"
+#define FWVersion "*Kwikpay_030125_VER_1.18B Naico Ltd#"
 
 #define HBTDelay    300000
 #define LEDR    13
