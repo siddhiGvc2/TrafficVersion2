@@ -34,6 +34,11 @@ UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
 
+030125
+added *QR:string# command in  main/src/anaysePacketUart.c/process_uart_packet
+added *QR?# command in  main/src/anaysePacketUart.c/process_uart_packet
+
+
 020125
 added *QR:string# command in  main/src/anaysePacketTcp.c/tcpip_client_task
 added *QR?# command in  main/src/anaysePacketTcp.c/tcpip_client_task

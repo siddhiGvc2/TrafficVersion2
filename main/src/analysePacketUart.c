@@ -217,6 +217,19 @@ void process_uart_packet(const char *pkt){
     
       
     }
+     else if(strncmp(pkt, "*QR:",4) == 0){
+            char tempBuf[100];
+            sscanf(pkt, "*QR:%[^:#]#",tempBuf);
+            strcpy(QrString,tempBuf);
+            sprintf(buffer, "*QR-OK,%s#",QrString);
+            utils_nvs_set_str(NVS_QR_STRING,QrString);
+            uart_write_string_ln(payload);
+        }
+        else if(strncmp(pkt, "*QR?#",5) == 0){
+            
+            sprintf(buffer, "*QR-OK,%s#",QrString); 
+            uart_write_string_ln(buffer);
+        }
       else if(strncmp(pkt, "*FW?#", 5) == 0){
          ESP_LOGI(TAG, "*%s#",FWVersion);
        
