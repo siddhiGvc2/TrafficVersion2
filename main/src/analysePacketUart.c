@@ -238,12 +238,12 @@ void process_uart_packet(const char *pkt){
               sprintf(buffer, "*FOTA#");
               uart_write_string_ln(buffer);   
             }
-            if(serverStatus==0)
+            else if(serverStatus==0)
             {
              sprintf(buffer, "*STATUS:0#");
              uart_write_string_ln(buffer); 
             }
-            if(serverStatus==1){
+            else if(serverStatus==1){
               sprintf(buffer, "*QR:%s#",QrString); 
               uart_write_string_ln(buffer);
             }
