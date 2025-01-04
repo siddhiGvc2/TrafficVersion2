@@ -231,9 +231,12 @@ void process_uart_packet(const char *pkt){
             uart_write_string_ln(buffer);
         }
          else if(strncmp(pkt, "*STATUS?#",9) == 0){
+           
+           
             if(fotaStatus==1)
             {
-              uart_write_string_ln('*FOTA#');   
+              sprintf(buffer, "*FOTA#");
+              uart_write_string_ln(buffer);   
             }
             if(serverStatus==0)
             {

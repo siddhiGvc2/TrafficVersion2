@@ -617,8 +617,9 @@ void tcpip_client_task(){
                                 send(sock, msg, strlen(msg), 0);
                                 tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*FOTA:", 6) == 0){
-                                    send(sock, "*FOTA-OK#", strlen("*FOTA-OK#"), 0);
                                     fotaStatus=1;
+                                    send(sock, "*FOTA-OK#", strlen("*FOTA-OK#"), 0);
+                                    
                                      uart_write_string_ln("FOTA-OK");
                                     send(sock,FOTA_URL,strlen(FOTA_URL),0);
                                     tx_event_pending = 1;
