@@ -146,6 +146,8 @@ bool connected_to_wifi_and_internet = false;
 bool LED4TCPPacket = 0;
 int WiFiNumber = 0;
 int WifiX=1;
+int serverStatus=0;
+int fotaStatus=0;
 
 
 int tcp_sock = -1;

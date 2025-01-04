@@ -352,7 +352,8 @@ void wifi_init_sta(void)
             //ESP_LOGI(TAG, "Trying to connect to SSID2 %S | %S",DEFAULT_SSID2, DEFAULT_PASS1);
             set_led_state(SEARCH_FOR_WIFI2);
             ESP_LOGI(TAG, "*Trying to connect to SSID2# ");
-            sprintf(buffer, "*SERVER:0#");  // for KP use :
+            serverStatus=0;
+            sprintf(buffer, "*SERVER:%d#",serverStatus);  // for KP use :
             uart_write_string_ln(buffer); 
             uart_write_string_ln("*Trying to connect to SSID2#");
             WiFiNumber = 2;
@@ -360,7 +361,8 @@ void wifi_init_sta(void)
             if(!connect_to_wifi(WIFI_SSID_2, WIFI_PASS_2)){
 
                 ESP_LOGI(TAG, "*Trying to connect to SSID3# ");
-                sprintf(buffer, "*SERVER:0#");  // for KP use :
+                serverStatus=0;
+                sprintf(buffer, "*SERVER:%d#",serverStatus);  // for KP use :
                 uart_write_string_ln(buffer); 
                 uart_write_string_ln("*Trying to connect to SSID3#");
 
@@ -376,7 +378,8 @@ void wifi_init_sta(void)
                 }
                 else{
                 ESP_LOGI(TAG, "*Connected To WiFi3#");
-                sprintf(buffer, "*SERVER:1#");  // for KP use :
+                serverStatus=1;
+                sprintf(buffer, "*SERVER:%d#",serverStatus);  // for KP use :
                 uart_write_string_ln(buffer); 
                 connected_to_wifi = true;
                 break;
@@ -384,14 +387,16 @@ void wifi_init_sta(void)
             }
             else{
                 ESP_LOGI(TAG, "*Connected To WiFi2#");
-                sprintf(buffer, "*SERVER:1#");  // for KP use :
+                serverStatus=1;
+                sprintf(buffer, "*SERVER:%d#",serverStatus);  // for KP use :
                 uart_write_string_ln(buffer); 
                 connected_to_wifi = true;
                 break;
             }
         }else{
             ESP_LOGI(TAG, "*Connected To WiFi1#");
-            sprintf(buffer, "*SERVER:1#");  // for KP use :
+            serverStatus=1;
+            sprintf(buffer, "*SERVER:%d#",serverStatus);  // for KP use :
             uart_write_string_ln(buffer); 
             connected_to_wifi = true;
             break;

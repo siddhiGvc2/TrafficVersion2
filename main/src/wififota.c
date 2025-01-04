@@ -85,6 +85,7 @@ void http_fota(void){
         ESP_LOGE(TAG, "*Failed to open HTTP connection: %s#", esp_err_to_name(err));
         send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
         uart_write_string_ln("*FOTA-ERROR#");
+        fotaStatus=0;
         uart_write_string_ln("*Failed to open http#");
         esp_http_client_cleanup(client);
         set_led_state(prev_state);
@@ -120,6 +121,7 @@ void http_fota(void){
             read_len = esp_http_client_read(client, data, MAX_HTTP_RECV_BUFFER);
             if (read_len <= 0) {
                 ESP_LOGI(TAG, "*Error read data#");
+                fotaStatus=0;
                 send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
                 uart_write_string_ln("*FOTA-ERROR#");
             }
@@ -129,6 +131,7 @@ void http_fota(void){
             if (err != ESP_OK) {
                 printf("Failed to write OTA data: %s\n", esp_err_to_name(err));
                 send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
+                fotaStatus=0;
                 uart_write_string_ln("*FOTA-ERROR#");
                 esp_http_client_cleanup(client);
             }else{
@@ -154,6 +157,7 @@ void http_fota(void){
         printf("*OTA update failed: %s\n#", esp_err_to_name(err));
         send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
         uart_write_string_ln("*FOTA-ERROR#");
+        fotaStatus=0;
         uart_write_string_ln("*ota data written#");
         esp_http_client_cleanup(client);
         set_led_state(prev_state);
@@ -167,6 +171,7 @@ void http_fota(void){
     if (err != ESP_OK) {
         printf("Failed to set boot partition: %s\n", esp_err_to_name(err));
         send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
+        fotaStatus=0;
         uart_write_string_ln("*FOTA-ERROR#");
         esp_http_client_cleanup(client);
         set_led_state(prev_state);
@@ -179,6 +184,7 @@ void http_fota(void){
     esp_http_client_cleanup(client);
     printf("*OTA update successful! Restarting...\n#");
     send(sock, "*FOTA-OVER#", strlen("*FOTA-OVER#"), 0);
+    fotaStatus=0;
     uart_write_string_ln("*FOTA-OVER#");
     uart_write_string_ln("OTA update successful! Restarting...");
     uart_write_string_ln("*Resetting device-FOTA over#");

@@ -33,6 +33,9 @@ s2pinit if added will set a test output , normally keep it off
 UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
+040125
+added *STATUS?# command in main/src/anaysePacketUart.c/process_uart_packet
+
 
 030125
 added *QR:string# command in  main/src/anaysePacketUart.c/process_uart_packet

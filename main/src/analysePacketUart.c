@@ -230,6 +230,25 @@ void process_uart_packet(const char *pkt){
             sprintf(buffer, "*QR-OK,%s#",QrString); 
             uart_write_string_ln(buffer);
         }
+         else if(strncmp(pkt, "*STATUS?#",9) == 0){
+            if(fotaStatus==1)
+            {
+              uart_write_string_ln('*FOTA#');   
+            }
+            if(serverStatus==0)
+            {
+             sprintf(buffer, "*STATUS:0#");
+             uart_write_string_ln(buffer); 
+            }
+            if(serverStatus==1){
+              sprintf(buffer, "*QR:%s#",QrString); 
+              uart_write_string_ln(buffer);
+            }
+            
+            
+        }
+
+        
       else if(strncmp(pkt, "*FW?#", 5) == 0){
          ESP_LOGI(TAG, "*%s#",FWVersion);
        

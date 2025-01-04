@@ -89,7 +89,8 @@ void tcpip_client_task(){
                 if (err != 0) {
                     ESP_LOGE(TAG, "*Socket unable to connect: errno %d#", errno);
                     ESP_LOGE(TAG, "*Shutting down socket and restarting...#");
-                    sprintf(payload, "*SERVER:0#");
+                    serverStatus=0;
+                    sprintf(payload, "*SERVER:%d#",serverStatus);
                     shutdown(sock, 0);
                     close(sock);
                     sock = -1;
@@ -106,7 +107,8 @@ void tcpip_client_task(){
                     
                     int err = send(sock, payload, strlen(payload), 0);
                     ESP_LOGI(TAG, "*Successfully connected#"); 
-                    sprintf(payload, "*SERVER:1#");  // for KP use :
+                    serverStatus=1;
+                    sprintf(payload, "*SERVER:%d#",serverStatus);
                     uart_write_string_ln(payload); 
                     if (gpio_get_level(JUMPER) == 0)
                         ESP_LOGI(TAG, "*MAC,%s,%s#", MAC_ADDRESS_ESP,SerialNumber) ;
@@ -616,6 +618,7 @@ void tcpip_client_task(){
                                 tx_event_pending = 1;
                                 }else if(strncmp(rx_buffer, "*FOTA:", 6) == 0){
                                     send(sock, "*FOTA-OK#", strlen("*FOTA-OK#"), 0);
+                                    fotaStatus=1;
                                      uart_write_string_ln("FOTA-OK");
                                     send(sock,FOTA_URL,strlen(FOTA_URL),0);
                                     tx_event_pending = 1;
