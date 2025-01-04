@@ -240,7 +240,7 @@ void process_uart_packet(const char *pkt){
             }
             else if(serverStatus==0)
             {
-             sprintf(buffer, "*STATUS:0#");
+             sprintf(buffer, "*NOSERVER#");
              uart_write_string_ln(buffer); 
             }
             else if(serverStatus==1){
