@@ -136,8 +136,8 @@ void http_fota(void){
                 esp_http_client_cleanup(client);
             }else{
                 sprintf(buffer,"*OTA Percent : %d#", ((total_read_len*100)/content_length));    
-                ESP_LOGI(TAG, "*OTA Percent : %d#", ((total_read_len*100)/content_length) );
-                uart_write_string_ln(buffer);
+                // ESP_LOGI(TAG, "*OTA Percent : %d#", ((total_read_len*100)/content_length) );
+                // uart_write_string_ln(buffer);
             }
         }
     }
