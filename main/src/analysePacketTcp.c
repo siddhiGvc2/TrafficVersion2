@@ -90,7 +90,7 @@ void tcpip_client_task(){
                     ESP_LOGE(TAG, "*Socket unable to connect: errno %d#", errno);
                     ESP_LOGE(TAG, "*Shutting down socket and restarting...#");
                     serverStatus=0;
-                    sprintf(payload, "*SERVER:%d#",serverStatus);
+                    sprintf(payload, "*NOSERVER#");
                     shutdown(sock, 0);
                     close(sock);
                     sock = -1;
@@ -108,8 +108,9 @@ void tcpip_client_task(){
                     int err = send(sock, payload, strlen(payload), 0);
                     ESP_LOGI(TAG, "*Successfully connected#"); 
                     serverStatus=1;
-                    sprintf(payload, "*SERVER:%d#",serverStatus);
-                    uart_write_string_ln(payload); 
+                     sprintf(payload, "*QR:%s#",QrString); 
+                    uart_write_string_ln(payload);
+
                     if (gpio_get_level(JUMPER) == 0)
                         ESP_LOGI(TAG, "*MAC,%s,%s#", MAC_ADDRESS_ESP,SerialNumber) ;
                     else
@@ -744,8 +745,11 @@ void tcpip_client_task(){
                                             
                                         // }
                                         // else if (TID != LastTID)
+
+                                
                                         if (memcmp(TID, LastTID, 100) != 0)
                                         {
+                                            uart_write_string_ln("*VENDING#");
                                             edges = pulses*2;  // doubled edges
                                             // strcpy(WIFI_PASS_2, buf);
                                             // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
