@@ -726,6 +726,326 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
            tx_event_pending = 1;
 
     }
+    else if(strncmp(rx_buffer, "*URL:", 5) == 0){
+        if(strcmp(InputVia, "TCP") == 0)
+        {
+            char tempUserName[64], tempDateTime[64], tempBuf[64];
+
+            // Parse the input buffer
+            if (sscanf(rx_buffer, "*URL:%[^:]:%[^:]:%[^#]#", tempUserName, tempDateTime, tempBuf) == 3) {
+                // Check if any of the parsed values are empty
+                if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
+                    // Send error message if any required parameters are missing or invalid
+                    const char* errorMsg = "Error: Missing or invalid parameters";
+                    SendResponse(errorMsg,InputVia);
+                } else {
+                        strcpy(URLuserName, tempUserName);
+                        strcpy(URLdateTime, tempDateTime);
+                        strcpy(FOTA_URL, tempBuf);
+                }
+           
+            }
+            else {
+                // Send error message if parsing failed
+                const char* errorMsg = "Error: Invalid format";
+                SendResponse(errorMsg,InputVia);
+            }
+        }
+        else if(strcmp(InputVia, "UART") == 0)
+        {
+            sscanf(rx_buffer, "*URL:%[^#]#", FOTA_URL);
+            strcpy(URLuserName,"LOCAL");
+            strcpy(URLdateTime,"00/00/00");
+        }
+        else if(strcmp(InputVia, "MQTT") == 0)
+        {
+            sscanf(rx_buffer, "*URL:%[^#]#", FOTA_URL);
+            strcpy(URLuserName,"MQTT_LOCAL");
+            strcpy(URLdateTime,"00/00/00");
+        }
+        utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
+        sprintf(payload, "*URL-OK,%s,%s#",URLuserName,URLdateTime);
+        utils_nvs_set_str(NVS_URL_USERNAME, URLuserName);
+        utils_nvs_set_str(NVS_URL_DATETIME, URLdateTime);
+        SendResponse(payload,InputVia);
+        tx_event_pending = 1;
+
+    }
+    else if(strncmp(rx_buffer, "*SIP:", 5) == 0){
+
+        if(strcmp(InputVia, "TCP") == 0)
+        {
+            char tempUserName[64], tempDateTime[64], tempBuf[64] ,tempBuf2[64];
+
+            if (sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%[^:]#", tempUserName, tempDateTime, tempBuf) == 3) { 
+                  if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0  ) {
+                    // Send error message if any required parameters are missing or invalid
+                    const char* errorMsg = "Error: Missing or invalid parameters";
+                    SendResponse(errorMsg,InputVia);
+                }
+                else{
+                        strcpy(SIPuserName, tempUserName);
+                        strcpy(SIPdateTime, tempDateTime);
+                        SipNumber=atoi(tempBuf);
+                }
+           
+            }
+            else {
+                // Send error message if parsing failed
+                const char* errorMsg = "Error: Invalid format";
+                SendResponse(errorMsg,InputVia);
+            }
+        }
+        else if(strcmp(InputVia, "UART") == 0)
+        {
+            sscanf(rx_buffer, "*SIP:%d#",&SipNumber);
+            strcpy(SIPuserName,"LOCAL");
+            strcpy(SIPdateTime,"00/00/00");
+        }
+        else if(strcmp(InputVia, "MQTT") == 0)
+        {
+            sscanf(rx_buffer, "*SIP:%d#",&SipNumber);
+            strcpy(SIPuserName,"MQTT_LOCAL");
+            strcpy(SIPdateTime,"00/00/00");
+        }
+
+        if ((SipNumber == 0) || (SipNumber >MAXSIPNUMBER))  
+        {  
+            sprintf(payload, "*SIP-Error#");
+            ESP_LOGI(InputVia,"*SIP-ERROR#");
+        }else 
+        {
+            sprintf(payload, "*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);                                                   
+            utils_nvs_set_int(NVS_SIP_NUMBER,  SipNumber);
+            utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
+            utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
+            ESP_LOGI(InputVia,"*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
+        }    
+        SendResponse(payload,InputVia);
+        uart_write_string_ln(payload);
+        tx_event_pending = 1;
+
+    }
+    else if (strncmp(rx_buffer, "*ERASE:", 7) == 0){
+        if(strcmp(InputVia, "TCP") == 0)
+        {
+            char tempUserName[64], tempDateTime[64], tempBuf[64];
+                                       // if seria no of device != ErasedSerialNumber then do not erase
+                                            // if all values are not avalible then do not erase
+
+                                    if (sscanf(rx_buffer, "*ERASE:%[^:]:%[^:]:%[^:#]", tempUserName, tempDateTime, tempBuf) == 3) { 
+                                        if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0 ) {
+                                            // Send error message if any required parameters are missing or invalid
+                                            const char* errorMsg = "*Error: Missing or invalid parameters#";
+                                            SendResponse(errorMsg,InputVia);
+                                            uart_write_string_ln(errorMsg);
+                                        }
+                                        else if (strcmp(tempBuf, SerialNumber) != 0) {
+                                            sprintf (payload,"*Erase:Serial Not Matched Command:%s Actual:%s#",tempBuf,SerialNumber);
+                                            SendResponse(payload,InputVia);
+                                            uart_write_string_ln(payload);
+                                        }
+
+                                        else{
+                                        
+                                           
+                                            strcpy(ERASEuserName, tempUserName);
+                                            strcpy(ERASEdateTime, tempDateTime);
+                                            strcpy(ErasedSerialNumber,tempBuf);
+
+                                        }
+           
+            }
+            else {
+                // Send error message if parsing failed
+                const char* errorMsg = "Error: Invalid format";
+                SendResponse(errorMsg,InputVia);
+            }
+        }
+        else if(strcmp(InputVia, "UART") == 0)
+        {
+            sscanf(rx_buffer, "*ERASE:%[^:#]",ErasedSerialNumber);
+            if (strcmp(ErasedSerialNumber, SerialNumber) != 0) {
+               // send (payload,"*Erase:Serial Not Matched Command:%s Actual:%s#",tempBuf,SerialNumber);
+               const char* errorMsg = "Erase:Serial Not Matched";
+               // send(sock, errorMsg, strlen(errorMsg), 0);
+               SendResponse(errorMsg,InputVia);
+           }
+           else{
+          
+           strcpy(ERASEuserName,"LOCAL");
+           strcpy(ERASEdateTime,"00/00/00");
+         
+           }
+        }
+        else if(strcmp(InputVia, "MQTT") == 0)
+        {
+            sscanf(rx_buffer, "*ERASE:%[^:]#",ErasedSerialNumber);
+            if (strcmp(ErasedSerialNumber, SerialNumber) != 0) {
+               const char* errorMsg = "Erase:Serial Not Matched";
+            
+              SendResponse("Erase:Serial Not Matched",InputVia);
+           }
+           else{
+           strcpy(ERASEuserName,"MQTT_LOCAL");
+           strcpy(ERASEdateTime,"00/00/00");
+           }
+        }
+
+        utils_nvs_set_str(NVS_ERASE_USERNAME, ERASEuserName);
+        utils_nvs_set_str(NVS_ERASE_DATETIME, ERASEdateTime);
+        utils_nvs_set_str(NVS_ERASED_SERIAL_NUMBER, ErasedSerialNumber);
+        utils_nvs_erase_all();
+        utils_nvs_set_str(NVS_SERIAL_NUMBER, ErasedSerialNumber);
+        SendResponse("*ERASE:OK#",InputVia);
+    }
+    else if(strncmp(rx_buffer, "*SL:", 4) == 0){
+        if(strcmp(InputVia, "TCP") == 0)
+        {
+            if (edges == 0)
+            {
+                sscanf(rx_buffer, "*SL:%[^:]:%[^:]:%d:%d#",SLuserName,SLdateTime,&ledpin,&ledstatus);
+              
+                
+            }  
+        }
+        else if(strcmp(InputVia, "UART") == 0)
+        {
+            sscanf(rx_buffer, "*SL:%d:%d#", &ledpin,&ledstatus);
+            strcpy(SLuserName,"LOCAL");
+            strcpy(SLdateTime,"00/00/00");
+        }
+        else if(strcmp(InputVia, "MQTT") == 0)
+        {
+            sscanf(rx_buffer, "*SL:%d:%d#", &ledpin,&ledstatus);
+             strcpy(SLuserName,"MQTT_LOCAL");
+             strcpy(SLdateTime,"00/00/00");
+        }
+         
+                ESP_LOGI(InputVia, "Set LED @ Pin %d Status %d",ledpin,ledstatus);
+                
+                SendResponse( "*SL-OK#",InputVia);
+                tx_event_pending = 1;
+                if (ledpin == 1)
+                    gpio_set_level(L1, ledstatus);
+                if (ledpin == 2)
+                    gpio_set_level(L2, ledstatus);
+                if (ledpin == 3)
+                    gpio_set_level(L3, ledstatus);
+
+    }
+    else if(strncmp(rx_buffer, "*CC", 3) == 0){
+        if(strcmp(InputVia, "TCP") == 0)
+        {
+            sscanf(rx_buffer, "*CC:%[^:]:%[^:]:%[^#]#",CCuserName,CCdateTime,UniqueTimeStamp); // changed on 20-12-24 as per EC10
+          
+            sprintf(payload, "*CC-OK,%s,%s,%s#",CCuserName,CCdateTime,UniqueTimeStamp);  // changed on 20-12-24 as per EC10
+            SendResponse(payload,InputVia);
+        }
+        else if(strcmp(InputVia, "UART") == 0){
+            strcpy(CCuserName,"LOCAL");
+            strcpy(CCdateTime,"00/00/00");
+            sprintf(payload, "*CC-OK,%s,%s#",CCuserName,CCdateTime);
+            SendResponse(payload,InputVia);
+        }
+        else if(strcmp(InputVia, "MQTT") == 0){
+
+            strcpy(CCuserName,"MQTT_LOCAL");
+            strcpy(CCdateTime,"00/00/00");
+            sprintf(payload, "*CC-OK,%s,%s#",CCuserName,CCdateTime);
+            SendResponse(payload,InputVia);
+        }
+       
+            utils_nvs_set_str(NVS_CC_USERNAME, CCuserName);
+            utils_nvs_set_str(NVS_CC_DATETIME, CCdateTime);  // added on 20-12-24 as per EC10
+            utils_nvs_set_str(NVS_UNIX_TS, UniqueTimeStamp);
+            // send(sock, payload, strlen(payload), 0);
+            for (int i = 0 ; i < 7 ; i++)
+            {
+                Totals[i] = 0;
+                CashTotals[i] = 0;
+            } 
+            utils_nvs_set_int(NVS_CASH1_KEY, CashTotals[0]);
+            utils_nvs_set_int(NVS_CASH2_KEY, CashTotals[1]);
+            utils_nvs_set_int(NVS_CASH3_KEY, CashTotals[2]);
+            utils_nvs_set_int(NVS_CASH4_KEY, CashTotals[3]);
+            utils_nvs_set_int(NVS_CASH5_KEY, CashTotals[4]);
+            utils_nvs_set_int(NVS_CASH6_KEY, CashTotals[5]);
+            utils_nvs_set_int(NVS_CASH7_KEY, CashTotals[6]);
+
+    }
+    else if(strncmp(rx_buffer, "*RST", 4) == 0){
+        if(strcmp(InputVia, "TCP") == 0)
+        {
+            sscanf(rx_buffer, "*RST:%[^:]:%[^#]#",RSTuserName,RSTdateTime);
+        }
+        else if(strcmp(InputVia,"UART")==0)
+        {
+            strcpy(RSTuserName,"LOCAL");
+            strcpy(RSTdateTime,"00/00/00");
+        }
+        else if(strcmp(InputVia,"MQTT")==0)
+        {
+            strcpy(RSTuserName,"LOCAL");
+            strcpy(RSTdateTime,"00/00/00");
+        }
+       
+        ESP_LOGI(InputVia, "**************Restarting after 3 second*******");
+        utils_nvs_set_str(NVS_RST_USERNAME, RSTuserName);
+        utils_nvs_set_str(NVS_RST_DATETIME, RSTdateTime);
+        sprintf(payload, "*RST-OK,%s,%s#",RSTuserName,RSTdateTime);
+        SendResponse(payload,InputVia);
+        ESP_LOGI(InputVia, "*RST-OK#");
+        uart_write_string_ln("*Resetting device#");
+        RestartDevice();
+
+    }
+    else if(strncmp(rx_buffer, "*SN:", 4) == 0){
+        if(strcmp(InputVia, "TCP") == 0)
+        {
+            if (strstr(SerialNumber,"999999"))
+            {
+                sscanf(rx_buffer, "*SN:%[^:]:%[^:]:%[^#]#",SNuserName,SNdateTime,SerialNumber);
+                utils_nvs_set_str(NVS_SERIAL_NUMBER, SerialNumber);
+                utils_nvs_set_str(NVS_SN_USERNAME, SNuserName);
+                utils_nvs_set_str(NVS_SN_DATETIME, SNdateTime);
+                send(sock, "*SN-OK#", strlen("*SN-OK#"), 0);
+            }
+            else
+            {
+               send(sock, "*SN CAN NOT BE SET#", strlen("*SN CAN NOT BE SET#"), 0);
+
+            }
+                tx_event_pending = 1; 
+        }
+        else if(strcmp(InputVia,"UART")==0)
+        {
+            sscanf(rx_buffer, "*SN:%[^#]#",SerialNumber);
+            strcpy(SNuserName, "LOCAL");
+            strcpy(SNdateTime, "00/00/00");
+            
+            utils_nvs_set_str(NVS_SERIAL_NUMBER, SerialNumber);
+            utils_nvs_set_str(NVS_SN_USERNAME,SNuserName);
+            utils_nvs_set_str(NVS_SN_DATETIME,SNdateTime);
+            
+        
+            SendResponse("SN-OK",InputVia);
+            tx_event_pending = 1;
+        }
+        else if(strcmp(InputVia,"MQTT")==0)
+        {
+            sscanf(rx_buffer, "*SN:%[^#]#",SerialNumber);
+            strcpy(SSuserName,"MQTT_LOCAL");
+            strcpy(SSdateTime,"00/00/00");
+          
+            sprintf(payload, "*SN-OK,%s,%s#",SNuserName,SNdateTime);
+            utils_nvs_set_str(NVS_SN_USERNAME, SNuserName);
+            utils_nvs_set_str(NVS_SN_DATETIME, SNdateTime);
+            SendResponse(payload,InputVia);
+            tx_event_pending = 1;
+        }
+  
+    }
 
 
 }

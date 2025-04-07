@@ -149,154 +149,20 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
            
             if (strcmp(topic, expected_topic) == 0) {
              
-                if (strcmp(data, "*HBT#") == 0) {
-                    ESP_LOGI(TAG, "Heartbeat message received.");
-                } else if (strcmp(data, "SS1:") == 0) {
-                    ESP_LOGI(TAG, "Command 1 received.");
-                    // Execute action for COMMAND1
-                } else if (strcmp(data, "COMMAND2") == 0) {
-                    ESP_LOGI(TAG, "Command 2 received.");
-                    // Execute action for COMMAND2
-                } 
-                else if(strncmp(data, "*SIP:", 5) == 0){
-                                  
-                    sscanf(data, "*SIP:%d#",&SipNumber);
-                    strcpy(SIPuserName,"MQTT_LOCAL");
-                    strcpy(SIPdateTime,"00/00/00");
-                    char buf[100];
-                    sprintf(payload, "*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
-                    sprintf(buf, "%s",server_ip_addr);
-
-                     if ((atoi(SipNumber) == 0) || (atoi(SipNumber) >MAXSIPNUMBER))  
-                        {  
-                            sprintf(payload, "*SIP-Error#");
-                            ESP_LOGI(TAG,"*SIP-ERROR#");
-                        }else 
-                        {
-                            sprintf(payload, "*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);                                                   
-                            utils_nvs_set_int(NVS_SIP_NUMBER, atoi(SipNumber));
-                            utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
-                            utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
-                            ESP_LOGI(TAG,"*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
-                        } 
-                
-                    
-                     publish_message(payload, client);
-                    // send(sock, payload, strlen(payload), 0);
-                    tx_event_pending = 1;
-                }
+                // if (strcmp(data, "*HBT#") == 0) {
+                //     ESP_LOGI(TAG, "Heartbeat message received.");
+                // } else if (strcmp(data, "SS1:") == 0) {
+                //     ESP_LOGI(TAG, "Command 1 received.");
+                //     // Execute action for COMMAND1
+                // } else if (strcmp(data, "COMMAND2") == 0) {
+                //     ESP_LOGI(TAG, "Command 2 received.");
+                //     // Execute action for COMMAND2
+                // } 
             
-                else if(strncmp(data, "*CC#", 4) == 0){
-                  
-                    ESP_LOGI(TAG, "*CC-OK#");
-                    strcpy(CCuserName,"MQTT_LOCAL");
-                    strcpy(CCdateTime,"00/00/00");
-                   
-                    utils_nvs_set_str(NVS_CC_USERNAME, CCuserName);
-                    utils_nvs_set_str(NVS_CC_DATETIME, CCdateTime);
-                    sprintf(payload, "*CC-OK,%s,%s#",CCuserName,CCdateTime);
-                     publish_message(payload, client);
-                    for (int i = 0 ; i < 7 ; i++)
-                    {
-                        Totals[i] = 0;
-                        CashTotals[i] = 0;
-                    } 
-                    utils_nvs_set_int(NVS_CASH1_KEY, CashTotals[0]);
-                    utils_nvs_set_int(NVS_CASH2_KEY, CashTotals[1]);
-                    utils_nvs_set_int(NVS_CASH3_KEY, CashTotals[2]);
-                    utils_nvs_set_int(NVS_CASH4_KEY, CashTotals[3]);
-                    utils_nvs_set_int(NVS_CASH5_KEY, CashTotals[4]);
-                    utils_nvs_set_int(NVS_CASH6_KEY, CashTotals[5]);
-                    utils_nvs_set_int(NVS_CASH7_KEY, CashTotals[6]);
-                }
-                else if(strncmp(data, "*RST#", 5) == 0){
-                        ESP_LOGI(TAG, "**************Restarting after 3 second*******");
-                        strcpy(RSTuserName,"MQTT_LOCAL");
-                        strcpy(RSTdateTime,"00/00/00");
-                        sprintf(payload, "*RST-OK,%s,%s#",RSTuserName,RSTdateTime);
-                         publish_message(payload, client);
-                        ESP_LOGI(TAG, "*RST-OK#");
-                        uart_write_string_ln("*Resetting device#");
-                       RestartDevice();
-                }
-              
-              
-                else  if(strncmp(data, "*SN:", 4) == 0){
-                    
-                    sscanf(data, "*SN:%[^#]#",buf);
-                    strcpy(SSuserName,"MQTT_LOCAL");
-                    strcpy(SSdateTime,"00/00/00");
-                  
-                    sprintf(payload, "*SN-OK,%s,%s#",SNuserName,SNdateTime);
-                    utils_nvs_set_str(NVS_SN_USERNAME, SNuserName);
-                    utils_nvs_set_str(NVS_SN_DATETIME, SNdateTime);
-                    publish_message(payload, client);
-                    tx_event_pending = 1;
-                }
-              
-                else if(strncmp(data, "*INH?#",6) == 0){
-                    if (INHInputValue !=0)
-                        INHInputValue = 1;
-                    ESP_LOGI(TAG, "INH Values @ numValue %d ",INHInputValue);
-                    sprintf(payload, "*INH-IN,%s,%s,%d,%d#",INHuserName,INHdateTime,INHInputValue,INHOutputValue); 
-                    publish_message(payload, client);
-                }
                
               
-               
-                else if(strncmp(data, "*URL:", 5) == 0){
-                    sscanf(data, "*URL:%[^#]#",buf);
-                    strcpy(FOTA_URL, buf);
-                    strcpy(URLuserName,"MQTT_LOCAL");
-                    strcpy(URLdateTime,"00/00/00");
-                    utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
-                    sprintf(payload, "*URL-OK,%s,%s#",URLuserName,URLdateTime);
-                    utils_nvs_set_str(NVS_URL_USERNAME, URLuserName);
-                    utils_nvs_set_str(NVS_URL_DATETIME, URLdateTime);
-                    publish_message(payload, client);
-                    tx_event_pending = 1;
-                }
-            
-                else if (strncmp(data, "*ERASE:", 7) == 0){
-
-                    sscanf(payload, "*ERASE:%[^:]#",ErasedSerialNumber);
-                     if (strcmp(ErasedSerialNumber, SerialNumber) != 0) {
-                        const char* errorMsg = "Erase:Serial Not Matched";
-                       publish_message("Erase:Serial Not Matched", client);
-                    }
-                    else{
-                    strcpy(ERASEuserName,"MQTT_LOCAL");
-                    strcpy(ERASEdateTime,"00/00/00");
-                    utils_nvs_set_str(NVS_ERASE_USERNAME, ERASEuserName);
-                    utils_nvs_set_str(NVS_ERASE_DATETIME, ERASEdateTime);
-                    utils_nvs_set_str(NVS_ERASED_SERIAL_NUMBER, ErasedSerialNumber);
-                    utils_nvs_erase_all();
-                    utils_nvs_set_str(NVS_SERIAL_NUMBER, ErasedSerialNumber);
-                    publish_message("*ERASE-OK#", client);
-                    }
-                }
-           
               
-                else if(strncmp(data, "*SL:", 4) == 0){
-                    if (edges == 0)
-                    {
-                        sscanf(data, "*SL:%d:%d#",&ledpin,&ledstatus);
-                        // strcpy(WIFI_PASS_2, buf);
-                        // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
-                        ESP_LOGI(TAG, "Set LED @ Pin %d Status %d",ledpin,ledstatus);
-                        publish_message("SL-OK", client);
-                        tx_event_pending = 1;
-                        if (ledpin == 1)
-                            gpio_set_level(L1, ledstatus);
-                        if (ledpin == 2)
-                            gpio_set_level(L2, ledstatus);
-                        if (ledpin == 3)
-                            gpio_set_level(L3, ledstatus);
-                        
-                    }
-                }
-             
-                else if(strncmp(data, "*FOTA:", 6) == 0){
+                if(strncmp(data, "*FOTA:", 6) == 0){
                     strcpy(FOTAuserName,"MQTT_LOCAL");
                     strcpy(FOTAdateTime,"00/00/00");
                     publish_message("*FOTA-OK#", client);
@@ -307,28 +173,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     http_fota();
                 }
                
-                else if(strncmp(data, "*SS2:", 5) == 0){
-                    sscanf(data, "*SS2:%[^#]#",buf);
-                    strcpy(WIFI_SSID_3, buf);
-                    strcpy(SS2userName,"MQTT_LOCAL");
-                    strcpy(SS2dateTime,"00/00/00");
-                    utils_nvs_set_str(NVS_SSID_3_KEY, WIFI_SSID_3);
-                    utils_nvs_set_str(NVS_SS2_USERNAME, SS2userName);
-                    utils_nvs_set_str(NVS_SS2_DATETIME, SS2dateTime);
-                    publish_message("*SS2-OK#", client);
-                    tx_event_pending = 1;
-                }
-                else if(strncmp(data, "*PW2:", 5) == 0){
-                    sscanf(data, "*PW2:%[^#]#", buf);
-                    strcpy(WIFI_PASS_3, buf);
-                    strcpy(PW2userName,"MQTT_LOCAL");
-                    strcpy(PW2dateTime,"00/00/00");
-                    utils_nvs_set_str(NVS_PASS_3_KEY, WIFI_PASS_3);
-                    utils_nvs_set_str(NVS_PW2_USERNAME, PW2userName);
-                    utils_nvs_set_str(NVS_PW2_DATETIME, PW2dateTime);
-                    publish_message("*PW2-OK#", client);
-                    tx_event_pending = 1;
-                }  
+               
                 else {
                     strcpy(InputVia,"MQTT");
                     AnalyzeInputPkt(data,InputVia);
