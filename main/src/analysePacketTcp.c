@@ -225,30 +225,13 @@ void tcpip_client_task(){
                             
                             // added *HBT# on 251224
                           
-                               if(strncmp(rx_buffer, "*D:",3) == 0){
-                                    char tempBuf[100];
-                                        sscanf(rx_buffer, "*D:%[^:#]#",tempBuf);
-                                        strcpy(UniqueTimeStamp,tempBuf);
-                                        sprintf(payload, "*D-OK,%s#",UniqueTimeStamp);
-                                        utils_nvs_set_str(NVS_UNIX_TS,UniqueTimeStamp);
-                                       
-                                        send(sock, payload, strlen(payload), 0);
-                                 }
-                                  else if(strncmp(rx_buffer, "*QR:",4) == 0){
-                                        char tempBuf[100];
-                                        sscanf(rx_buffer, "*QR:%[^:#]#",tempBuf);
-                                        strcpy(QrString,tempBuf);
-                                        sprintf(payload, "*QR-OK,%s#",QrString);
-                                        utils_nvs_set_str(NVS_QR_STRING,QrString);
-                                       
-                                        send(sock, payload, strlen(payload), 0);
-                                        uart_write_string_ln(payload);
-                                 }
+                             
+                                
                                
                                 
                               
                           
-                                else if(strncmp(rx_buffer, "*INH:", 5) == 0){
+                                if(strncmp(rx_buffer, "*INH:", 5) == 0){
                                         sscanf(rx_buffer, "*INH:%[^:]:%[^:]:%d#",INHuserName,INHdateTime, &INHOutputValue);
                                         if (INHOutputValue != 0)
                                         {
@@ -653,46 +636,7 @@ void tcpip_client_task(){
 
 
 
-                                else if(strncmp(rx_buffer, "*V:", 3) == 0){
-                                    if (edges == 0) 
-                                    {
-                                        AckPulseReceived = 0;
-                                        sscanf(rx_buffer, "*V:%[^:]:%d:%d#",TID,&pin,&pulses);
-                                        // if (INHInputValue == INHIBITLevel)
-                                        // {
-                                        // //   ESP_LOGI(TAG, "*UNIT DISABLED#");
-                                        // //   send(sock, "*VEND DISABLED#", strlen("*VEND DISABLED#"), 0);
-                                            
-                                        // }
-                                        // else if (TID != LastTID)
-
-                                
-                                        if (memcmp(TID, LastTID, 100) != 0)
-                                        {
-                                            uart_write_string_ln("*VENDING#");
-                                            edges = pulses*2;  // doubled edges
-                                            // strcpy(WIFI_PASS_2, buf);
-                                            // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
-                                            ESP_LOGI(TAG, "*V-OK,%s,%d,%d#",TID,pin,pulses);
-                                            sprintf(payload, "*V-OK,%s,%d,%d#", TID,pin,pulses); //actual when in production
-                                            send(sock, payload, strlen(payload), 0);
-                                            vTaskDelay(1000/portTICK_PERIOD_MS);
-                                            sprintf(payload, "*T-OK,%s,%d,%d#",TID,pin,pulses); //actual when in production
-                                            ESP_LOGI(TAG, "*T-OK,%s,%d,%d#",TID,pin,pulses);
-                                            send(sock, payload, strlen(payload), 0);
-                                            tx_event_pending = 1;
-                                            Totals[pin-1] += pulses;
-                                            strcpy(LastTID,TID);
-                                            utils_nvs_set_str(NVS_LAST_TID,LastTID);
-                                        }
-                                        else
-                                        {
-                                          ESP_LOGI(TAG, "Duplicate TID");
-                                          send(sock, "*DUP TID#", strlen("*DUP TID#"), 0);
-                                        }  
-
-                                    }
-                                }
+                               
 
 
 

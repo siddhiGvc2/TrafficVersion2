@@ -142,69 +142,7 @@ void process_uart_packet(const char *pkt){
     
       
     }
-     else if(strncmp(pkt, "*D:",3) == 0){
-        sscanf(pkt, "*D:%[^:#]#",UniqueTimeStamp);
-        utils_nvs_set_str(NVS_UNIX_TS,UniqueTimeStamp);
-        sprintf(buffer,"*D-OK,%s#",UniqueTimeStamp); 
-        uart_write_string_ln(buffer);
-    }
-      
-    else if(strncmp(pkt, "*V:", 3) == 0){
-        if(edges==0)
-        {
-           sscanf(pkt, "*V:%[^:]:%d:%d#",TID,&pin,&pulses);
-            // if (INHInputValue == INHIBITLevel)
-            // {
-            //     ESP_LOGI(TAG, "*UNIT DISABLED#");
-            //     char buffer[100]; 
-            //     sprintf(buffer, "*VEND DISABLED#");
-            //     uart_write_string_ln(buffer);
-                
-            // }
-            //  else if (TID != LastTID)
-            if (memcmp(TID, LastTID, 100) != 0)
-            {
-                edges = pulses*2;  // doubled edges
-                // strcpy(WIFI_PASS_2, buf);
-                // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
-                ESP_LOGI(TAG, "*V-OK,%s,%d,%d#",TID,pin,pulses);
-                 
-                sprintf(buffer, "*V-OK,%s,%d,%d#", TID,pin,pulses); //actual when in production
-                uart_write_string_ln(buffer);
-                vTaskDelay(1000/portTICK_PERIOD_MS);
-                sprintf(buffer, "*T-OK,%s,%d,%d#",TID,pin,pulses); //actual when in production
-                ESP_LOGI(TAG, "*T-OK,%s,%d,%d#",TID,pin,pulses);
-                uart_write_string_ln(buffer);
-                tx_event_pending = 1;
-                Totals[pin-1] += pulses;
-                strcpy(LastTID,TID);
-                utils_nvs_set_str(NVS_LAST_TID,LastTID);
-            }
-            else
-            {
-                ESP_LOGI(TAG, "Duplicate TID");
-           
-                
-                sprintf(buffer,  "*DUP TID#");
-                uart_write_string_ln(buffer);
-            }  
-      
-      
-        }
-    
-      
-    }
-     else if(strncmp(pkt, "*QR:",4) == 0){
-            char tempBuf[100];
-            sscanf(pkt, "*QR:%[^:#]#",tempBuf);
-            strcpy(QrString,tempBuf);
-            sprintf(buffer, "*QR-OK,%s#",QrString);
-            utils_nvs_set_str(NVS_QR_STRING,QrString);
-            uart_write_string_ln(payload);
-        }
-       
-     
-        
+   
    
     else if(strncmp(pkt, "*SS:", 4) == 0){
         sscanf(pkt, "*SS:%[^#]#",buf);
