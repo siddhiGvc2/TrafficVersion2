@@ -509,14 +509,14 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         else if(strcmp(InputVia, "UART") == 0)
         {
             sscanf(rx_buffer, "*SS1:%[^#]#",WIFI_SSID_2);
-            strcpy(SSuserName,"LOCAL");
-            strcpy(SSdateTime,"00/00/00");
+            strcpy(SS1userName,"LOCAL");
+            strcpy(SS1dateTime,"00/00/00");
         }
         else if(strcmp(InputVia, "MQTT") == 0)
         {
             sscanf(rx_buffer, "*SS1:%[^#]#", WIFI_SSID_2);
-            strcpy(SSuserName,"MQTT_LOCAL");
-            strcpy(SSdateTime,"00/00/00");
+            strcpy(SS1userName,"MQTT_LOCAL");
+            strcpy(SS1dateTime,"00/00/00");
         }
 
            // Save the values to non-volatile storage
@@ -558,14 +558,14 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         else if(strcmp(InputVia, "UART") == 0)
         {
             sscanf(rx_buffer, "*SS2:%[^#]#",WIFI_SSID_3);
-            strcpy(SSuserName,"LOCAL");
-            strcpy(SSdateTime,"00/00/00");
+            strcpy(SS2userName,"LOCAL");
+            strcpy(SS2dateTime,"00/00/00");
         }
         else if(strcmp(InputVia, "MQTT") == 0)
         {
             sscanf(rx_buffer, "*SS2:%[^#]#", WIFI_SSID_3);
-            strcpy(SSuserName,"MQTT_LOCAL");
-            strcpy(SSdateTime,"00/00/00");
+            strcpy(SS2userName,"MQTT_LOCAL");
+            strcpy(SS2dateTime,"00/00/00");
         }
 
            // Save the values to non-volatile storage
@@ -607,14 +607,14 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         else if(strcmp(InputVia, "UART") == 0)
         {
             sscanf(rx_buffer, "*PW:%[^#]#",WIFI_PASS_1);
-            strcpy(SSuserName,"LOCAL");
-            strcpy(SSdateTime,"00/00/00");
+            strcpy(PWuserName,"LOCAL");
+            strcpy(PWdateTime,"00/00/00");
         }
         else if(strcmp(InputVia, "MQTT") == 0)
         {
             sscanf(rx_buffer, "*PW:%[^#]#",WIFI_PASS_1);
-            strcpy(SSuserName,"MQTT_LOCAL");
-            strcpy(SSdateTime,"00/00/00");
+            strcpy(PWuserName,"MQTT_LOCAL");
+            strcpy(PWdateTime,"00/00/00");
         }
 
            // Save the values to non-volatile storage
@@ -656,14 +656,14 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         else if(strcmp(InputVia, "UART") == 0)
         {
             sscanf(rx_buffer, "*PW1:%[^#]#",WIFI_PASS_2);
-            strcpy(SSuserName,"LOCAL");
-            strcpy(SSdateTime,"00/00/00");
+            strcpy(PW1userName,"LOCAL");
+            strcpy(PW1dateTime,"00/00/00");
         }
         else if(strcmp(InputVia, "MQTT") == 0)
         {
             sscanf(rx_buffer, "*PW1:%[^#]#",WIFI_PASS_2);
-            strcpy(SSuserName,"MQTT_LOCAL");
-            strcpy(SSdateTime,"00/00/00");
+            strcpy(PW1userName,"MQTT_LOCAL");
+            strcpy(PW1dateTime,"00/00/00");
         }
 
            // Save the values to non-volatile storage
@@ -705,14 +705,14 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         else if(strcmp(InputVia, "UART") == 0)
         {
             sscanf(rx_buffer, "*PW2:%[^#]#",WIFI_PASS_3);
-            strcpy(SSuserName,"LOCAL");
-            strcpy(SSdateTime,"00/00/00");
+            strcpy(PW2userName,"LOCAL");
+            strcpy(PW2dateTime,"00/00/00");
         }
         else if(strcmp(InputVia, "MQTT") == 0)
         {
             sscanf(rx_buffer, "*PW2:%[^#]#",WIFI_PASS_3);
-            strcpy(SSuserName,"MQTT_LOCAL");
-            strcpy(SSdateTime,"00/00/00");
+            strcpy(PW2userName,"MQTT_LOCAL");
+            strcpy(PW2dateTime,"00/00/00");
         }
 
            // Save the values to non-volatile storage
