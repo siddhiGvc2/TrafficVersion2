@@ -118,44 +118,7 @@ void process_uart_packet(const char *pkt){
     }
    
    
-    else if(strncmp(pkt, "*SS:", 4) == 0){
-        sscanf(pkt, "*SS:%[^#]#",buf);
-        //uart_write_string_ln(buf);
-        strcpy(WIFI_SSID_1, buf);
-        utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
-        uart_write_string_ln("*SS-OK#");
-        tx_event_pending = 1;
-    }else if(strncmp(pkt, "*SS1:", 5) == 0){
-        sscanf(pkt, "*SS1:%[^#]#", buf);
-        strcpy(WIFI_SSID_2, buf);
-        utils_nvs_set_str(NVS_SSID_2_KEY, WIFI_SSID_2);
-        uart_write_string_ln("*SS1-OK#");
-        tx_event_pending = 1;
-    }else if(strncmp(pkt, "*SS2:", 5) == 0){
-        sscanf(pkt, "*SS2:%[^#]#", buf);
-        strcpy(WIFI_SSID_3, buf);
-        utils_nvs_set_str(NVS_SSID_3_KEY, WIFI_SSID_3);
-        uart_write_string_ln("*SS2-OK#");
-        tx_event_pending = 1;
-    }else if(strncmp(pkt, "*PW:", 4) == 0){
-        sscanf(pkt, "*PW:%[^#]#", buf);
-        strcpy(WIFI_PASS_1, buf);
-        utils_nvs_set_str(NVS_PASS_1_KEY, WIFI_PASS_1);
-        uart_write_string_ln("*PW-OK#");
-        tx_event_pending = 1;
-    }else if(strncmp(pkt, "*PW1:", 5) == 0){
-        sscanf(pkt, "*PW1:%[^#]#", buf);
-        strcpy(WIFI_PASS_2, buf);
-        utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
-        uart_write_string_ln("*PW1-OK#");
-        tx_event_pending = 1;
-    }else if(strncmp(pkt, "*PW2:", 5) == 0){
-        sscanf(pkt, "*PW2:%[^#]#", buf);
-        strcpy(WIFI_PASS_3, buf);
-        utils_nvs_set_str(NVS_PASS_3_KEY, WIFI_PASS_3);
-        uart_write_string_ln("*PW2-OK#");
-        tx_event_pending = 1;
-    }else if(strncmp(pkt, "*URL:", 5) == 0){
+   else if(strncmp(pkt, "*URL:", 5) == 0){
         sscanf(pkt, "*URL:%[^#]#", buf);
         strcpy(FOTA_URL, buf);
         strcpy(URLuserName,"LOCAL");

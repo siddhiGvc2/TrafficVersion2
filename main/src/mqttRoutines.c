@@ -220,23 +220,10 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                        RestartDevice();
                 }
               
-                else  if(strncmp(data, "*SS:", 4) == 0){
-                    
-                    sscanf(data, "*SS:%[^#]#", buf);
-                    strcpy(SSuserName,"MQTT_LOCAL");
-                    strcpy(SSdateTime,"00/00/00");
-                    strcpy(WIFI_SSID_1, buf);
-                    utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
-                    utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
-                    sprintf(payload, "*SS-OK,%s,%s#",SSuserName,SSdateTime);
-                    utils_nvs_set_str(NVS_SS_USERNAME, SSuserName);
-                    utils_nvs_set_str(NVS_SS_DATETIME, SSdateTime);
-                    publish_message(payload, client);
-                    tx_event_pending = 1;
-                }
+              
                 else  if(strncmp(data, "*SN:", 4) == 0){
                     
-                    sscanf(data, "*SS:%[^#]#",buf);
+                    sscanf(data, "*SN:%[^#]#",buf);
                     strcpy(SSuserName,"MQTT_LOCAL");
                     strcpy(SSdateTime,"00/00/00");
                   
@@ -256,43 +243,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                 }
                
               
-                else if(strncmp(data, "*SS1:", 5) == 0){
-                    sscanf(data, "*SS1:%[^#]#", buf);
-                    strcpy(WIFI_SSID_2, buf);
-                    strcpy(SS1userName,"MQTT_LOCAL");
-                    strcpy(SS1dateTime,"00/00/00");
-                    utils_nvs_set_str(NVS_SSID_2_KEY, WIFI_SSID_2);
-                    sprintf(payload, "*SS1-OK,%s,%s#",SS1userName,SS1dateTime);
-                    utils_nvs_set_str(NVS_SS1_USERNAME, SS1userName);
-                    utils_nvs_set_str(NVS_SS1_DATETIME, SS1dateTime);
-                    publish_message(payload, client);
-                    tx_event_pending = 1;
-                }
-                else if(strncmp(data, "*PW:", 4) == 0){
-                    sscanf(data, "*PW:%[^#]#", buf);
-                    strcpy(WIFI_PASS_1, buf);
-                    strcpy(PWuserName,"MQTT_LOCAL");
-                    strcpy(PWdateTime,"00/00/00");
-                    utils_nvs_set_str(NVS_PASS_1_KEY, WIFI_PASS_1);
-                    sprintf(payload, "*PW-OK,%s,%s#",PWuserName,PWdateTime);
-                    utils_nvs_set_str(NVS_PW_USERNAME, PWuserName);
-                    utils_nvs_set_str(NVS_PW_DATETIME, PWdateTime);
-                    
-                    // send(sock, "*PW-OK#", strlen("*PW-OK#"), 0);
-                    tx_event_pending = 1;
-                }
-                else if(strncmp(data, "*PW1:", 5) == 0){
-                    sscanf(data, "*PW1:%[^#]#", buf);
-                    strcpy(WIFI_PASS_2, buf);
-                    strcpy(PW1userName,"MQTT_LOCAL");
-                    strcpy(PW1dateTime,"00/00/00");
-                    utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
-                    sprintf(payload, "*PW1-OK,%s,%s#",PW1userName,PW1dateTime);
-                    utils_nvs_set_str(NVS_PW1_USERNAME, PW1userName);
-                    utils_nvs_set_str(NVS_PW1_DATETIME, PW1dateTime);
-                    publish_message(payload, client);
-                    tx_event_pending = 1;
-                }
+               
                 else if(strncmp(data, "*URL:", 5) == 0){
                     sscanf(data, "*URL:%[^#]#",buf);
                     strcpy(FOTA_URL, buf);
