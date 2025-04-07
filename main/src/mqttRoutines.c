@@ -67,6 +67,11 @@ void publish_message(const char *message, esp_mqtt_client_handle_t client) {
     ESP_LOGI(TAG, "Published SIP message: %s", message);
 }
 
+void mqtt_publish_msg(const char *message)
+{
+    publish_message(message, client); 
+}
+
 void Publisher_Task(void *params)
 {
   while (true)

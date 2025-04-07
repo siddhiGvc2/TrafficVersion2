@@ -32,9 +32,31 @@
 
 
 
+void SendResponse(const char *Message,const char *OutputVia)
+{
+    if(strcmp(OutputVia, "TCP") == 0)
+    {
+        send(sock, Message, strlen(Message), 0);
+    }
+    else if(strcmp(OutputVia, "UART") == 0)
+    {
+        uart_write_string_ln(Message);
+    }
+    else if(strcmp(OutputVia, "MQTT") == 0)
+    {
+        if(MQTTRequired)
+        {
+            mqtt_publish_msg(Message);
+        }
+    }
+}
+
+
 void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 {
     const char payload[400];
     sprintf(payload,"Received command %s from %s",rx_buffer,InputVia);
     uart_write_string_ln(payload);
+    sprintf(payload,"RESPONSE-OK");
+    SendResponse(payload,InputVia);
 }
