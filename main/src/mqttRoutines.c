@@ -254,52 +254,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     sprintf(payload, "*INH-IN,%s,%s,%d,%d#",INHuserName,INHdateTime,INHInputValue,INHOutputValue); 
                     publish_message(payload, client);
                 }
-                 else if(strncmp(data, "*INH:", 5) == 0){
-                        sscanf(data, "*INH:%d#",&INHOutputValue);
-                        strcpy(INHuserName,"MQTT_LOCAL");
-                        strcpy(INHdateTime,"00/00/00");
-                        if (INHOutputValue != 0)
-                        {
-                            INHOutputValue = 1;
-                            gpio_set_level(CINHO, 0);
-                        }
-                        else
-                        {
-                                gpio_set_level(CINHO, 1);
-                        }
-                        ESP_LOGI (TAG, "Set INH Output as %d",INHOutputValue);
-                        sprintf(payload, "*INH-DONE,%s,%s,%d#",INHuserName,INHdateTime,INHOutputValue);
-                        utils_nvs_set_str(NVS_INH_USERNAME, INHuserName);
-                        utils_nvs_set_str(NVS_INH_DATETIME, INHdateTime);
-                        publish_message(payload, client);
-                        // sprintf(payload, "*INH-DONE,%d#",INHOutputValue); //actual when in production
-                        // send(sock, payload, strlen(payload), 0);
-                        utils_nvs_set_int(NVS_INH_KEY, INHOutputValue);
-                }
-                else if(strncmp(data, "*CA:", 4) == 0){
-                    sscanf(data, "*CA:%d:%d#",&numValue,&polarity);
-                    strcpy(CAuserName,"MQTT_LOCAL");
-                    strcpy(CAdateTime,"00/00/00");
-                    ESP_LOGI(TAG, "Generate @ numValue %d polarity %d",numValue,polarity);
-                    sprintf(payload, "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,numValue,polarity);
-                    utils_nvs_set_str(NVS_CA_USERNAME, CAuserName);
-                    utils_nvs_set_str(NVS_CA_DATETIME, CAdateTime);
-                    ESP_LOGI(TAG,"CA Values Saved %s,%s",CAuserName,CAdateTime);
-                    publish_message(payload, client);
-                    if (numValue<10)
-                        numValue = 25;
-                    if (numValue>100)
-                        numValue = 100;
-                    // possible values are 0 and 1        
-                    if (polarity>0)
-                        polarity = 1;    
-                    polarity = 0; // hard code polairty to 0
-                    pulseWitdh=numValue;
-                    SignalPolarity=polarity;
-                    tx_event_pending = 1;
-                    Out4094(0x00);
-                    utils_nvs_set_int(NVS_CA_KEY, numValue*2+polarity);
-                }
+               
+              
                 else if(strncmp(data, "*SS1:", 5) == 0){
                     sscanf(data, "*SS1:%[^#]#", buf);
                     strcpy(WIFI_SSID_2, buf);
@@ -399,17 +355,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     tx_event_pending = 1;
                     http_fota();
                 }
-                 else if(strncmp(data, "*SP:", 4) == 0){
-                        sscanf(data, "*SP:%d#",&jumperPort);
-                        strcpy(SPuserName,"MQTT_LOCAL");
-                        strcpy(SPdateTime,"00/00/00");
-                        sprintf(payload, "*SP-OK,%s,%s,%d#",SPuserName,SPdateTime,jumperPort);
-                        utils_nvs_set_str(NVS_SP_USERNAME, SPuserName);
-                        utils_nvs_set_str(NVS_SP_DATETIME, SPdateTime);
-                        publish_message(payload, client);
-                        utils_nvs_set_int(NVS_SERVER_PORT_KEY_JUMPER, jumperPort);
-
-                } 
+               
                 else if(strncmp(data, "*SS2:", 5) == 0){
                     sscanf(data, "*SS2:%[^#]#",buf);
                     strcpy(WIFI_SSID_3, buf);

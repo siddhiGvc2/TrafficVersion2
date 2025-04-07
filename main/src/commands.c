@@ -260,11 +260,173 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 
         }
     }
+// All settings commands
+    else if(strncmp(rx_buffer, "*INH:", 5) == 0){
+        if(strcmp(InputVia, "TCP") == 0)
+        {
+            sscanf(rx_buffer, "*INH:%[^:]:%[^:]:%d#",INHuserName,INHdateTime, &INHOutputValue);
+          
+        }
+        else if(strcmp(InputVia, "UART") == 0)
+        {
+            sscanf(rx_buffer, "*INH:%d#",&INHOutputValue);
+            strcpy(INHuserName,"LOCAL");
+            strcpy(INHdateTime,"00/00/00");
+        }
+        else if(strcmp(InputVia, "MQTT") == 0)
+        {
+            sscanf(rx_buffer, "*INH:%d#",&INHOutputValue);
+            strcpy(INHuserName,"MQTT_LOCAL");
+            strcpy(INHdateTime,"00/00/00");
+        }
+
+        if (INHOutputValue != 0)
+        {
+            INHOutputValue = 1;
+            gpio_set_level(CINHO, 0);
+        }
+        else
+        {
+              gpio_set_level(CINHO, 1);
+        }
+        ESP_LOGI (InputVia, "Set INH Output as %d",INHOutputValue);
+        sprintf(payload, "*INH-DONE,%s,%s,%d#",SSuserName,SSdateTime,INHOutputValue);
+        utils_nvs_set_str(NVS_INH_USERNAME, INHuserName);
+        utils_nvs_set_str(NVS_INH_DATETIME, INHdateTime);
+        SendResponse(payload,InputVia);
+        utils_nvs_set_int(NVS_INH_KEY, INHOutputValue);
+     }  
+     else if(strncmp(rx_buffer, "*PT:", 4) == 0){
+        if(strcmp(InputVia, "TCP") == 0)
+        {
+            char tempUserName[64], tempDateTime[64], tempBuf[64] ;
+            if (sscanf(rx_buffer, "*PT:%[^:]:%[^:]:%[^:#]#", tempUserName, tempDateTime, tempBuf) == 3) {
+            // Check if any of the parsed values are empty
+            if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0 ) {
+                // Send error message if any required parameters are missing or invalid
+                const char* errorMsg = "Error: Missing or invalid parameters";
+                SendResponse(errorMsg,InputVia);
+            }
+            else{
+        
+            strcpy(PTuserName, tempUserName);
+            strcpy(PTdateTime, tempDateTime);
+            strcpy(PassThruValue, tempBuf);
+             }
+            }
+        }
+        else if(strcmp(InputVia,"UART") == 0)
+        {
+            sscanf(rx_buffer, "*PT:%[^#]#",PassThruValue);
+            strcpy(PTuserName, "LOCAL");
+            strcpy(PTdateTime, "00/00/00");
+        }
+        else if(strcmp(InputVia,"MQTT") == 0)
+        {
+            sscanf(rx_buffer, "*PT:%[^#]#",PassThruValue);
+            strcpy(PTuserName, "MQTT_LOCAL");
+            strcpy(PTdateTime, "00/00/00");
+        }
+
+        if (strstr(PassThruValue, "Y") == NULL && strstr(PassThruValue, "N") == NULL) {
+            strcpy(PassThruValue, "Y");
+        }
+
+        ESP_LOGI (InputVia, "Pass Thru %s",PassThruValue);
+        sprintf(payload, "*PT-OK,%s,%s,%s#",PTuserName,PTdateTime,PassThruValue);
+        utils_nvs_set_str(NVS_PT_USERNAME, PTuserName);
+        utils_nvs_set_str(NVS_PT_DATETIME, PTdateTime);
+        SendResponse(payload,InputVia);
+        utils_nvs_set_str(NVS_PASS_THRU, PassThruValue);
+
+     }
+     else if(strncmp(rx_buffer, "*SP:", 4) == 0){
+        if(strcmp(InputVia, "TCP") == 0)
+        {
+            sscanf(rx_buffer, "*SP:%[^:]:%[^:]:%d#",SPuserName,SPdateTime, &jumperPort);
+        }
+        else if(strcmp(InputVia, "UART") == 0)
+        {
+            sscanf(rx_buffer, "*SP:%d#",&jumperPort);
+            strcpy(SPuserName,"LOCAL");
+            strcpy(SPdateTime,"00/00/00");
+        }
+        else if(strcmp(InputVia, "MQTT") == 0)
+        {
+            sscanf(rx_buffer, "*SP:%d#",&jumperPort);
+            strcpy(SPuserName,"MQTT_LOCAL");
+            strcpy(SPdateTime,"00/00/00");
+        }
+
+        sprintf(payload, "*SP-OK,%s,%s,%d#",SPuserName,SPdateTime,jumperPort);
+        utils_nvs_set_str(NVS_SP_USERNAME, SPuserName);
+        utils_nvs_set_str(NVS_SP_DATETIME, SPdateTime);
+        SendResponse(payload,InputVia);
+        utils_nvs_set_int(NVS_SERVER_PORT_KEY_JUMPER, jumperPort);
 
 
+     }
+     else if(strncmp(rx_buffer, "*CA:", 4) == 0){
+        if(strcmp(InputVia, "TCP") == 0)
+        {
+            char tempUserName[64], tempDateTime[64], tempBuf[64],tempBuf2[64];
+            if (sscanf(rx_buffer, "*CA:%[^:]:%[^:]:%[^:]:%[^:#]#", tempUserName, tempDateTime, tempBuf,tempBuf2) == 4) {
+                // Check if any of the parsed values are empty
+                if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0 || strlen(tempBuf2) == 0) {
+                    // Send error message if any required parameters are missing or invalid
+                    const char* errorMsg = "Error: Missing or invalid parameters";
+                    SendResponse(errorMsg,InputVia);
+                }
+                else{
+                    strcpy(CAuserName, tempUserName);
+                    strcpy(CAdateTime, tempDateTime);
+                    numValue = atoi(tempBuf);
+                    polarity = atoi(tempBuf2);
+                }
+            }
+            else {
+                // Send error message if parsing failed
+                const char* errorMsg = "Error: Invalid format";
+                SendResponse(errorMsg,InputVia);
+            }
+        }
+        else if(strcmp(InputVia, "UART") == 0)
+        {
+            sscanf(rx_buffer, "*CA:%d:%d#",&numValue,&polarity);
+            strcpy(CAuserName,"LOCAL");
+            strcpy(CAdateTime,"00/00/00"); 
+        }
+        else if(strcmp(InputVia, "MQTT") == 0)
+        {
+            sscanf(rx_buffer, "*CA:%d:%d#",&numValue,&polarity);
+            strcpy(CAuserName,"MQTT_LOCAL");
+            strcpy(CAdateTime,"00/00/00");
+        }
 
+      
+     
+       ESP_LOGI(InputVia, "Generate @ numValue %d polarity %d",numValue,polarity);
+       sprintf(payload, "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,numValue,polarity);
+       utils_nvs_set_str(NVS_CA_USERNAME, CAuserName);
+       utils_nvs_set_str(NVS_CA_DATETIME, CAdateTime);
+       ESP_LOGI(InputVia,"CA Values Saved %s,%s",CAuserName,CAdateTime);
+       SendResponse(payload,InputVia);
+       // valid values are between 25 and 100
+       if (numValue<10)
+           numValue = 25;
+       if (numValue>100)
+           numValue = 100;
+       // possible values are 0 and 1        
+       if (polarity>0)
+           polarity = 1;   
+       polarity = 0;     
+       pulseWitdh=numValue;
+       SignalPolarity=polarity;
 
-
+       tx_event_pending = 1;
+       Out4094(0x00);
+       utils_nvs_set_int(NVS_CA_KEY, numValue*2+polarity);
+    }
 
 
 }

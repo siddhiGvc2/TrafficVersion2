@@ -103,35 +103,9 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
         
     }
-     else if(strncmp(pkt, "*PT:", 4) == 0){
-      
-       sscanf(pkt, "*PT:%[^#]#",PassThruValue);
-      
-        strcpy(PTuserName, "LOCAL");
-        strcpy(PTdateTime, "00/00/00");
-        utils_nvs_set_str(NVS_PASS_THRU, PassThruValue);
-        utils_nvs_set_str(NVS_PT_USERNAME,PTuserName);
-        utils_nvs_set_str(NVS_PT_DATETIME,PTdateTime);
-        
-      
-        uart_write_string_ln("*PT-OK#");
-        tx_event_pending = 1;
-        
-    }
-   
     
-    else if(strncmp(pkt, "*CA:", 4) == 0){
-        sscanf(pkt, "*CA:%d:%d#",&numValue,&polarity);
-        strcpy(CAuserName,"LOCAL");
-        strcpy(CAdateTime,"00/00/00");
-        
-        sprintf(buffer,"*CA-OK,%d,%d#",numValue,polarity);
-        utils_nvs_set_str(NVS_CA_USERNAME, CAuserName);
-        utils_nvs_set_str(NVS_CA_DATETIME, CAdateTime);
-       uart_write_string_ln(buffer);
-        tx_event_pending = 1;
-        
-    }
+   
+  
    
      else if(strncmp(pkt, "*RST#", 5) == 0){
     
