@@ -185,7 +185,7 @@ void event_handler(void* arg, esp_event_base_t event_base,
              
         if (MQTTRequired)
         {
-            uart_write_string_ln("MQTT STARTED");
+                uart_write_string_ln("MQTT STARTED");
                 mqtt_app_start();  // connect to MQTT when IP received
                 
         }

@@ -51,6 +51,8 @@ void process_uart_packet(const char *pkt){
     // uart_write_string_ln(buffer);
     // sprintf(payload, "*HBT,%s,%s#", MAC_ADDRESS_ESP,SerialNumber);
     // uart_write_string_ln(payload);
+
+   
       if(strncmp(pkt, "*CA?#", 5) == 0){
        
        sprintf(buffer,"*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity);
@@ -458,18 +460,20 @@ void process_uart_packet(const char *pkt){
     
     
     else{
+      
         uart_write_string_ln(pkt);
-        int l = strlen(pkt);
-        char buff[l+1];
-        /*   *---#  */
+        // int l = strlen(pkt);
+        // char buff[l+1];
+        // /*   *---#  */
 
-        if(extractSubstring(pkt, buff) == true){
-            int l2 = strlen(buff);
-            char b[l2+3];
-            sprintf(b, "*%s#", buff);
-            tcp_ip_client_send_str(b);
-            tx_event_pending = 1;
-        }
+        // if(extractSubstring(pkt, buff) == true){
+        //     int l2 = strlen(buff);
+        //     char b[l2+3];
+        //     sprintf(b, "*%s#", buff);
+        //     tcp_ip_client_send_str(b);
+        //     tx_event_pending = 1;
+        // }
+        AnalyzeInputPkt(pkt);
     }
 }
 

@@ -76,3 +76,7 @@ extern void mqtt_app_start(void);
 // extern void publish_message(const char *, esp_mqtt_client_handle_t *)
 
 
+
+//commands.c
+void AnalyzeInputPkt(const char*);
+

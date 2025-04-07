@@ -898,7 +898,7 @@ void tcpip_client_task(){
                                         
                                     }
                                 else{
-                                    
+                                    AnalyzeInputPkt(rx_buffer);
                                     if(extractSubstring(rx_buffer, buf) == true){
                                         uart_write_string("*");
                                         uart_write_string(buf);

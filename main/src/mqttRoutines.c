@@ -141,8 +141,9 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
             char expected_topic[150];
             sprintf(expected_topic, "GVC/KP/%s", SerialNumber);
-
+           
             if (strcmp(topic, expected_topic) == 0) {
+             
                 if (strcmp(data, "*HBT#") == 0) {
                     ESP_LOGI(TAG, "Heartbeat message received.");
                 } else if (strcmp(data, "SS1:") == 0) {
@@ -535,6 +536,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     tx_event_pending = 1;
                 }  
                 else {
+                    AnalyzeInputPkt(data);
                     ESP_LOGI(TAG, "Unknown message received.");
                 }
             }
