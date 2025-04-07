@@ -460,7 +460,8 @@ void process_uart_packet(const char *pkt){
     
     
     else{
-      
+     
+
         uart_write_string_ln(pkt);
         // int l = strlen(pkt);
         // char buff[l+1];
@@ -473,7 +474,8 @@ void process_uart_packet(const char *pkt){
         //     tcp_ip_client_send_str(b);
         //     tx_event_pending = 1;
         // }
-        AnalyzeInputPkt(pkt);
+        strcpy(InputVia,"UART");
+        AnalyzeInputPkt(pkt,InputVia);
     }
 }
 

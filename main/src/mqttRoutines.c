@@ -536,7 +536,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     tx_event_pending = 1;
                 }  
                 else {
-                    AnalyzeInputPkt(data);
+                    strcpy(InputVia,"MQTT");
+                    AnalyzeInputPkt(data,InputVia);
                     ESP_LOGI(TAG, "Unknown message received.");
                 }
             }

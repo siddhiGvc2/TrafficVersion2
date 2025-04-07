@@ -32,9 +32,9 @@
 
 
 
-void AnalyzeInputPkt(const char *rx_buffer)
+void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 {
     const char payload[400];
-    sprintf(payload,"Received command %s",rx_buffer);
+    sprintf(payload,"Received command %s from %s",rx_buffer,InputVia);
     uart_write_string_ln(payload);
 }

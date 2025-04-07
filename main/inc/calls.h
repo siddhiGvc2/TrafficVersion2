@@ -78,5 +78,5 @@ extern void mqtt_app_start(void);
 
 
 //commands.c
-void AnalyzeInputPkt(const char*);
+void AnalyzeInputPkt(const char*,const char*);
 

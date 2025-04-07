@@ -168,3 +168,6 @@ extern uint8_t led2_gpio_state;
 extern int32_t MQTT_CONNEECTED;
 extern int AckPulseReceived;
 extern int ServerHBTTimeOut;
+
+
+extern char InputVia[200];

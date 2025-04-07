@@ -162,3 +162,6 @@ int AckPulseReceived = 0;
 
 nvs_handle_t utils_nvs_handle;
 int ServerHBTTimeOut = 0; // added on 251224
+
+
+char InputVia[200];
