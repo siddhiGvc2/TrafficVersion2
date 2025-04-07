@@ -583,18 +583,8 @@ void tcpip_client_task(){
                                         send(sock, errorMsg, strlen(errorMsg), 0);
                                     }
                                 }
-                                else if (strncmp(rx_buffer, "*SSID?#", 7) == 0){
-                                sprintf(payload, "*SSID,%s,%s,%d,%s,%s,%s#",SSuserName,SSdateTime,WiFiNumber,WIFI_SSID_1,WIFI_SSID_2,WIFI_SSID_3); 
-                                send(sock, payload, strlen(payload), 0);
-                                tx_event_pending = 1;
-                                }
-                                else if(strncmp(rx_buffer, "*URL?#", 6) == 0){
-                                    ESP_LOGI(TAG,"URL RECEIVED,%s,%s,%s",URLuserName,URLdateTime,FOTA_URL);
-                                 char msg[600];
-                                sprintf(msg,"*URL,%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL); 
-                                send(sock, msg, strlen(msg), 0);
-                                tx_event_pending = 1;
-                                }else if(strncmp(rx_buffer, "*FOTA:", 6) == 0){
+                              
+                               else if(strncmp(rx_buffer, "*FOTA:", 6) == 0){
                                     fotaStatus=1;
                                     send(sock, "*FOTA-OK#", strlen("*FOTA-OK#"), 0);
                                     
@@ -683,12 +673,7 @@ void tcpip_client_task(){
                                         uart_write_string_ln(errorMsg);  
                                     }
                                 }
-                                else if (strncmp(rx_buffer, "*ERASE?", 7) == 0){
-                                char msg[600];
-                                sprintf(msg,"*ERASE,%s,%s,%s#",ERASEuserName,ERASEdateTime,ErasedSerialNumber); 
-                                send(sock, msg, strlen(msg), 0);
-                                   
-                                }
+                             
                                 else if(strncmp(rx_buffer, "*RESTART#", 9) == 0){
                                     send(sock, "*RESTART-OK#", strlen("*RESTART-OK#"), 0);
                                     uart_write_string_ln("*Resetting device#");
@@ -771,29 +756,8 @@ void tcpip_client_task(){
                                         
                                     }
                                 }
-                                // when TC command is received send totals
-
-                                else if(strncmp(rx_buffer, "*TV?#", 5) == 0){
-                                        sprintf(payload, "*TV,%d,%d,%d,%d,%d,%d,%d#", Totals[0],Totals[1],Totals[2],Totals[3],Totals[4],Totals[5],Totals[6]); //actual when in production
-                                        send(sock, payload, strlen(payload), 0);
-                                        ESP_LOGI(TAG, "TV Sending");
-                                        
-                                }
-
-                                else if(strncmp(rx_buffer, "*TC?#", 5) == 0){
-                                        sprintf(payload, "*TC,%s,%d,%d,%d,%d,%d,%d,%d#",UniqueTimeStamp,CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]); //actual when in production
-                                        send(sock, payload, strlen(payload), 0);
-                                        ESP_LOGI(TAG, "*TC,%s,%d,%d,%d,%d,%d,%d,%d#",UniqueTimeStamp, CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6] );
-                                        
-                                }
-                                  else if(strncmp(rx_buffer, "*SIP?#", 6) == 0){
-                                        sprintf(payload, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
-                                        sp_port ); //actual when in production
-                                        send(sock, payload, strlen(payload), 0);
-                                        ESP_LOGI(TAG, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
-                                        sp_port );
-                                        
-                                }
+                              
+                             
                                 else if(strncmp(rx_buffer, "*CC:", 4) == 0){
                                     sscanf(rx_buffer, "*CC:%[^:]:%[^:]:%[^#]#",CCuserName,CCdateTime,UniqueTimeStamp); // changed on 20-12-24 as per EC10
                                         ESP_LOGI(TAG, "*CC-OK#");
@@ -817,29 +781,9 @@ void tcpip_client_task(){
                                         utils_nvs_set_int(NVS_CASH6_KEY, CashTotals[5]);
                                         utils_nvs_set_int(NVS_CASH7_KEY, CashTotals[6]);
                                  }
-                                 // added on 20-12-24 as per EC10
-                                   else if(strncmp(rx_buffer, "*CC?#", 5) == 0){
-                                         sprintf(payload,"*CC,%s,%s,%s#",CCuserName,CCdateTime,UniqueTimeStamp);
-                                        send(sock, payload, strlen(payload), 0);
-                                        tx_event_pending = 1;
-                                      
-                                        
-                                    }
+                               
 
-
-                                else if(strncmp(rx_buffer, "*FW?#", 5) == 0){
-                                        ESP_LOGI(TAG, "*%s#",FWVersion);
-                                        sprintf(payload,"*FW:%s#",FWVersion);
-                                        send(sock, FWVersion, strlen(FWVersion), 0);
-                                        uart_write_string_ln(payload);
-                                        tx_event_pending = 1;
-                                        if (ledpin == 1)
-                                            gpio_set_level(L1, ledstatus);
-                                        if (ledpin == 2)
-                                            gpio_set_level(L2, ledstatus);
-                                        if (ledpin == 3)
-                                            gpio_set_level(L3, ledstatus);
-                                    }
+                             
                                 else if(strncmp(rx_buffer, "*RST:", 5) == 0){
                                         sscanf(rx_buffer, "*RST:%[^:]:%[^#]#",RSTuserName,RSTdateTime);
                                         ESP_LOGI(TAG, "**************Restarting after 3 second*******");

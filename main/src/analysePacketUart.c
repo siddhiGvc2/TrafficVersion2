@@ -203,41 +203,9 @@ void process_uart_packet(const char *pkt){
             uart_write_string_ln(payload);
         }
        
-         else if(strncmp(pkt, "*STATUS?#",9) == 0){
-           
-           
-            if(fotaStatus==1)
-            {
-              sprintf(buffer, "*FOTA#");
-              uart_write_string_ln(buffer);   
-            }
-            else if(serverStatus==0)
-            {
-             sprintf(buffer, "*NOSERVER#");
-             uart_write_string_ln(buffer); 
-            }
-            else if(serverStatus==1){
-              sprintf(buffer, "*QR:%s#",QrString); 
-              uart_write_string_ln(buffer);
-            }
-            
-            
-        }
-
+     
         
-      else if(strncmp(pkt, "*FW?#", 5) == 0){
-         ESP_LOGI(TAG, "*%s#",FWVersion);
-       
-         uart_write_string_ln(FWVersion);
-      
-        tx_event_pending = 1;
-        if (ledpin == 1)
-            gpio_set_level(L1, ledstatus);
-        if (ledpin == 2)
-            gpio_set_level(L2, ledstatus);
-        if (ledpin == 3)
-            gpio_set_level(L3, ledstatus);
-    }
+   
     else if(strncmp(pkt, "*SS:", 4) == 0){
         sscanf(pkt, "*SS:%[^#]#",buf);
         //uart_write_string_ln(buf);
@@ -290,27 +258,9 @@ void process_uart_packet(const char *pkt){
         uart_write_string_ln("*FOTA-OK#");
         tx_event_pending = 1;
         http_fota();
-    }else if(strncmp(pkt, "*URL?#", 6) == 0){
-       
-       sprintf(buffer,"*%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL);
-        uart_write_string_ln(buffer);
-        tx_event_pending = 1;
-    
     }
-//    WIFI_SSID_1,WIFI_SSID_2,WIFI_SSID_3
-    else if(strncmp(pkt, "*SSID?#", 7) == 0){
-        uart_write_string("SSID Current/1/2/3 are - ");
-        uart_write_number(WiFiNumber);
-        uart_write_string(" , ");
-        uart_write_string(WIFI_SSID_1);
-        uart_write_string(" , ");
-        uart_write_string(WIFI_SSID_2);
-        uart_write_string(" , ");
-        uart_write_string_ln(WIFI_SSID_3);
 
-        tx_event_pending = 1;
-    
-    }
+   
      else if(strncmp(pkt, "*TESTON#",8) == 0)
         {
             HardwareTestMode = 1;    
@@ -333,25 +283,8 @@ void process_uart_packet(const char *pkt){
 
     }    
     
-    else if(strncmp(pkt, "*TC?#", 5) == 0){
-      
-        sprintf(buffer, "*TC,%s,%d,%d,%d,%d,%d,%d,%d#", 
-             UniqueTimeStamp,CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]);
-
    
-        uart_write_string_ln(buffer);
-        tx_event_pending = 1;
-    }
-    else if(strncmp(pkt, "*TV?#", 5) == 0){
-       
-        sprintf(buffer, "*TV,%d,%d,%d,%d,%d,%d,%d#", 
-            Totals[0], Totals[1], Totals[2], Totals[3], Totals[4], Totals[5], Totals[6]);
-
    
-        uart_write_string_ln(buffer);
-        tx_event_pending = 1;
-    
-    }
     else if(strncmp(pkt, "*SIP:", 5) == 0){
         sscanf(pkt, "*SIP:%d#",&SipNumber);
         strcpy(SIPuserName,"LOCAL");
@@ -382,15 +315,6 @@ void process_uart_packet(const char *pkt){
         // utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
         // uart_write_string_ln("*SIP-OK#");
         tx_event_pending = 1;
-    } else if(strncmp(pkt, "*SIP?#", 6) == 0){
-        
-       sprintf(buffer,"*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
-                                        sp_port );
-
-   
-        uart_write_string_ln(buffer);
-        tx_event_pending = 1;
-    
     }
     else if (strncmp(pkt, "*ERASE:", 7) == 0){
          sscanf(pkt, "*ERASE:%[^:#]",ErasedSerialNumber);
@@ -413,21 +337,13 @@ void process_uart_packet(const char *pkt){
         }
 
     }
-     else if (strncmp(pkt, "*ERASE?", 7) == 0){
-   
-     sprintf(buffer,"*ERASE,%s,%s,%s#",ERASEuserName,ERASEdateTime,ErasedSerialNumber); 
-      uart_write_string_ln(payload);
-        
-    }
+  
     else if(strncmp(pkt, "*RESTART#", 9) == 0){
         uart_write_string("*RESTART:OK#");
         uart_write_string_ln("*Resetting device#");
         RestartDevice();
     }
-    else if(strncmp(pkt, "*LS?#", 5) == 0){
-        sprintf(payload,"LED State is %d",led_state);
-        uart_write_string_ln(payload);
-    }
+   
     
     
     else{

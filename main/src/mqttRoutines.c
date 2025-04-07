@@ -185,13 +185,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     // send(sock, payload, strlen(payload), 0);
                     tx_event_pending = 1;
                 }
-                else if(strncmp(data, "*SIP?#", 6) == 0){
-                    sprintf(payload, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
-                    sp_port ); //actual when in production
-                     publish_message(payload, client);
-                    ESP_LOGI(TAG, "*SIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,server_ip_addr,
-                    sp_port );
-                }
+            
                  else if(strncmp(data, "*D:",3) == 0){
                     sscanf(data, "*D:%[^:#]#",UniqueTimeStamp);
                     utils_nvs_set_str(NVS_UNIX_TS,UniqueTimeStamp);
@@ -231,13 +225,6 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                         ESP_LOGI(TAG, "*RST-OK#");
                         uart_write_string_ln("*Resetting device#");
                        RestartDevice();
-                }
-                 else if(strncmp(data, "*URL?#", 6) == 0){
-                    ESP_LOGI(TAG,"URL RECEIVED,%s,%s,%s",URLuserName,URLdateTime,FOTA_URL);
-                    char msg[600];
-                    sprintf(msg,"*URL,%s,%s,%s#",URLuserName,URLdateTime,FOTA_URL); 
-                     publish_message(msg, client);
-                    tx_event_pending = 1;
                 }
               
                 else  if(strncmp(data, "*SS:", 4) == 0){
@@ -369,11 +356,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     publish_message(payload, client);
                     tx_event_pending = 1;
                 }
-                else if (strncmp(data, "*SSID?#", 7) == 0){
-                    sprintf(payload, "*SSID,%s,%s,%d,%s,%s,%s#",SSuserName,SSdateTime,WiFiNumber,WIFI_SSID_1,WIFI_SSID_2,WIFI_SSID_3); 
-                    publish_message(payload, client);
-                    tx_event_pending = 1;
-                }
+            
                 else if (strncmp(data, "*ERASE:", 7) == 0){
 
                     sscanf(payload, "*ERASE:%[^:]#",ErasedSerialNumber);
@@ -392,12 +375,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     publish_message("*ERASE-OK#", client);
                     }
                 }
-                 else if (strncmp(data, "*ERASE?", 7) == 0){
-            
-                sprintf(payload,"*ERASE,%s,%s,%s#",ERASEuserName,ERASEdateTime,ErasedSerialNumber); 
-                  publish_message(payload, client);
-                    
-                }
+               
                 else if(strncmp(data, "*RESTART#", 9) == 0){
                     publish_message("*RESTART-OK#", client);
                     uart_write_string_ln("*Resetting device#");
@@ -460,29 +438,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                         
                     }
                 }
-                else if(strncmp(data, "*TV?#", 5) == 0){
-                        sprintf(payload, "*TV,%d,%d,%d,%d,%d,%d,%d#", Totals[0],Totals[1],Totals[2],Totals[3],Totals[4],Totals[5],Totals[6]); //actual when in production
-                        publish_message(payload, client);
-                        ESP_LOGI(TAG, "TV Sending");
-                        
-                }
-                else if(strncmp(data, "*TC?#", 5) == 0){
-                        sprintf(payload, "*TC,%s,%d,%d,%d,%d,%d,%d,%d#",UniqueTimeStamp, CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]); //actual when in production
-                        publish_message(payload, client);
-                        ESP_LOGI(TAG, "*TC,%s,%d,%d,%d,%d,%d,%d,%d#",UniqueTimeStamp, CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6] );
-                        
-                }
-                 else if(strncmp(data, "*FW?#", 5) == 0){
-                    ESP_LOGI(TAG, "*%s#",FWVersion);
-                     publish_message(FWVersion, client);
-                    tx_event_pending = 1;
-                    if (ledpin == 1)
-                        gpio_set_level(L1, ledstatus);
-                    if (ledpin == 2)
-                        gpio_set_level(L2, ledstatus);
-                    if (ledpin == 3)
-                        gpio_set_level(L3, ledstatus);
-                }
+             
                 else if(strncmp(data, "*FOTA:", 6) == 0){
                     strcpy(FOTAuserName,"MQTT_LOCAL");
                     strcpy(FOTAdateTime,"00/00/00");
