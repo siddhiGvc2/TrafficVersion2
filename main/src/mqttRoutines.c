@@ -375,13 +375,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     publish_message("*ERASE-OK#", client);
                     }
                 }
-               
-                else if(strncmp(data, "*RESTART#", 9) == 0){
-                    publish_message("*RESTART-OK#", client);
-                    uart_write_string_ln("*Resetting device#");
-                    tx_event_pending = 1;
-                   RestartDevice();
-                }
+           
                 else if(strncmp(data, "*V:", 3) == 0){
                     if (edges == 0) 
                     {

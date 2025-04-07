@@ -37,6 +37,7 @@ void SendResponse(const char *Message,const char *OutputVia)
     if(strcmp(OutputVia, "TCP") == 0)
     {
         send(sock, Message, strlen(Message), 0);
+        uart_write_string_ln(Message);
     }
     else if(strcmp(OutputVia, "UART") == 0)
     {
@@ -47,6 +48,7 @@ void SendResponse(const char *Message,const char *OutputVia)
         if(MQTTRequired)
         {
             mqtt_publish_msg(Message);
+            uart_write_string_ln(Message);
         }
     }
 }
@@ -59,7 +61,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
     // uart_write_string_ln(payload);
     // sprintf(payload,"RESPONSE-OK");
     // SendResponse(payload,InputVia);
-
+// All Query Command
     if(strncmp(rx_buffer, "*CA?#", 5) == 0){
         sprintf(payload,"*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity);
         SendResponse(payload,InputVia);
@@ -157,6 +159,57 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         SendResponse(payload,InputVia);
         tx_event_pending = 1;
     }
+    else if(strncmp(rx_buffer, "*VS?#",5) == 0){
+                                     
+        sprintf(payload, "*VS,%s,%d#",TID,AckPulseReceived); 
+        SendResponse(payload,InputVia);
+    } 
+    else if(strncmp(rx_buffer, "*INH?#",6) == 0){
+        if (INHInputValue !=0)
+            INHInputValue = 1;
+        ESP_LOGI(InputVia, "INH Values @ numValue %d ",INHInputValue);
+        sprintf(payload, "*INH-IN,%s,%s,%d,%d#",INHuserName,INHdateTime,INHInputValue,INHOutputValue); 
+        SendResponse(payload,InputVia);
+    }     
+    
+
+//All Order Commands
+    else if(strncmp(rx_buffer, "*TESTON#",8) == 0)
+    {
+        HardwareTestMode = 1;    
+        pin = 0;    
+        ESP_LOGI(InputVia, "*Hardware Test Started#");
+        uart_write_string_ln("*Hardware Test Started#");
+        // clear TC also
+        for (int i = 0 ; i < 7 ; i++)
+        {
+            CashTotals[i] = 0;
+        } 
+    } 
+    else if(strncmp(rx_buffer, "*TESTOFF#",9) == 0)
+    {
+        HardwareTestMode = 0;    
+        pin = 0;    
+        ESP_LOGI(InputVia, "*Hardware Test Stopped#");
+        uart_write_string_ln("*Hardware Test Stopped#");
+        RestartDevice();
+
+     } 
+     else if(strncmp(rx_buffer, "*HBT#",5) == 0)
+     {
+            sprintf(payload, "*HBT-OK#");
+            send(sock, payload, strlen(payload), 0);
+            ServerHBTTimeOut = 0;
+            uart_write_string_ln("*SERVER HBT-OK#");
+     }
+     
+     else if(strncmp(rx_buffer, "*RESTART#", 9) == 0){
+        send(sock, "*RESTART-OK#", strlen("*RESTART-OK#"), 0);
+        uart_write_string_ln("*Resetting device#");
+        tx_event_pending = 1;
+        RestartDevice();
+    }
+
 
 
 

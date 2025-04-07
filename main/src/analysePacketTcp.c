@@ -221,36 +221,11 @@ void tcpip_client_task(){
 
                                 // done by siddhi
                                 // totPolarity
-                             if(strncmp(rx_buffer, "*TESTON#",8) == 0)
-                                {
-                                    HardwareTestMode = 1;    
-                                    pin = 0;    
-                                    ESP_LOGI(TAG, "*Hardware Test Started#");
-                                    uart_write_string_ln("*Hardware Test Started#");
-                                    // clear TC also
-                                    for (int i = 0 ; i < 7 ; i++)
-                                    {
-                                        CashTotals[i] = 0;
-                                    } 
-                            }        
-                                else if(strncmp(rx_buffer, "*TESTOFF#",9) == 0)
-                                {
-                                    HardwareTestMode = 0;    
-                                    pin = 0;    
-                                    ESP_LOGI(TAG, "*Hardware Test Stopped#");
-                                    uart_write_string_ln("*Hardware Test Stopped#");
-                                    RestartDevice();
-
-                            }  
+                          
+                            
                             // added *HBT# on 251224
-                               else if(strncmp(rx_buffer, "*HBT#",5) == 0)
-                                {
-                                    sprintf(payload, "*HBT-OK#");
-                                    send(sock, payload, strlen(payload), 0);
-                                    ServerHBTTimeOut = 0;
-                                    uart_write_string_ln("*SERVER HBT-OK#");
-                            }  
-                               else if(strncmp(rx_buffer, "*D:",3) == 0){
+                          
+                               if(strncmp(rx_buffer, "*D:",3) == 0){
                                     char tempBuf[100];
                                         sscanf(rx_buffer, "*D:%[^:#]#",tempBuf);
                                         strcpy(UniqueTimeStamp,tempBuf);
@@ -270,20 +245,9 @@ void tcpip_client_task(){
                                         uart_write_string_ln(payload);
                                  }
                                
-                                  else if(strncmp(rx_buffer, "*VS?#",5) == 0){
-                                     
-                                        sprintf(payload, "*VS,%s,%d#",TID,AckPulseReceived); 
-                                        send(sock, payload, strlen(payload), 0);
-                                 }      
-
+                                
                               
-                                else if(strncmp(rx_buffer, "*INH?#",6) == 0){
-                                        if (INHInputValue !=0)
-                                            INHInputValue = 1;
-                                        ESP_LOGI(TAG, "INH Values @ numValue %d ",INHInputValue);
-                                        sprintf(payload, "*INH-IN,%s,%s,%d,%d#",INHuserName,INHdateTime,INHInputValue,INHOutputValue); 
-                                        send(sock, payload, strlen(payload), 0);
-                                 }
+                          
                                 else if(strncmp(rx_buffer, "*INH:", 5) == 0){
                                         sscanf(rx_buffer, "*INH:%[^:]:%[^:]:%d#",INHuserName,INHdateTime, &INHOutputValue);
                                         if (INHOutputValue != 0)
@@ -674,12 +638,6 @@ void tcpip_client_task(){
                                     }
                                 }
                              
-                                else if(strncmp(rx_buffer, "*RESTART#", 9) == 0){
-                                    send(sock, "*RESTART-OK#", strlen("*RESTART-OK#"), 0);
-                                    uart_write_string_ln("*Resetting device#");
-                                    tx_event_pending = 1;
-                                    RestartDevice();
-                                }
 //                                 start genertaing pulses
 //                                  INPUT  -   *V:{TID},{pin},{Pulses}#
 //                                  *V-OK{TID}:{pin}:{Pulses}#

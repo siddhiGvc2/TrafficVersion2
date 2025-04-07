@@ -261,28 +261,7 @@ void process_uart_packet(const char *pkt){
     }
 
    
-     else if(strncmp(pkt, "*TESTON#",8) == 0)
-        {
-            HardwareTestMode = 1;    
-            pin = 0;    
-            ESP_LOGI(TAG, "*Hardware Test Started#");
-            uart_write_string_ln("*Hardware Test Started#");
-            // clear TC also
-            for (int i = 0 ; i < 7 ; i++)
-            {
-                CashTotals[i] = 0;
-            } 
-    }        
-        else if(strncmp(pkt, "*TESTOFF#",9) == 0)
-        {
-            HardwareTestMode = 0;    
-            pin = 0;    
-            ESP_LOGI(TAG, "*Hardware Test Stopped#");
-            uart_write_string_ln("*Hardware Test Stopped#");
-            RestartDevice();
-
-    }    
-    
+ 
    
    
     else if(strncmp(pkt, "*SIP:", 5) == 0){
@@ -337,13 +316,7 @@ void process_uart_packet(const char *pkt){
         }
 
     }
-  
-    else if(strncmp(pkt, "*RESTART#", 9) == 0){
-        uart_write_string("*RESTART:OK#");
-        uart_write_string_ln("*Resetting device#");
-        RestartDevice();
-    }
-   
+ 
     
     
     else{
