@@ -221,14 +221,7 @@ void tcpip_client_task(){
 
                                 // done by siddhi
                                 // totPolarity
-                                 if(strncmp(rx_buffer, "*CA?#", 5) == 0){
-                                        ESP_LOGI(TAG, "CA Values @ numValue %d polarity %d username %s dateTime %s",pulseWitdh,polarity,CAuserName,CAdateTime);
-                                        
-                                        sprintf(payload, "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity); //actual when in production
-                                        send(sock, payload, strlen(payload), 0);
-                                 }
-
-                                else if(strncmp(rx_buffer, "*TESTON#",8) == 0)
+                             if(strncmp(rx_buffer, "*TESTON#",8) == 0)
                                 {
                                     HardwareTestMode = 1;    
                                     pin = 0;    
@@ -276,23 +269,14 @@ void tcpip_client_task(){
                                         send(sock, payload, strlen(payload), 0);
                                         uart_write_string_ln(payload);
                                  }
-                                  else if(strncmp(rx_buffer, "*QR?#",5) == 0){
-                                     
-                                        sprintf(payload, "*QR-OK,%s#",QrString); 
-                                        send(sock, payload, strlen(payload), 0);
-                                        uart_write_string_ln(payload);
-                                 }      
+                               
                                   else if(strncmp(rx_buffer, "*VS?#",5) == 0){
                                      
                                         sprintf(payload, "*VS,%s,%d#",TID,AckPulseReceived); 
                                         send(sock, payload, strlen(payload), 0);
                                  }      
 
-                                  else if(strncmp(rx_buffer, "*D?#",4) == 0){
-                                     
-                                        sprintf(payload, "*D-OK,%s#",UniqueTimeStamp); 
-                                        send(sock, payload, strlen(payload), 0);
-                                 }      
+                              
                                 else if(strncmp(rx_buffer, "*INH?#",6) == 0){
                                         if (INHInputValue !=0)
                                             INHInputValue = 1;
@@ -349,14 +333,7 @@ void tcpip_client_task(){
                                         }
                                     }
                                 }
-                                  else if(strncmp(rx_buffer, "*PT?#",5) == 0){
-                                    
-                                        ESP_LOGI(TAG, "Pass Thru %s ",PassThruValue);
-                                        sprintf(payload, "*PT,%s,%s,%s#",PTuserName,PTdateTime,PassThruValue); 
-                                        send(sock, payload, strlen(payload), 0);
-                                 }     
-
-
+                                
                                 else if(strncmp(rx_buffer, "*SP:", 4) == 0){
                                         sscanf(rx_buffer, "*SP:%[^:]:%[^:]:%d#",SPuserName,SPdateTime, &jumperPort);
                                          sprintf(payload, "*SP-OK,%s,%s,%d#",SPuserName,SPdateTime,jumperPort);
@@ -891,12 +868,7 @@ void tcpip_client_task(){
                                             tx_event_pending = 1;
                                         
                                     }
-                                    else if(strncmp(rx_buffer, "*SN?#", 5) == 0){
-                                        sprintf(payload, "*SN,%s,%s,%s#",SNuserName,SNdateTime,SerialNumber);
-                                        send(sock, payload, strlen(payload), 0);
-                                        tx_event_pending = 1;
-                                        
-                                    }
+                                 
                                 else{
                                     strcpy(InputVia,"TCP");
                                     AnalyzeInputPkt(rx_buffer,InputVia);

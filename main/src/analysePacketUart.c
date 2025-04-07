@@ -53,13 +53,8 @@ void process_uart_packet(const char *pkt){
     // uart_write_string_ln(payload);
 
    
-      if(strncmp(pkt, "*CA?#", 5) == 0){
-       
-       sprintf(buffer,"*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity);
-
-       uart_write_string_ln(buffer);
-        tx_event_pending = 1;
-    }else if(strncmp(pkt, "*CC#", 4) == 0){
+    
+    if(strncmp(pkt, "*CC#", 4) == 0){
          for (int i = 0 ; i < 7 ; i++)
         {
             Totals[i] = 0;
@@ -123,24 +118,8 @@ void process_uart_packet(const char *pkt){
         tx_event_pending = 1;
         
     }
-       else if(strncmp(pkt, "*PT?#", 5) == 0){
-      
-        sprintf(buffer, "*PT,%s,%s,%s#",PTuserName,PTdateTime,PassThruValue); //actual when in production
-        uart_write_string_ln(buffer);
-      
-      
-        tx_event_pending = 1;
-        
-    }
-     else if(strncmp(pkt, "*SN?#", 5) == 0){
-      
-        sprintf(buffer, "*SN,%s,%s,%s#",SNuserName,SNdateTime,SerialNumber); //actual when in production
-        uart_write_string_ln(buffer);
-      
-      
-        tx_event_pending = 1;
-        
-    }
+   
+    
     else if(strncmp(pkt, "*CA:", 4) == 0){
         sscanf(pkt, "*CA:%d:%d#",&numValue,&polarity);
         strcpy(CAuserName,"LOCAL");
@@ -169,11 +148,7 @@ void process_uart_packet(const char *pkt){
         sprintf(buffer,"*D-OK,%s#",UniqueTimeStamp); 
         uart_write_string_ln(buffer);
     }
-    else if(strncmp(pkt, "*D?#",4) == 0){
-        
-        sprintf(buffer, "*D-OK,%s#",UniqueTimeStamp); 
-        uart_write_string_ln(buffer);
-    }            
+      
     else if(strncmp(pkt, "*V:", 3) == 0){
         if(edges==0)
         {
@@ -227,11 +202,7 @@ void process_uart_packet(const char *pkt){
             utils_nvs_set_str(NVS_QR_STRING,QrString);
             uart_write_string_ln(payload);
         }
-        else if(strncmp(pkt, "*QR?#",5) == 0){
-            
-            sprintf(buffer, "*QR-OK,%s#",QrString); 
-            uart_write_string_ln(buffer);
-        }
+       
          else if(strncmp(pkt, "*STATUS?#",9) == 0){
            
            

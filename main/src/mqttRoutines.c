@@ -198,11 +198,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     sprintf(payload, "*D-OK,%s#",UniqueTimeStamp); 
                     publish_message(payload, client);
                 }  
-                 else if(strncmp(data, "*D?#",4) == 0){
-                    
-                    sprintf(payload,"*D-OK,%s#",UniqueTimeStamp); 
-                    publish_message(payload, client);
-                }  
+             
                 else if(strncmp(data, "*CC#", 4) == 0){
                   
                     ESP_LOGI(TAG, "*CC-OK#");
@@ -243,12 +239,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                      publish_message(msg, client);
                     tx_event_pending = 1;
                 }
-                else if(strncmp(data, "*CA?#", 5) == 0){
-                    ESP_LOGI(TAG, "CA Values @ numValue %d polarity %d username %s dateTime %s",pulseWitdh,polarity,CAuserName,CAdateTime);
-                    
-                    sprintf(payload, "*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity); //actual when in production
-                    publish_message(payload, client);
-                }
+              
                 else  if(strncmp(data, "*SS:", 4) == 0){
                     
                     sscanf(data, "*SS:%[^#]#", buf);
@@ -275,12 +266,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     publish_message(payload, client);
                     tx_event_pending = 1;
                 }
-                else if(strncmp(data, "*SN?#",5) == 0){
-                   
-                    ESP_LOGI(TAG, "SN?# %s ",SerialNumber);
-                    sprintf(payload, "*SN,%s,%s,%s#",SNuserName,SNdateTime,SerialNumber); 
-                    publish_message(payload, client);
-                }
+              
                 else if(strncmp(data, "*INH?#",6) == 0){
                     if (INHInputValue !=0)
                         INHInputValue = 1;
