@@ -186,13 +186,6 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     tx_event_pending = 1;
                 }
             
-                 else if(strncmp(data, "*D:",3) == 0){
-                    sscanf(data, "*D:%[^:#]#",UniqueTimeStamp);
-                    utils_nvs_set_str(NVS_UNIX_TS,UniqueTimeStamp);
-                    sprintf(payload, "*D-OK,%s#",UniqueTimeStamp); 
-                    publish_message(payload, client);
-                }  
-             
                 else if(strncmp(data, "*CC#", 4) == 0){
                   
                     ESP_LOGI(TAG, "*CC-OK#");
@@ -376,44 +369,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                     }
                 }
            
-                else if(strncmp(data, "*V:", 3) == 0){
-                    if (edges == 0) 
-                    {
-                        sscanf(data, "*V:%[^:]:%d:%d#",TID,&pin,&pulses);
-                        // if (INHInputValue == INHIBITLevel)
-                        // {
-                        //     ESP_LOGI(TAG, "*UNIT DISABLED#");
-                        //     publish_message("*VEND DISABLED#", client);
-                            
-                            
-                        // }
-//                        else if (TID != LastTID)
-                         if (memcmp(TID, LastTID, 100) != 0)
-                        {
-                            edges = pulses*2;  // doubled edges
-                            // strcpy(WIFI_PASS_2, buf);
-                            // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
-                            ESP_LOGI(TAG, "*V-OK,%s,%d,%d#",TID,pin,pulses);
-                            sprintf(payload, "*V-OK,%s,%d,%d#", TID,pin,pulses); //actual when in production
-                            publish_message(payload, client);
-                            vTaskDelay(1000/portTICK_PERIOD_MS);
-                            sprintf(payload, "*T-OK,%s,%d,%d#",TID,pin,pulses); //actual when in production
-                            ESP_LOGI(TAG, "*T-OK,%s,%d,%d#",TID,pin,pulses);
-                            publish_message(payload, client);
-                            tx_event_pending = 1;
-                            Totals[pin-1] += pulses;
-                            strcpy(LastTID,TID);
-                            utils_nvs_set_str(NVS_LAST_TID,LastTID);
-                        }
-                        else
-                        {
-                            ESP_LOGI(TAG, "Duplicate TID");
-                            publish_message("*DUP TID#", client);
-                          
-                        }  
-
-                    }
-                }
+              
                 else if(strncmp(data, "*SL:", 4) == 0){
                     if (edges == 0)
                     {

@@ -231,27 +231,8 @@ void tcpip_client_task(){
                                 
                               
                           
-                                if(strncmp(rx_buffer, "*INH:", 5) == 0){
-                                        sscanf(rx_buffer, "*INH:%[^:]:%[^:]:%d#",INHuserName,INHdateTime, &INHOutputValue);
-                                        if (INHOutputValue != 0)
-                                        {
-                                            INHOutputValue = 1;
-                                            gpio_set_level(CINHO, 0);
-                                        }
-                                        else
-                                        {
-                                              gpio_set_level(CINHO, 1);
-                                        }
-                                        ESP_LOGI (TAG, "Set INH Output as %d",INHOutputValue);
-                                        sprintf(payload, "*INH-DONE,%s,%s,%d#",SSuserName,SSdateTime,INHOutputValue);
-                                        utils_nvs_set_str(NVS_INH_USERNAME, INHuserName);
-                                        utils_nvs_set_str(NVS_INH_DATETIME, INHdateTime);
-                                        send(sock, payload, strlen(payload), 0);
-                                        // sprintf(payload, "*INH-DONE,%d#",INHOutputValue); //actual when in production
-                                        // send(sock, payload, strlen(payload), 0);
-                                        utils_nvs_set_int(NVS_INH_KEY, INHOutputValue);
-                                }   
-                                 else if(strncmp(rx_buffer, "*PT:", 4) == 0){
+                               
+                                 if(strncmp(rx_buffer, "*PT:", 4) == 0){
                                         char tempUserName[64], tempDateTime[64], tempBuf[64] ;
                                          if (sscanf(rx_buffer, "*PT:%[^:]:%[^:]:%[^:#]#", tempUserName, tempDateTime, tempBuf) == 3) {
                                         // Check if any of the parsed values are empty

@@ -209,7 +209,58 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         tx_event_pending = 1;
         RestartDevice();
     }
-   
+    else if(strncmp(rx_buffer, "*D:",3) == 0){
+             char tempBuf[100];
+            sscanf(rx_buffer, "*D:%[^:#]#",tempBuf);
+            strcpy(UniqueTimeStamp,tempBuf);
+            sprintf(payload, "*D-OK,%s#",UniqueTimeStamp);
+            utils_nvs_set_str(NVS_UNIX_TS,UniqueTimeStamp);
+            SendResponse(payload,InputVia);
+     }
+     else if(strncmp(rx_buffer, "*QR:",4) == 0){
+        char tempBuf[100];
+        sscanf(rx_buffer, "*QR:%[^:#]#",tempBuf);
+        strcpy(QrString,tempBuf);
+        sprintf(payload, "*QR-OK,%s#",QrString);
+        utils_nvs_set_str(NVS_QR_STRING,QrString);
+       
+        SendResponse(payload,InputVia);
+        
+     }
+     else if(strncmp(rx_buffer, "*V:", 3) == 0){
+        if (edges == 0) 
+        {
+            AckPulseReceived = 0;
+            sscanf(rx_buffer, "*V:%[^:]:%d:%d#",TID,&pin,&pulses);
+    
+            if (memcmp(TID, LastTID, 100) != 0)
+            {
+                uart_write_string_ln("*VENDING#");
+                edges = pulses*2;  // doubled edges
+                // strcpy(WIFI_PASS_2, buf);
+                // utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
+                ESP_LOGI(InputVia, "*V-OK,%s,%d,%d#",TID,pin,pulses);
+                sprintf(payload, "*V-OK,%s,%d,%d#", TID,pin,pulses); //actual when in production
+                SendResponse(payload,InputVia);
+                vTaskDelay(1000/portTICK_PERIOD_MS);
+                sprintf(payload, "*T-OK,%s,%d,%d#",TID,pin,pulses); //actual when in production
+                ESP_LOGI(InputVia, "*T-OK,%s,%d,%d#",TID,pin,pulses);
+                SendResponse(payload,InputVia);
+                tx_event_pending = 1;
+                Totals[pin-1] += pulses;
+                strcpy(LastTID,TID);
+                utils_nvs_set_str(NVS_LAST_TID,LastTID);
+            }
+            else
+            {
+              ESP_LOGI(InputVia, "Duplicate TID");
+              SendResponse("*DUP TID#",InputVia);
+              
+            }  
+
+        }
+    }
+
 
 
 
