@@ -54,7 +54,12 @@ int32_t MQTT_CONNEECTED = 0;
  esp_mqtt_client_handle_t client = NULL;
 
  
+void RetryMqtt (void)
+{
+    if (MQTT_CONNECTED == 0)
+        esp_mqtt_client_start(client); 
 
+}
 
 void publish_message(const char *message, esp_mqtt_client_handle_t client) {
     // Publish the provided message to the MQTT topic
@@ -116,7 +121,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
         MQTT_CONNEECTED = 1;  // Ensure MQTT_CONNECTED is defined
         
-      
+        set_led_state(EVERYTHING_OK_LED);
         sprintf(topic, "GVC/KP/%s", SerialNumber);
         sprintf (payload,"Topic is %s",topic);
         uart_write_string_ln(payload);

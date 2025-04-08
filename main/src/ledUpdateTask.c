@@ -104,6 +104,15 @@ void leds_update_task(){
         }else if(led_state == WIFI_AND_INTERNET_NO_SERVER){
             numberOfPulses = 4;
             LedInUse= 2;            
+        }else if(led_state == MQTT_DISCONNECTED){
+            numberOfPulses = 2;
+            LedInUse= 4;            
+        }else if(led_state == MQTT_PUBLISH_FAILED){
+            numberOfPulses = 4;
+            LedInUse= 4;            
+        }else if(led_state == MQTT_HBT_NOT_RECEIVED){
+            numberOfPulses = 6;
+            LedInUse= 4;            
         }else if(led_state == EVERYTHING_OK_LED){
             numberOfPulses = 0;
             LedInUse= 3;            
@@ -221,6 +230,12 @@ void leds_update_task(){
                 led1_gpio_state = led2_gpio_state;
                 led_set_level(LEDG, led2_gpio_state);
                 led_set_level(LEDR, led1_gpio_state);
+            }
+            if (LedInUse == 4)
+            {
+                led2_gpio_state ^= 0x01;
+                led_set_level(LEDG, led2_gpio_state);
+                led_set_level(LEDR, 1);
             }
         }
         else
