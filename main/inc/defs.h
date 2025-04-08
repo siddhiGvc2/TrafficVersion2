@@ -137,6 +137,11 @@ typedef enum TCPIP_SOCKET_STATE{
 #define NVS_SIP_NUMBER   "SIP_NUMBER"
 
 
+#define HBT_TIMEOUT_SEC 65
+
+
+
+
 //# define HBTTIMEBEFORERESTART 21000
 # define HBTTIMEBEFORERESTART 3600
 
@@ -155,7 +160,7 @@ typedef enum TCPIP_SOCKET_STATE{
 
 #define PASS_THRU   "Y"
 
-#define FWVersion "*Kwikpay_080425_VER_1.22A Naico Ltd#"
+#define FWVersion "*Kwikpay_080425_VER_1.22B Naico Ltd#"
 
 #define HBTDelay    300000
 #define LEDR    13

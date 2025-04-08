@@ -248,3 +248,29 @@ void InitMqtt (void)
      FirstTryMQTT = 0;
      ESP_LOGI(TAG,"MQTT Initiated");
 }
+
+
+void hbt_received(void)
+{
+    // Call this whenever HBT command is received
+    last_hbt_time_us = esp_timer_get_time();
+    uart_write_string_ln( "HBT received. Timer reset.");
+   
+}
+
+void hbt_monitor_task(void)
+{
+    while (1) {
+        int64_t now = esp_timer_get_time(); // microseconds
+        int64_t elapsed_sec = (now - last_hbt_time_us) / 1000000;
+
+        if (elapsed_sec > HBT_TIMEOUT_SEC) {
+            ESP_LOGE(TAG, "ERROR: No HBT received for %lld seconds!", elapsed_sec);
+            uart_write_string_ln("ERROR: No HBT received");
+            set_led_state( MQTT_HBT_NOT_RECEIVED);
+            // You can trigger additional error handling here
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Check every 1 second
+    }
+}

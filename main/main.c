@@ -90,10 +90,16 @@ void app_main(void)
     wifi_init_sta();
     ESP_LOGI(TAG, "*Testing RGB #");
     TestRGB();
+
+    last_hbt_time_us = esp_timer_get_time(); // Init with current time
+
     
     xTaskCreate(sendHBT, "sendHBT", 2048, NULL, 6, NULL);
     xTaskCreate(BlinkLED, "BlinkLED", 2048, NULL, 6, NULL);
     xTaskCreate(RetryMqtt, "RetryMqtt", 2048, NULL, 6, NULL);
+    
+    // Create monitor task
+    xTaskCreate(hbt_monitor_task, "hbt_monitor_task", 2048, NULL, 5, NULL);
     xTaskCreate(TestCoin, "TestCoin", 2048, NULL, 6, NULL);
    
     for (;;) 

@@ -246,3 +246,8 @@ void tcp_ip_client_send_str(const char * str){
         }
     }
 }
+
+
+
+
+

@@ -174,3 +174,7 @@ extern int ServerHBTTimeOut;
 
 extern char InputVia[200];
 extern int FirstTryMQTT;
+
+
+// Last time HBT was received (in microseconds)
+extern int64_t last_hbt_time_us;

@@ -168,3 +168,7 @@ int ServerHBTTimeOut = 0; // added on 251224
 
 char InputVia[200];
 int FirstTryMQTT = 1;
+
+
+// Last time HBT was received (in microseconds)
+int64_t last_hbt_time_us = 0;

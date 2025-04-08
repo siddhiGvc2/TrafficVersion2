@@ -215,6 +215,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             send(sock, payload, strlen(payload), 0);
             ServerHBTTimeOut = 0;
             uart_write_string_ln("*SERVER HBT-OK#");
+            hbt_received();
      }
      
      else if(strncmp(rx_buffer, "*RESTART#", 9) == 0){

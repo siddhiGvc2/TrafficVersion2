@@ -78,5 +78,9 @@ extern void RetryMqtt(void);
 
 
 //commands.c
-void AnalyzeInputPkt(const char*,const char*);
+extern void AnalyzeInputPkt(const char*,const char*);
+extern void hbt_monitor_task(void);
+extern void hbt_received(void);
+extern void hbt_monitor_task(void);
+
 
