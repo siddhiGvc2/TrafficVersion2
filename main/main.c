@@ -92,7 +92,7 @@ void app_main(void)
     
     xTaskCreate(sendHBT, "sendHBT", 2048, NULL, 6, NULL);
     xTaskCreate(BlinkLED, "BlinkLED", 2048, NULL, 6, NULL);
-   
+    xTaskCreate(RetryMqtt, "RetryMqtt", 2048, NULL, 6, NULL);
     xTaskCreate(TestCoin, "TestCoin", 2048, NULL, 6, NULL);
    
     for (;;) 

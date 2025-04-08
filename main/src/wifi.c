@@ -342,7 +342,7 @@ void wifi_init_sta(void)
     
     set_led_state(SEARCH_FOR_WIFI);
     ESP_LOGI(TAG,"*Connect WiFi at Power On#");
-    bool connected_to_wifi = false;
+   
     //ESP_LOGI(TAG, "Trying to connect to SSID1 %s | %s",DEFAULT_SSID1,DEFAULT_PASS1);
     WiFiLoopCount = 0;
     while (WiFiLoopCount < MAXWIFILOOPCOUNT)

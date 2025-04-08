@@ -54,10 +54,16 @@ int32_t MQTT_CONNEECTED = 0;
  esp_mqtt_client_handle_t client = NULL;
 
  
-void RetryMqtt (void)
+void RetryMqtt(void)
 {
-    if (MQTT_CONNECTED == 0)
-        esp_mqtt_client_start(client); 
+    while(1)
+    {
+    if (MQTT_CONNEECTED == 0 && connected_to_wifi && MQTTRequired)
+    {
+      mqtt_app_start();
+    }
+    vTaskDelay(3000/portTICK_PERIOD_MS);
+   }
 
 }
 
@@ -119,6 +125,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
+        uart_write_string_ln("MQTT_EVENT_CONNECTED");
         MQTT_CONNEECTED = 1;  // Ensure MQTT_CONNECTED is defined
         
         set_led_state(EVERYTHING_OK_LED);
@@ -197,16 +204,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     case MQTT_EVENT_ERROR:
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
         uart_write_string_ln( "MQTT_EVENT_ERROR");
-        // Add more error handling here if needed
-        if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT) {
-            uart_write_string_ln("Failed To Connect To Mqtt");
-            ESP_LOGE(TAG, "Transport error");
-            ESP_LOGE(TAG, "esp_tls_last_esp_err: 0x%x", event->error_handle->esp_tls_last_esp_err);
-            ESP_LOGE(TAG, "esp_tls_stack_err: 0x%x", event->error_handle->esp_tls_stack_err);
-            ESP_LOGE(TAG, "socket errno: %d (%s)", 
-                     event->error_handle->esp_transport_sock_errno, 
-                     strerror(event->error_handle->esp_transport_sock_errno));
-        }
+      
         break;
 
     default:
@@ -234,7 +232,10 @@ void mqtt_app_start(void)
     client = esp_mqtt_client_init(&mqttConfig);
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, client);
     esp_mqtt_client_start(client);
+    if(MQTT_CONNEECTED)
+    {
     InitMqtt();
+    }
 }
 
 

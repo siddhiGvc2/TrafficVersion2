@@ -15,6 +15,8 @@ extern char WIFI_PASS_2[64];
 extern char WIFI_SSID_3[64];
 extern char WIFI_PASS_3[64];
 
+extern bool connected_to_wifi;
+
 extern char server_ip_addr[100];
 extern char ipstr[100]; // host mapped
 

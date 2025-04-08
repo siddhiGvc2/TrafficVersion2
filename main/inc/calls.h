@@ -74,6 +74,7 @@ extern uint32_t millis(void);
 extern void InitMqtt (void);
 extern void mqtt_app_start(void);
 extern void mqtt_publish_msg(const char *);
+extern void RetryMqtt(void);
 
 
 //commands.c
