@@ -38,6 +38,10 @@ void SendResponse(const char *Message,const char *OutputVia)
     {
         send(sock, Message, strlen(Message), 0);
         uart_write_string_ln(Message);
+        if(MQTTRequired)
+        {
+            mqtt_publish_msg(Message);
+        }
     }
     else if(strcmp(OutputVia, "UART") == 0)
     {
@@ -62,6 +66,11 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
     // sprintf(payload,"RESPONSE-OK");
     // SendResponse(payload,InputVia);
 // All Query Command
+    if(strcmp(InputVia,"TCP")==0)
+    {
+        mqtt_publish_msg(rx_buffer);
+    }
+
     if(strncmp(rx_buffer, "*CA?#", 5) == 0){
         sprintf(payload,"*CA-OK,%s,%s,%d,%d#",CAuserName,CAdateTime,pulseWitdh,SignalPolarity);
         SendResponse(payload,InputVia);
