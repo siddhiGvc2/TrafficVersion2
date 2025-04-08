@@ -58,13 +58,22 @@ int32_t MQTT_CONNEECTED = 1;
 
 void publish_message(const char *message, esp_mqtt_client_handle_t client) {
     // Publish the provided message to the MQTT topic
-    esp_mqtt_client_publish(client, "GVC/KP/ALL", message, strlen(message), 0, 0);
+    int msg_id = esp_mqtt_client_publish(client, "GVC/KP/ALL", message, strlen(message), 0, 0);
 
     // Indicate that a transaction is pending
     tx_event_pending = 1;
 
     // Log the published message for debugging
-    ESP_LOGI(TAG, "Published SIP message: %s", message);
+   
+    if (msg_id == -1) {
+        ESP_LOGE(TAG, "Publish failed! MQTT client not ready or disconnected.");
+        uart_write_string_ln("Publish failed! MQTT client not ready or disconnected.");
+        set_led_state(MQTT_PUBLISH_FAILED);
+        // Optional: queue it, retry later, or alert
+    } else {
+        
+        ESP_LOGI(TAG, "Published SIP message: %s", message);
+    }
 }
 
 void mqtt_publish_msg(const char *message)
@@ -116,6 +125,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
+        uart_write_string_ln("MQTT_EVENT_DISCONNECTED");
+        set_led_state(MQTT_DISCONNECTED);
         MQTT_CONNEECTED = 0;
         break;
 
@@ -177,7 +188,17 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
     case MQTT_EVENT_ERROR:
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
+        uart_write_string_ln( "MQTT_EVENT_ERROR");
         // Add more error handling here if needed
+        if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT) {
+            uart_write_string_ln("Failed To Connect To Mqtt");
+            ESP_LOGE(TAG, "Transport error");
+            ESP_LOGE(TAG, "esp_tls_last_esp_err: 0x%x", event->error_handle->esp_tls_last_esp_err);
+            ESP_LOGE(TAG, "esp_tls_stack_err: 0x%x", event->error_handle->esp_tls_stack_err);
+            ESP_LOGE(TAG, "socket errno: %d (%s)", 
+                     event->error_handle->esp_transport_sock_errno, 
+                     strerror(event->error_handle->esp_transport_sock_errno));
+        }
         break;
 
     default:

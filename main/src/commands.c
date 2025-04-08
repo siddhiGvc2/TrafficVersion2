@@ -68,7 +68,10 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 // All Query Command
     if(strcmp(InputVia,"TCP")==0)
     {
+        if(MQTTRequired)
+        {
         mqtt_publish_msg(rx_buffer);
+        }
     }
 
     if(strncmp(rx_buffer, "*CA?#", 5) == 0){
