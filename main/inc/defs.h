@@ -162,6 +162,8 @@ typedef enum TCPIP_SOCKET_STATE{
 
 #define FWVersion "*Kwikpay_080425_VER_1.22B Naico Ltd#"
 
+
+
 #define HBTDelay    300000
 #define LEDR    13
 #define LEDG    12
