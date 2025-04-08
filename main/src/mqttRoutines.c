@@ -37,7 +37,7 @@ static const char *TAG = "MQTT";
 void InitMqtt (void);
 
 
-int32_t MQTT_CONNEECTED = 1;
+int32_t MQTT_CONNEECTED = 0;
 
 /*
  * @brief Event handler registered to receive MQTT events
@@ -78,7 +78,10 @@ void publish_message(const char *message, esp_mqtt_client_handle_t client) {
 
 void mqtt_publish_msg(const char *message)
 {
+    if(MQTT_CONNEECTED)
+    {
     publish_message(message, client); 
+    }
 }
 
 void Publisher_Task(void *params)

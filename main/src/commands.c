@@ -70,7 +70,9 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
     {
         if(MQTTRequired)
         {
-        mqtt_publish_msg(rx_buffer);
+           
+            mqtt_publish_msg(rx_buffer);
+            
         }
     }
 
