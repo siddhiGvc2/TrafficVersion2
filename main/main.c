@@ -45,6 +45,7 @@ void app_main(void)
     // set totals to 0
     char payload[100];
     MQTTRequired = 1;
+    FirstTryMQTT = 1;
     for (int i = 0 ; i < 7 ; i++)
     {
         Totals[i] = 0;

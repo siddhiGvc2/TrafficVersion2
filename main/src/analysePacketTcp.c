@@ -103,9 +103,11 @@ void tcpip_client_task(){
                     else
                         sprintf(payload, "*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber);  // for KP use :
                     uart_write_string_ln(payload);
-
+                  
                     
                     int err = send(sock, payload, strlen(payload), 0);
+                    sprintf(payload, "*HBT,%s,%s#", MAC_ADDRESS_ESP,SerialNumber);
+                    send(sock, payload, strlen(payload), 0);
                     ESP_LOGI(TAG, "*Successfully connected#"); 
                     serverStatus=1;
                      sprintf(payload, "*QR:%s#",QrString); 

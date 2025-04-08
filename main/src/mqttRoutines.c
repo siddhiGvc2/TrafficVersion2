@@ -232,7 +232,7 @@ void mqtt_app_start(void)
     client = esp_mqtt_client_init(&mqttConfig);
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, client);
     esp_mqtt_client_start(client);
-    if(MQTT_CONNEECTED)
+    if(FirstTryMQTT== 1)
     {
     InitMqtt();
     }
@@ -245,6 +245,6 @@ void mqtt_app_start(void)
 void InitMqtt (void)
 {
      xTaskCreate(Publisher_Task, "Publisher_Task", 1024 * 5, NULL, 5, NULL);
-    
+     FirstTryMQTT = 0;
      ESP_LOGI(TAG,"MQTT Initiated");
 }

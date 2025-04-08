@@ -167,3 +167,4 @@ int ServerHBTTimeOut = 0; // added on 251224
 
 
 char InputVia[200];
+int FirstTryMQTT = 1;

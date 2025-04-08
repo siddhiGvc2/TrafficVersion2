@@ -173,3 +173,4 @@ extern int ServerHBTTimeOut;
 
 
 extern char InputVia[200];
+extern int FirstTryMQTT;
