@@ -54,48 +54,18 @@ void process_uart_packet(const char *pkt){
 
    
    
-     if(strncmp(pkt, "*RST#", 5) == 0){
     
-        sprintf(buffer, "*RST-OK#");
-        uart_write_string_ln(buffer);
-        uart_write_string_ln("*Resetting device#");
-        RestartDevice();
-    
-      
-    }
    
-   
-   else if(strncmp(pkt, "*FOTA#", 6) == 0){
-        uart_write_string_ln("*FOTA-OK#");
-        tx_event_pending = 1;
-        http_fota();
-    }
-
-   
- 
-   
-   
-   
-    
-    
-    else{
-     
 
         uart_write_string_ln(pkt);
         // int l = strlen(pkt);
         // char buff[l+1];
         // /*   *---#  */
 
-        // if(extractSubstring(pkt, buff) == true){
-        //     int l2 = strlen(buff);
-        //     char b[l2+3];
-        //     sprintf(b, "*%s#", buff);
-        //     tcp_ip_client_send_str(b);
-        //     tx_event_pending = 1;
-        // }
+        
         strcpy(InputVia,"UART");
         AnalyzeInputPkt(pkt,InputVia);
-    }
+    
 }
 
 void uart_write_number(uint8_t number){

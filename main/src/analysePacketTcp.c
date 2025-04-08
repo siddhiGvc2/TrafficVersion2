@@ -175,15 +175,6 @@ void tcpip_client_task(){
                                 char buf[len+1];
 
                       
-                               if(strncmp(rx_buffer, "*FOTA#", 6) == 0){
-                                    fotaStatus=1;
-                                    send(sock, "*FOTA-OK#", strlen("*FOTA-OK#"), 0);
-                                    
-                                     uart_write_string_ln("FOTA-OK");
-                                    send(sock,FOTA_URL,strlen(FOTA_URL),0);
-                                    tx_event_pending = 1;
-                                    http_fota();
-                                }
                              
 //                                 start genertaing pulses
 //                                  INPUT  -   *V:{TID},{pin},{Pulses}#
@@ -203,16 +194,11 @@ void tcpip_client_task(){
                              
                              
                             
-                                else{
+                             
                                     strcpy(InputVia,"TCP");
                                     AnalyzeInputPkt(rx_buffer,InputVia);
-                                    if(extractSubstring(rx_buffer, buf) == true){
-                                        uart_write_string("*");
-                                        uart_write_string(buf);
-                                        uart_write_string("#");
-                                        tx_event_pending = 1;
-                                    }
-                                }
+                                  
+                                
 //                                Write On UART
                                 uart_write_string(rx_buffer);
                                 // gpio_set_level(LedTCP, 1);

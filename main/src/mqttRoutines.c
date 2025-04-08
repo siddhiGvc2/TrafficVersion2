@@ -161,24 +161,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             
                
               
-              
-                if(strncmp(data, "*FOTA:", 6) == 0){
-                    strcpy(FOTAuserName,"MQTT_LOCAL");
-                    strcpy(FOTAdateTime,"00/00/00");
-                    publish_message("*FOTA-OK#", client);
-                    publish_message(FOTA_URL, client);
-                    utils_nvs_set_str(NVS_FOTA_USERNAME, FOTAuserName);
-                    utils_nvs_set_str(NVS_FOTA_DATETIME, FOTAdateTime);
-                    tx_event_pending = 1;
-                    http_fota();
-                }
+         
                
                
-                else {
+                
                     strcpy(InputVia,"MQTT");
                     AnalyzeInputPkt(data,InputVia);
                     ESP_LOGI(TAG, "Unknown message received.");
-                }
+                
             }
         } else {
             ESP_LOGE(TAG, "Received topic/data too large");

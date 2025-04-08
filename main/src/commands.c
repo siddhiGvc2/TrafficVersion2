@@ -304,7 +304,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             // Check if any of the parsed values are empty
             if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0 ) {
                 // Send error message if any required parameters are missing or invalid
-                const char* errorMsg = "Error: Missing or invalid parameters";
+                const char* errorMsg = "*Error: Missing or invalid parameters#";
                 SendResponse(errorMsg,InputVia);
             }
             else{
@@ -316,7 +316,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             }
             else {
                 // Send error message if parsing failed
-                const char* errorMsg = "Error: Invalid format";
+                const char* errorMsg = "*Error: Invalid format#";
                 SendResponse(errorMsg,InputVia);
             }
         }
@@ -379,7 +379,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
                 // Check if any of the parsed values are empty
                 if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0 || strlen(tempBuf2) == 0) {
                     // Send error message if any required parameters are missing or invalid
-                    const char* errorMsg = "Error: Missing or invalid parameters";
+                    const char* errorMsg = "*Error: Missing or invalid parameters#";
                     SendResponse(errorMsg,InputVia);
                 }
                 else{
@@ -391,7 +391,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             }
             else {
                 // Send error message if parsing failed
-                const char* errorMsg = "Error: Invalid format";
+                const char* errorMsg = "*Error: Invalid format#";
                 SendResponse(errorMsg,InputVia);
             }
         }
@@ -442,7 +442,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
                 // Check if any of the parsed values are empty
                 if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
                     // Send error message if any required parameters are missing or invalid
-                    const char* errorMsg = "Error: Missing or invalid parameters";
+                    const char* errorMsg = "*Error: Missing or invalid parameters#";
                     SendResponse(errorMsg,InputVia);
                 } else {
                     // Copy parsed values to the actual variables
@@ -453,7 +453,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             }
             else {
                 // Send error message if parsing failed
-                const char* errorMsg = "Error: Invalid format";
+                const char* errorMsg = "*Error: Invalid format#";
                 SendResponse(errorMsg,InputVia);
             }
         }
@@ -491,7 +491,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
                 // Check if any of the parsed values are empty
                 if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
                     // Send error message if any required parameters are missing or invalid
-                    const char* errorMsg = "Error: Missing or invalid parameters";
+                    const char* errorMsg = "*Error: Missing or invalid parameters#";
                     SendResponse(errorMsg,InputVia);
                 } else {
                     // Copy parsed values to the actual variables
@@ -502,7 +502,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             }
             else {
                 // Send error message if parsing failed
-                const char* errorMsg = "Error: Invalid format";
+                const char* errorMsg = "*Error: Invalid format#";
                 SendResponse(errorMsg,InputVia);
             }
         }
@@ -540,7 +540,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
                 // Check if any of the parsed values are empty
                 if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
                     // Send error message if any required parameters are missing or invalid
-                    const char* errorMsg = "Error: Missing or invalid parameters";
+                    const char* errorMsg = "*Error: Missing or invalid parameters#";
                     SendResponse(errorMsg,InputVia);
                 } else {
                     // Copy parsed values to the actual variables
@@ -551,7 +551,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             }
             else {
                 // Send error message if parsing failed
-                const char* errorMsg = "Error: Invalid format";
+                const char* errorMsg = "*Error: Invalid format#";
                 SendResponse(errorMsg,InputVia);
             }
         }
@@ -638,7 +638,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
                 // Check if any of the parsed values are empty
                 if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
                     // Send error message if any required parameters are missing or invalid
-                    const char* errorMsg = "Error: Missing or invalid parameters";
+                    const char* errorMsg = "*Error: Missing or invalid parameters#";
                     SendResponse(errorMsg,InputVia);
                 } else {
                     // Copy parsed values to the actual variables
@@ -736,7 +736,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
                 // Check if any of the parsed values are empty
                 if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0) {
                     // Send error message if any required parameters are missing or invalid
-                    const char* errorMsg = "Error: Missing or invalid parameters";
+                    const char* errorMsg = "*Error: Missing or invalid parameters#";
                     SendResponse(errorMsg,InputVia);
                 } else {
                         strcpy(URLuserName, tempUserName);
@@ -780,7 +780,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             if (sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%[^:]#", tempUserName, tempDateTime, tempBuf) == 3) { 
                   if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0  ) {
                     // Send error message if any required parameters are missing or invalid
-                    const char* errorMsg = "Error: Missing or invalid parameters";
+                    const char* errorMsg = "*Error: Missing or invalid parameters#";
                     SendResponse(errorMsg,InputVia);
                 }
                 else{
@@ -792,7 +792,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             }
             else {
                 // Send error message if parsing failed
-                const char* errorMsg = "Error: Invalid format";
+                const char* errorMsg = "*Error: Invalid format#";
                 SendResponse(errorMsg,InputVia);
             }
         }
@@ -858,7 +858,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             }
             else {
                 // Send error message if parsing failed
-                const char* errorMsg = "Error: Invalid format";
+                const char* errorMsg = "*Error: Invalid format#";
                 SendResponse(errorMsg,InputVia);
             }
         }
@@ -867,7 +867,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             sscanf(rx_buffer, "*ERASE:%[^:#]",ErasedSerialNumber);
             if (strcmp(ErasedSerialNumber, SerialNumber) != 0) {
                // send (payload,"*Erase:Serial Not Matched Command:%s Actual:%s#",tempBuf,SerialNumber);
-               const char* errorMsg = "Erase:Serial Not Matched";
+               const char* errorMsg = "*Erase:Serial Not Matched#";
                // send(sock, errorMsg, strlen(errorMsg), 0);
                SendResponse(errorMsg,InputVia);
            }
@@ -882,9 +882,9 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         {
             sscanf(rx_buffer, "*ERASE:%[^:]#",ErasedSerialNumber);
             if (strcmp(ErasedSerialNumber, SerialNumber) != 0) {
-               const char* errorMsg = "Erase:Serial Not Matched";
+               const char* errorMsg = "*Erase:Serial Not Matched#";
             
-              SendResponse("Erase:Serial Not Matched",InputVia);
+              SendResponse("*Erase:Serial Not Matched#",InputVia);
            }
            else{
            strcpy(ERASEuserName,"MQTT_LOCAL");
@@ -897,7 +897,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         utils_nvs_set_str(NVS_ERASED_SERIAL_NUMBER, ErasedSerialNumber);
         utils_nvs_erase_all();
         utils_nvs_set_str(NVS_SERIAL_NUMBER, ErasedSerialNumber);
-        SendResponse("*ERASE:OK#",InputVia);
+        SendResponse("*ERASE-OK#",InputVia);
     }
     else if(strncmp(rx_buffer, "*SL:", 4) == 0){
         if(strcmp(InputVia, "TCP") == 0)
@@ -1029,7 +1029,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             utils_nvs_set_str(NVS_SN_DATETIME,SNdateTime);
             
         
-            SendResponse("SN-OK",InputVia);
+            SendResponse("*SN-OK#",InputVia);
             tx_event_pending = 1;
         }
         else if(strcmp(InputVia,"MQTT")==0)
@@ -1045,6 +1045,46 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             tx_event_pending = 1;
         }
   
+    }
+    else if(strncmp(rx_buffer, "*FOTA", 5) == 0){
+        fotaStatus=1;
+        SendResponse("*FOTA-OK#",InputVia); 
+        SendResponse(FOTA_URL,InputVia); 
+        tx_event_pending = 1;
+        http_fota();
+        SendResponse("*FOTA-OK#",InputVia); 
+      
+    }
+    else{
+        int l = strlen(rx_buffer);
+        char buf[l+1];
+        if(strcmp(InputVia, "TCP") == 0)
+        {
+        if(extractSubstring(rx_buffer, buf) == true){
+            uart_write_string("*");
+            uart_write_string(buf);
+            uart_write_string("#");
+            tx_event_pending = 1;
+        }
+       }
+       else if(strcmp(InputVia, "UART") == 0){
+        if(extractSubstring(rx_buffer, buf) == true){
+            int l2 = strlen(buf);
+            char b[l2+3];
+            sprintf(b, "*%s#", buf);
+            tcp_ip_client_send_str(b);
+            tx_event_pending = 1;
+        }
+       }
+       else{
+        if(extractSubstring(rx_buffer, buf) == true){
+            uart_write_string("*");
+            uart_write_string(buf);
+            uart_write_string("#");
+            tx_event_pending = 1;
+        }
+       }
+
     }
 
 
