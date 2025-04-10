@@ -178,3 +178,5 @@ extern int FirstTryMQTT;
 
 // Last time HBT was received (in microseconds)
 extern int64_t last_hbt_time_us;
+
+extern int32_t MQTT_CONNEECTED ;

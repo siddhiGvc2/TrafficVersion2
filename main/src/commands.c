@@ -38,7 +38,7 @@ void SendResponse(const char *Message,const char *OutputVia)
     {
         send(sock, Message, strlen(Message), 0);
         uart_write_string_ln(Message);
-        if(MQTTRequired)
+        if(MQTT_CONNEECTED && connected_to_wifi && MQTTRequired)
         {
             mqtt_publish_msg(Message);
         }

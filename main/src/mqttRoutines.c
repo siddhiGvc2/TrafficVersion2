@@ -37,7 +37,7 @@ static const char *TAG = "MQTT";
 void InitMqtt (void);
 
 
-int32_t MQTT_CONNEECTED = 0;
+
 
 /*
  * @brief Event handler registered to receive MQTT events
@@ -298,7 +298,7 @@ void hbt_monitor_task(void)
 void SendTCcommand(void){
     while(1)
     {
-        if(MQTT_CONNEECTED)
+        if(MQTT_CONNEECTED && connected_to_wifi && MQTTRequired)
         {
         uart_write_string_ln("Traying To Send TC?");
         char InputTC[200];

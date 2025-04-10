@@ -172,3 +172,5 @@ int FirstTryMQTT = 1;
 
 // Last time HBT was received (in microseconds)
 int64_t last_hbt_time_us = 0;
+
+int32_t MQTT_CONNEECTED = 0;
