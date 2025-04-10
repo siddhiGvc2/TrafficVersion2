@@ -49,7 +49,7 @@ void SendResponse(const char *Message,const char *OutputVia)
     }
     else if(strcmp(OutputVia, "MQTT") == 0)
     {
-        if(MQTTRequired)
+        if(MQTT_CONNEECTED && connected_to_wifi && MQTTRequired)
         {
             mqtt_publish_msg(Message);
             uart_write_string_ln(Message);
