@@ -137,7 +137,7 @@ typedef enum TCPIP_SOCKET_STATE{
 #define NVS_SIP_NUMBER   "SIP_NUMBER"
 
 
-#define HBT_TIMEOUT_SEC 65
+#define HBT_TIMEOUT_SEC 120
 
 
 
