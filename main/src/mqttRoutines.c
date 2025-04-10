@@ -70,7 +70,22 @@ void RetryMqtt(void)
 void publish_message(const char *message, esp_mqtt_client_handle_t client) {
     // Publish the provided message to the MQTT topic
     char topic[200];
-    sprintf(topic,"GVC/KP/%s",SerialNumber);
+    char modified_message[256];
+    
+    sprintf(topic,"GVC/KP/ALL");
+    
+    // Check if message starts with * and ends with #
+    if (message[0] == '*' && message[strlen(message)-1] == '#') {
+        // Extract the command between * and #
+        char command[100];
+        strncpy(command, message + 1, strlen(message) - 2);
+        command[strlen(message) - 2] = '\0';
+        
+        // Create new message with serial number
+        sprintf(modified_message, "*%s,%s#", SerialNumber, command);
+        message = modified_message;
+    }
+    
     int msg_id = esp_mqtt_client_publish(client,topic, message, strlen(message), 0, 0);
 
     // Indicate that a transaction is pending
