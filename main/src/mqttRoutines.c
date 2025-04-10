@@ -69,7 +69,9 @@ void RetryMqtt(void)
 
 void publish_message(const char *message, esp_mqtt_client_handle_t client) {
     // Publish the provided message to the MQTT topic
-    int msg_id = esp_mqtt_client_publish(client, "GVC/KP/ALL", message, strlen(message), 0, 0);
+    char topic[200];
+    sprintf(topic,"GVC/KP/%s",SerialNumber);
+    int msg_id = esp_mqtt_client_publish(client,topic, message, strlen(message), 0, 0);
 
     // Indicate that a transaction is pending
     tx_event_pending = 1;
