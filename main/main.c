@@ -97,9 +97,9 @@ void app_main(void)
     xTaskCreate(sendHBT, "sendHBT", 2048, NULL, 6, NULL);
     xTaskCreate(BlinkLED, "BlinkLED", 2048, NULL, 6, NULL);
     xTaskCreate(RetryMqtt, "RetryMqtt", 2048, NULL, 6, NULL);
-    xTaskCreate(SendTCcommand,"SendTCcommand", 2048, NULL, 6, NULL);
-    // Create monitor task
+   // Create monitor task
     xTaskCreate(hbt_monitor_task, "hbt_monitor_task", 2048, NULL, 5, NULL);
+    xTaskCreate(SendTCcommand,"SendTCcommand", 4048, NULL, 6, NULL);
     xTaskCreate(TestCoin, "TestCoin", 2048, NULL, 6, NULL);
    
     for (;;) 

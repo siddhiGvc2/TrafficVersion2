@@ -77,7 +77,6 @@ extern void mqtt_publish_msg(const char *);
 extern void RetryMqtt(void);
 extern void SendTCcommand(void);
 
-
 //commands.c
 extern void AnalyzeInputPkt(const char*,const char*);
 extern void hbt_monitor_task(void);
