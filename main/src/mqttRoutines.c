@@ -292,3 +292,21 @@ void hbt_monitor_task(void)
         vTaskDelay(pdMS_TO_TICKS(1000)); // Check every 1 second
     }
 }
+
+
+
+void SendTCcommand(void){
+    while(1)
+    {
+        if(MQTT_CONNEECTED)
+        {
+        uart_write_string_ln("Traying To Send TC?");
+        char InputTC[200];
+        strcpy(InputVia,"MQTT");
+        strcpy(InputTC,"*TC?#");
+        AnalyzeInputPkt(InputTC,InputVia);
+        }
+
+        vTaskDelay(65000/portTICK_PERIOD_MS);
+    }
+}

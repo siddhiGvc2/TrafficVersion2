@@ -75,6 +75,7 @@ extern void InitMqtt (void);
 extern void mqtt_app_start(void);
 extern void mqtt_publish_msg(const char *);
 extern void RetryMqtt(void);
+extern void SendTCcommand(void);
 
 
 //commands.c
@@ -82,5 +83,7 @@ extern void AnalyzeInputPkt(const char*,const char*);
 extern void hbt_monitor_task(void);
 extern void hbt_received(void);
 extern void hbt_monitor_task(void);
+
+
 
 
