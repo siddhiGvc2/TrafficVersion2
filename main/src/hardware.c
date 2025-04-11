@@ -182,6 +182,14 @@ void gpio_read_n_act(void)
     int BlinkMode = 0;
     char payload[100];
     int TimeToBlinkLed = 0;
+    uint32_t StartTime = 0;
+    uint32_t StopTime = 0;
+    uint16_t CurrentWidth;
+    uint16_t ChangeValue = 0;
+    uint16_t CurrentValueOfChangeValue = 0;
+    uint8_t i;
+    uint16_t PinPressed = 0;
+    uint8_t MultiplePressed = 0;
     Led_State_t prev_state = STANDBY_LED;
     for (;;)
     {
@@ -308,35 +316,34 @@ void gpio_read_n_act(void)
         {
             InputPin = 1;
         }
-        else if (gpio_get_level(ICH2) == 0)
+        if (gpio_get_level(ICH2) == 0)
         {
-            InputPin = 2;
+            InputPin += 2;
         }
-        else if (gpio_get_level(ICH3) == 0)
+        if (gpio_get_level(ICH3) == 0)
         {
-            InputPin = 3;
+            InputPin += 4;
         }
-        else if (gpio_get_level(ICH4) == 0)
+        if (gpio_get_level(ICH4) == 0)
         {
-            InputPin = 4;
+            InputPin += 8;
         }
-        else if (gpio_get_level(ICH5) == 0)
+        if (gpio_get_level(ICH5) == 0)
         {
-            InputPin = 5;
+            InputPin += 16;
         }
-        else if (gpio_get_level(ICH6) == 0)
+        if (gpio_get_level(ICH6) == 0)
         {
-            InputPin = 6;
+            InputPin += 32;
         }
-        else if (gpio_get_level(ICH7) == 0)
+        if (gpio_get_level(ICH7) == 0)
         {
-            InputPin = 7;
+            InputPin += 64;
         }
-        else 
-        {
-            InputPin = 0;
-        }    
-        if (InputPin == 0)
+        // sprintf(payload,"Input Pin %d",InputPin);
+        // uart_write_string_ln(payload);
+ //       if (PinPressed == 0)
+        if (1)
         {
             if (PulseStoppedDelay>0)
             {
@@ -360,7 +367,7 @@ void gpio_read_n_act(void)
                     if (LastInputPin == 7)
                         utils_nvs_set_int(NVS_CASH7_KEY, CashTotals[6]);
 
-                    // ESP_LOGI("COIN","Input Pin %d Pulses %d",LastInputPin,TotalPulses);
+                    // ESP_LOGI("COIN","Input Pin %d Pressed Pin %d Pulses %d",InputPin, LastInputPin,TotalPulses);
                    if (gpio_get_level(JUMPER) == 0)
                    {
                         sprintf(payload, "*RP,%d,%d#",LastInputPin,TotalPulses); 
@@ -381,9 +388,9 @@ void gpio_read_n_act(void)
                     sprintf(payload, "*Starting on Pin %d, Pulses %d, Pulse Width %d#",LastInputPin,TotalPulses,pulseWitdh); 
                     uart_write_string(payload);
                    }
-                   sprintf(payload, "*RP,%d,%d#",LastInputPin,TotalPulses); 
+                   sprintf(payload, "*RP,%d,%d,%d#",LastInputPin,TotalPulses,InputPin); 
                    uart_write_string(payload);
-                   ESP_LOGI(TAG,"*RP,%d,%d#",LastInputPin,TotalPulses);
+                   ESP_LOGI(TAG,"*RP,%d,%d,%d#",LastInputPin,TotalPulses,InputPin);
                    prev_state = led_state;
                    ticks_100 = 0;
                    set_led_state(INCOMING_PULSE_DETECTED);
@@ -394,8 +401,12 @@ void gpio_read_n_act(void)
         }
         if (LastValue != InputPin)
         {
+            ChangeValue = LastValue ^ InputPin;
+            CurrentValueOfChangeValue = ChangeValue & InputPin;
             LastValue = InputPin;
             DebounceCount = 2;
+            sprintf(payload,"Current Value %d, Change Value %d , Current Change of Value %d",InputPin,ChangeValue,CurrentValueOfChangeValue);
+            uart_write_string_ln(payload);
         }
         else
         {
@@ -404,14 +415,46 @@ void gpio_read_n_act(void)
                 DebounceCount--;
                 if (DebounceCount == 0)
                 {
-                    if (InputPin == 0)
+                    if (CurrentValueOfChangeValue == 0)
+                    {
+                        StartTime = millis();
+                    }
+                    else
+                    {
+                         StopTime = millis();
+                         CurrentWidth = StopTime - StartTime;   
+//                         sprintf(payload,"Width %lu, ChangeValue %d , InputPin %d",CurrentWidth,ChangeValue,InputPin);
+                         sprintf(payload," Current Width %d ChangeValue %d , InputPin %d",CurrentWidth,ChangeValue,InputPin);
+                         uart_write_string_ln(payload);
+                         if ((CurrentWidth > 25) && (CurrentWidth < 15000)) 
+                         {
+                            
+                            PinPressed = 0;
+                            MultiplePressed = 0;
+                            sprintf(payload,"CHange Value %d",ChangeValue);
+                            uart_write_string_ln(payload);
+                            for (i = 0 ; i <= 7 ; i++)
+                            {
+                                if (ChangeValue == (0x01<<i))
+                                {
+                                    if (PinPressed == 0)
+                                        PinPressed = i+1;
+                                    else 
+                                        MultiplePressed = 1;
+                                    sprintf(payload,"value of PinPressed is %d",PinPressed);
+                                    uart_write_string_ln(payload);
+                                }
+                            }
+                         }
+                    }
+                    if (PinPressed == 0)
                     {
                     }
-                    if (InputPin != 0)
+                    if (PinPressed != 0)
                     {
                     TotalPulses++;                                      
                     PulseStoppedDelay = 100;
-                    LastInputPin = InputPin;
+                    LastInputPin = PinPressed;
                     }
                 }
             }
