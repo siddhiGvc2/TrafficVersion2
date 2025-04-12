@@ -101,6 +101,9 @@ char PassThruValue[100];
 
 char SerialNumber[100];
 
+
+char DateTime[200];
+
 char LastTID[100];
 char TID[100];
 
