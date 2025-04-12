@@ -107,7 +107,9 @@ extern char PassThruValue[100];
 
 extern char SerialNumber[100];
 
-extern char DateTime[200];
+extern char currentDateTime[13];
+extern char updatedDateTime[13];
+
 
 extern char LastTID[100];
 extern char TID[100];

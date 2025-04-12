@@ -1071,7 +1071,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
       
     }
     else if(strncmp(rx_buffer, "*DATA:", 6) == 0){
-        sscanf(rx_buffer, "*DATA:%s#",DateTime);
+        sscanf(rx_buffer, "*DATA:%s#",currentDateTime);
         SendResponse("*DATA-OK#",InputVia); 
     }
     else{

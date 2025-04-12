@@ -83,6 +83,8 @@ extern void hbt_monitor_task(void);
 extern void hbt_received(void);
 extern void hbt_monitor_task(void);
 
+extern void date_time_task(void);
+
 
 
 

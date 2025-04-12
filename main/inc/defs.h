@@ -205,6 +205,9 @@ typedef enum TCPIP_SOCKET_STATE{
 #define INHIBITLevel 1
 
 
+#define DATE_TIME "120425142359"
+
+
 #define EX_UART_NUM UART_NUM_2
 #define BUF_SIZE (1024)
 #define RD_BUF_SIZE (BUF_SIZE)
