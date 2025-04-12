@@ -109,6 +109,8 @@ extern char SerialNumber[100];
 
 extern char currentDateTime[13];
 extern char updatedDateTime[13];
+extern char DISCON_DTIME[13];
+extern char RICON_DTIME[13];
 
 
 extern char LastTID[100];

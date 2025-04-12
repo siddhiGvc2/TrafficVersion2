@@ -112,6 +112,8 @@ void tcpip_client_task(){
                     int err = send(sock, payload, strlen(payload), 0);
                    
                     ESP_LOGI(TAG, "*Successfully connected#"); 
+                    strcpy(RICON_DTIME,currentDateTime);
+                    utils_nvs_set_str(NVS_RICON_DTIME, RICON_DTIME);
                     serverStatus=1;
                      sprintf(payload, "*QR:%s#",QrString); 
                     uart_write_string_ln(payload);
@@ -156,6 +158,8 @@ void tcpip_client_task(){
                             if (len < 0) {
                                 ESP_LOGE(TAG, "*recv failed: errno %d#", errno);
                                 ESP_LOGE(TAG, "*Shutting down socket and restarting...#");
+                                strcpy(DISCON_DTIME,currentDateTime);
+                                utils_nvs_set_str(NVS_DISCON_DTIME, DISCON_DTIME);
                                 shutdown(sock, 0);
                                 close(sock);
                                 sock  = -1;

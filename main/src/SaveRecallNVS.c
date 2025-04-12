@@ -102,6 +102,16 @@ void load_settings_nvs(){
     char payload[150];
     ESP_LOGI(TAG, "*NVS Reading Started#");
 
+
+    if(utils_nvs_get_str(NVS_DISCON_DTIME,DISCON_DTIME,100) == ESP_OK){
+        utils_nvs_get_str(NVS_DISCON_DTIME,DISCON_DTIME,100);
+       }
+
+       if(utils_nvs_get_str(NVS_RICON_DTIME,RICON_DTIME,100) == ESP_OK){
+        utils_nvs_get_str(NVS_RICON_DTIME,RICON_DTIME,100);
+       }
+       
+
       if(utils_nvs_get_str(NVS_UNIX_TS,UniqueTimeStamp,100) == ESP_OK){
      utils_nvs_get_str(NVS_UNIX_TS,UniqueTimeStamp,100);
     }

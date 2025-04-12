@@ -104,6 +104,8 @@ char SerialNumber[100];
 
 char currentDateTime[13];
 char updatedDateTime[13];
+char DISCON_DTIME[13];
+char RICON_DTIME[13];
 
 
 char LastTID[100];

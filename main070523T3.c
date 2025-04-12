@@ -637,6 +637,7 @@ void tcpip_client_task(){
                             if (len < 0) {
                                 ESP_LOGE(TAG, "*recv failed: errno %d#", errno);
                                 ESP_LOGE(TAG, "*Shutting down socket and restarting...#");
+                                strcpy(DI)
                                 shutdown(sock, 0);
                                 close(sock);
                                 sock  = -1;
