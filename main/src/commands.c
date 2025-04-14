@@ -1073,6 +1073,29 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
     else if(strncmp(rx_buffer, "*DATA:", 6) == 0){
         sscanf(rx_buffer, "*DATA:%s#",currentDateTime);
         SendResponse("*DATA-OK#",InputVia); 
+        if(strlen(DISCON_DTIME)>0)
+        {
+            strcpy(RICON_DTIME,currentDateTime);
+            utils_nvs_set_str(NVS_RICON_DTIME, RICON_DTIME);
+            sprintf(payload,"*NETWORKOKAY,%s#",RICON_DTIME);
+            uart_write_string_ln(payload);
+            if(MQTTRequired)
+            {
+                mqtt_publish_msg(payload);
+            }
+            vTaskDelay(500/portTICK_PERIOD_MS);
+            sprintf(payload,"*NONETWORK,%s#",DISCON_DTIME);
+            uart_write_string_ln(payload);
+            if(MQTTRequired)
+            {
+                mqtt_publish_msg(payload);
+            }
+            strcpy(RICON_DTIME,"");
+            utils_nvs_set_str(NVS_DISCON_DTIME, DISCON_DTIME);
+           
+          
+        }
+        else{
         strcpy(RICON_DTIME,currentDateTime);
         utils_nvs_set_str(NVS_RICON_DTIME, RICON_DTIME);
         sprintf(payload,"*NETWORKOKAY,%s#",RICON_DTIME);
@@ -1081,16 +1104,8 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         {
             mqtt_publish_msg(payload);
         }
-        if(strlen(DISCON_DTIME)>0)
-        {
-          
-            sprintf(payload,"*NONETWORK,%s#",DISCON_DTIME);
-            uart_write_string_ln(payload);
-            if(MQTTRequired)
-            {
-                mqtt_publish_msg(payload);
-            }
-        }
+        }   
+        
     }
     else{
         int l = strlen(rx_buffer);

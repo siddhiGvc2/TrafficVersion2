@@ -430,14 +430,16 @@ void wifi_init_sta(void)
     }
     else // restart
     {
+        // strcpy(DISCON_DTIME,currentDateTime);
+        // utils_nvs_set_str(NVS_DISCON_DTIME, DISCON_DTIME);
+        // sprintf(buffer,"*NONETWORK,%s#",DISCON_DTIME);
+        // if(MQTTRequired)
+        // {
+        //     mqtt_publish_msg(buffer);
+        // }
+        // uart_write_string_ln(buffer);
         strcpy(DISCON_DTIME,currentDateTime);
         utils_nvs_set_str(NVS_DISCON_DTIME, DISCON_DTIME);
-        sprintf(buffer,"*NONETWORK,%s#",DISCON_DTIME);
-        if(MQTTRequired)
-        {
-            mqtt_publish_msg(buffer);
-        }
-        uart_write_string_ln(buffer);
         ESP_LOGI(TAG,"*All tries over");
         uart_write_string_ln("*All tries over#");
         RestartDevice();
