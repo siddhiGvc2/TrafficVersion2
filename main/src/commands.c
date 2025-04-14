@@ -1083,7 +1083,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             {
                 mqtt_publish_msg(payload);
             }
-            vTaskDelay(2000/portTICK_PERIOD_MS);
+            vTaskDelay(1000/portTICK_PERIOD_MS);
             sprintf(payload,"*NONETWORK,%s#",DISCON_DTIME);
             uart_write_string_ln(payload);
             if(MQTTRequired)
