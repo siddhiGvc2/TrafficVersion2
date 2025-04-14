@@ -411,10 +411,9 @@ void wifi_init_sta(void)
     if(connected_to_wifi){
        
         strcpy(RICON_DTIME,currentDateTime);
-        utils_nvs_set_str(NVS_RICON_DTIME, RICON_DTIME);
-        sprintf(buffer,"*NETWORKOKAY,%s",RICON_DTIME);
-        uart_write_string_ln(buffer);
+      
         connected_to_wifi_and_internet = true;
+       
         // esp_http_client_config_t config = {
         //     .url = "http://www.google.com",  
         // };
@@ -433,7 +432,11 @@ void wifi_init_sta(void)
     {
         strcpy(DISCON_DTIME,currentDateTime);
         utils_nvs_set_str(NVS_DISCON_DTIME, DISCON_DTIME);
-        sprintf(buffer,"*NONETWORK,%s",DISCON_DTIME);
+        sprintf(buffer,"*NONETWORK,%s#",DISCON_DTIME);
+        if(MQTTRequired)
+        {
+            mqtt_publish_msg(buffer);
+        }
         uart_write_string_ln(buffer);
         ESP_LOGI(TAG,"*All tries over");
         uart_write_string_ln("*All tries over#");

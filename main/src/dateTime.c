@@ -68,7 +68,7 @@ void date_time_task(void) {
         incrementDateTimeByOneSecond(currentDateTime, updatedDateTime);
         strcpy(currentDateTime, updatedDateTime);
 
-        printf("Current DateTime: %s\n", currentDateTime);
+        // printf("Current DateTime: %s\n", currentDateTime);
 
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay 1 second
     }

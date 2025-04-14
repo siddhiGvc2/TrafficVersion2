@@ -1073,6 +1073,24 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
     else if(strncmp(rx_buffer, "*DATA:", 6) == 0){
         sscanf(rx_buffer, "*DATA:%s#",currentDateTime);
         SendResponse("*DATA-OK#",InputVia); 
+        strcpy(RICON_DTIME,currentDateTime);
+        utils_nvs_set_str(NVS_RICON_DTIME, RICON_DTIME);
+        sprintf(payload,"*NETWORKOKAY,%s#",RICON_DTIME);
+        uart_write_string_ln(payload);
+        if(MQTTRequired)
+        {
+            mqtt_publish_msg(payload);
+        }
+        if(strlen(DISCON_DTIME)>0)
+        {
+          
+            sprintf(payload,"*NONETWORK,%s#",DISCON_DTIME);
+            uart_write_string_ln(payload);
+            if(MQTTRequired)
+            {
+                mqtt_publish_msg(payload);
+            }
+        }
     }
     else{
         int l = strlen(rx_buffer);
