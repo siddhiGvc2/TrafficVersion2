@@ -1083,32 +1083,17 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             {
                 mqtt_publish_msg(payload);
             }
-            strcpy(RICON_DTIME,"");
+            strcpy(DISCON_DTIME,"");
             utils_nvs_set_str(NVS_DISCON_DTIME, DISCON_DTIME);
            
             vTaskDelay(1000/portTICK_PERIOD_MS);
-            strcpy(RICON_DTIME,currentDateTime);
-            utils_nvs_set_str(NVS_RICON_DTIME, RICON_DTIME);
-            sprintf(payload,"*NETWORKOKAY,%s#",RICON_DTIME);
-            uart_write_string_ln(payload);
-            if(MQTTRequired)
-            {
-                mqtt_publish_msg(payload);
-            }
+            NetworkConnect();
+           
            
            
           
         }
-        else{
-        strcpy(RICON_DTIME,currentDateTime);
-        utils_nvs_set_str(NVS_RICON_DTIME, RICON_DTIME);
-        sprintf(payload,"*NETWORKOKAY,%s#",RICON_DTIME);
-        uart_write_string_ln(payload);
-        if(MQTTRequired)
-        {
-            mqtt_publish_msg(payload);
-        }
-        }   
+     
         
     }
     else{

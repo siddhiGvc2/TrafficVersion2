@@ -158,8 +158,7 @@ void tcpip_client_task(){
                             if (len < 0) {
                                 ESP_LOGE(TAG, "*recv failed: errno %d#", errno);
                                 ESP_LOGE(TAG, "*Shutting down socket and restarting...#");
-                                strcpy(DISCON_DTIME,currentDateTime);
-                                utils_nvs_set_str(NVS_DISCON_DTIME, DISCON_DTIME);
+                              
                                 shutdown(sock, 0);
                                 close(sock);
                                 sock  = -1;

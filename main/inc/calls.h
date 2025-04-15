@@ -87,4 +87,9 @@ extern void date_time_task(void);
 
 
 
+extern void NetwrokFail(void);
+extern void NetworkConnect(void);
+
+
+
 
