@@ -414,14 +414,18 @@ void wifi_init_sta(void)
       
         connected_to_wifi_and_internet = true;
 
+        uart_write_string_ln("WIFI CONNECTED");
+
         if(MQTTRequired)
         {
+            mqtt_publish_msg("WIFI CONNECTED");
         char payload[300];
        
             if(strlen(WIFI_DISCON_DTIME)>0)
             {
             sprintf(payload, "*WIFI,%s,%s#",WIFI_DISCON_DTIME,currentDateTime); 
             mqtt_publish_msg(payload);
+            uart_write_string_ln(payload);
             strcpy(WIFI_DISCON_DTIME,"");
             utils_nvs_set_str(NVS_WIFI_DISCON_DTIME,WIFI_DISCON_DTIME);
             }

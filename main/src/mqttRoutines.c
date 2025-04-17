@@ -145,19 +145,21 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         uart_write_string_ln("MQTT_EVENT_CONNECTED");
         MQTT_CONNEECTED = 1;  // Ensure MQTT_CONNECTED is defined
         
-
+          
         if(MQTTRequired)
         {
             if(strlen(MQTT_DISCON_DTIME)>0)
             {
             sprintf(payload, "*MQTT,%s,%s#",MQTT_DISCON_DTIME,currentDateTime); 
             mqtt_publish_msg(payload);
+            uart_write_string_ln(payload);
             strcpy(MQTT_DISCON_DTIME,"");
             utils_nvs_set_str(NVS_MQTT_DISCON_DTIME, MQTT_DISCON_DTIME);
             }
 
             sprintf(payload, "*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber); 
             mqtt_publish_msg(payload);
+            uart_write_string_ln(payload);
 
 
         }

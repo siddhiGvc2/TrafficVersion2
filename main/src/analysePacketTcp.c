@@ -91,6 +91,8 @@ void tcpip_client_task(){
                     ESP_LOGE(TAG, "*Shutting down socket and restarting...#");
                     if(IsSocketConnected)
                     {
+                        uart_write_string_ln("TCP DISCONNECTED");
+                        mqtt_publish_msg("TCP DISCONNECTED");
                         strcpy(TCP_DISCON_DTIME,currentDateTime);
                         utils_nvs_set_str(NVS_TCP_DISCON_DTIME, TCP_DISCON_DTIME);
                         IsSocketConnected=0;
@@ -117,12 +119,16 @@ void tcpip_client_task(){
                     if(IsSocketConnected==0)
                     {
                         IsSocketConnected=1; 
+                        uart_write_string_ln("TCP CONNECTED");
+                      
                          if(MQTTRequired)
                         {
+                            mqtt_publish_msg("TCP CONNECTED");
                             if(strlen(TCP_DISCON_DTIME)>0)
                             {
                             sprintf(payload, "*TCP,%s,%s#",TCP_DISCON_DTIME,currentDateTime); 
                             mqtt_publish_msg(payload);
+                            uart_write_string_ln(payload);
                             strcpy(TCP_DISCON_DTIME,"");
                             utils_nvs_set_str(NVS_TCP_DISCON_DTIME,TCP_DISCON_DTIME);
                             }
