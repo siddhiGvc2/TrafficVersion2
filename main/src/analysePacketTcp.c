@@ -119,8 +119,13 @@ void tcpip_client_task(){
                         IsSocketConnected=1; 
                          if(MQTTRequired)
                         {
-                        sprintf(payload, "*TCP,%s,%s#",TCP_DISCON_DTIME,currentDateTime); 
-                        mqtt_publish_msg(payload);
+                            if(strlen(TCP_DISCON_DTIME)>0)
+                            {
+                            sprintf(payload, "*TCP,%s,%s#",TCP_DISCON_DTIME,currentDateTime); 
+                            mqtt_publish_msg(payload);
+                            strcpy(TCP_DISCON_DTIME,"");
+                            utils_nvs_set_str(NVS_TCP_DISCON_DTIME,TCP_DISCON_DTIME);
+                            }
                         }
                     }
                   

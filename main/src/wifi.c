@@ -417,8 +417,14 @@ void wifi_init_sta(void)
         if(MQTTRequired)
         {
         char payload[300];
-        sprintf(payload, "*WIFI,%s,%s#",WIFI_DISCON_DTIME,currentDateTime); 
-        mqtt_publish_msg(payload);
+       
+            if(strlen(WIFI_DISCON_DTIME)>0)
+            {
+            sprintf(payload, "*WIFI,%s,%s#",WIFI_DISCON_DTIME,currentDateTime); 
+            mqtt_publish_msg(payload);
+            strcpy(WIFI_DISCON_DTIME,"");
+            utils_nvs_set_str(NVS_WIFI_DISCON_DTIME,WIFI_DISCON_DTIME);
+            }
         }
        
         // esp_http_client_config_t config = {

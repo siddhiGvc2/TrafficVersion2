@@ -148,8 +148,18 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
         if(MQTTRequired)
         {
-        sprintf(payload, "*MQTT,%s,%s#",MQTT_DISCON_DTIME,currentDateTime); 
-        mqtt_publish_msg(payload);
+            if(strlen(MQTT_DISCON_DTIME)>0)
+            {
+            sprintf(payload, "*MQTT,%s,%s#",MQTT_DISCON_DTIME,currentDateTime); 
+            mqtt_publish_msg(payload);
+            strcpy(MQTT_DISCON_DTIME,"");
+            utils_nvs_set_str(NVS_MQTT_DISCON_DTIME, MQTT_DISCON_DTIME);
+            }
+
+            sprintf(payload, "*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber); 
+            mqtt_publish_msg(payload);
+
+
         }
       
         set_led_state(EVERYTHING_OK_LED);
