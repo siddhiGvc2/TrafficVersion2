@@ -413,6 +413,13 @@ void wifi_init_sta(void)
       
       
         connected_to_wifi_and_internet = true;
+
+        if(MQTTRequired)
+        {
+        char payload[300];
+        sprintf(payload, "*WIFI,%s,%s#",WIFI_DISCON_DTIME,currentDateTime); 
+        mqtt_publish_msg(payload);
+        }
        
         // esp_http_client_config_t config = {
         //     .url = "http://www.google.com",  
