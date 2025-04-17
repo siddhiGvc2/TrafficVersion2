@@ -112,6 +112,14 @@ extern char updatedDateTime[13];
 extern char DISCON_DTIME[13];
 extern char RICON_DTIME[13];
 
+extern char WIFI_DISCON_DTIME[13];
+
+extern char MQTT_DISCON_DTIME[13];
+
+extern char TCP_DISCON_DTIME[13];
+
+extern int IsSocketConnected;
+
 
 extern char LastTID[100];
 extern char TID[100];

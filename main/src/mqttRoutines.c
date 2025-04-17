@@ -158,7 +158,10 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
         uart_write_string_ln("MQTT_EVENT_DISCONNECTED");
-        NetwrokFail();
+
+        strcpy(MQTT_DISCON_DTIME,currentDateTime);
+        utils_nvs_set_str(NVS_MQTT_DISCON_DTIME, MQTT_DISCON_DTIME);
+        
         set_led_state(MQTT_DISCONNECTED);
         MQTT_CONNEECTED = 0;
         break;

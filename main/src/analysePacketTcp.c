@@ -89,6 +89,12 @@ void tcpip_client_task(){
                 if (err != 0) {
                     ESP_LOGE(TAG, "*Socket unable to connect: errno %d#", errno);
                     ESP_LOGE(TAG, "*Shutting down socket and restarting...#");
+                    if(IsSocketConnected)
+                    {
+                        strcpy(TCP_DISCON_DTIME,currentDateTime);
+                        utils_nvs_set_str(NVS_TCP_DISCON_DTIME, TCP_DISCON_DTIME);
+                        IsSocketConnected=0;
+                    }
                     serverStatus=0;
                     sprintf(payload, "*NOSERVER#");
                     shutdown(sock, 0);
@@ -112,6 +118,7 @@ void tcpip_client_task(){
                     int err = send(sock, payload, strlen(payload), 0);
                    
                     ESP_LOGI(TAG, "*Successfully connected#"); 
+                    IsSocketConnected=1;
                     strcpy(RICON_DTIME,currentDateTime);
                     utils_nvs_set_str(NVS_RICON_DTIME, RICON_DTIME);
                     serverStatus=1;

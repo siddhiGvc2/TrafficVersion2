@@ -101,6 +101,19 @@ void load_settings_nvs(){
     
     char payload[150];
     ESP_LOGI(TAG, "*NVS Reading Started#");
+    
+
+    if(utils_nvs_get_str(NVS_WIFI_DISCON_DTIME,WIFI_DISCON_DTIME,100) == ESP_OK){
+        utils_nvs_get_str(NVS_WIFI_DISCON_DTIME,WIFI_DISCON_DTIME,100);
+       }
+
+    if(utils_nvs_get_str(NVS_MQTT_DISCON_DTIME,MQTT_DISCON_DTIME,100) == ESP_OK){
+    utils_nvs_get_str(NVS_MQTT_DISCON_DTIME,MQTT_DISCON_DTIME,100);
+    }
+
+    if(utils_nvs_get_str(NVS_TCP_DISCON_DTIME,TCP_DISCON_DTIME,100) == ESP_OK){
+        utils_nvs_get_str(NVS_TCP_DISCON_DTIME,TCP_DISCON_DTIME,100);
+        }
 
 
     if(utils_nvs_get_str(NVS_DISCON_DTIME,DISCON_DTIME,100) == ESP_OK){

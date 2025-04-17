@@ -107,6 +107,14 @@ char updatedDateTime[13];
 char DISCON_DTIME[13];
 char RICON_DTIME[13];
 
+char WIFI_DISCON_DTIME[13];
+
+char MQTT_DISCON_DTIME[13];
+
+char TCP_DISCON_DTIME[13];
+
+int IsSocketConnected=0;
+
 
 char LastTID[100];
 char TID[100];
