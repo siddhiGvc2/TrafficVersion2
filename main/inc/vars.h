@@ -102,16 +102,16 @@ char PassThruValue[100];
 char SerialNumber[100];
 
 
-char currentDateTime[13];
-char updatedDateTime[13];
-char DISCON_DTIME[13];
-char RICON_DTIME[13];
+char currentDateTime[50];
+char updatedDateTime[50];
+char DISCON_DTIME[50];
+char RICON_DTIME[50];
 
-char WIFI_DISCON_DTIME[13];
+char WIFI_DISCON_DTIME[50];
 
-char MQTT_DISCON_DTIME[13];
+char MQTT_DISCON_DTIME[50];
 
-char TCP_DISCON_DTIME[13];
+char TCP_DISCON_DTIME[50];
 
 int IsSocketConnected=0;
 

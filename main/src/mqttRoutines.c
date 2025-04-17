@@ -144,6 +144,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
         uart_write_string_ln("MQTT_EVENT_CONNECTED");
         MQTT_CONNEECTED = 1;  // Ensure MQTT_CONNECTED is defined
+
       
         set_led_state(EVERYTHING_OK_LED);
         sprintf(topic, "GVC/KP/%s", SerialNumber);
@@ -161,7 +162,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
         strcpy(MQTT_DISCON_DTIME,currentDateTime);
         utils_nvs_set_str(NVS_MQTT_DISCON_DTIME, MQTT_DISCON_DTIME);
-        
+
         set_led_state(MQTT_DISCONNECTED);
         MQTT_CONNEECTED = 0;
         break;

@@ -107,16 +107,16 @@ extern char PassThruValue[100];
 
 extern char SerialNumber[100];
 
-extern char currentDateTime[13];
-extern char updatedDateTime[13];
-extern char DISCON_DTIME[13];
-extern char RICON_DTIME[13];
+extern char currentDateTime[50];
+extern char updatedDateTime[50];
+extern char DISCON_DTIME[50];
+extern char RICON_DTIME[50];
 
-extern char WIFI_DISCON_DTIME[13];
+extern char WIFI_DISCON_DTIME[50];
 
-extern char MQTT_DISCON_DTIME[13];
+extern char MQTT_DISCON_DTIME[50];
 
-extern char TCP_DISCON_DTIME[13];
+extern char TCP_DISCON_DTIME[50];
 
 extern int IsSocketConnected;
 

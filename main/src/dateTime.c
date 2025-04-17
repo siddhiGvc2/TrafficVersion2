@@ -26,50 +26,65 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
-
+#include <time.h>  // Include time.h for time functions, if available
 #include "externVars.h"
 #include "calls.h"
 
-
+char payload[300];
 
 void incrementDateTimeByOneSecond(const char *dateTimeStr, char *outputStr) {
     struct tm t = {0};
 
-    sscanf(dateTimeStr, "%2d%2d%2d%2d%2d%2d",
-           &t.tm_mday,
-           &t.tm_mon,
+    sscanf(dateTimeStr, "%4d-%2d-%2d %2d:%2d:%2d",
            &t.tm_year,
+           &t.tm_mon,
+           &t.tm_mday,
            &t.tm_hour,
            &t.tm_min,
            &t.tm_sec);
 
-    t.tm_mon -= 1;         // struct tm months are 0-11
-    t.tm_year += 100;      // tm_year is years since 1900 (assuming 20xx)
+    t.tm_year -= 1900;     // struct tm expects years since 1900
+    t.tm_mon -= 1;         // struct tm months are 0–11
 
     time_t timeEpoch = mktime(&t);
-    timeEpoch += 1; // Increment by 1 second
+    timeEpoch += 1;  // Add one second
 
-    struct tm *newTime = localtime(&timeEpoch);
+    struct tm newTime;
+    localtime_r(&timeEpoch, &newTime);
 
-    // Format back to ddmmyyhhmmss
-    sprintf(outputStr, "%02d%02d%02d%02d%02d%02d",
-            newTime->tm_mday,
-            newTime->tm_mon + 1,
-            newTime->tm_year % 100,
-            newTime->tm_hour,
-            newTime->tm_min,
-            newTime->tm_sec);
+    // Format: YYYY-MM-DD HH:MM:SS
+    snprintf(outputStr,sizeof(currentDateTime), "%04d-%02d-%02d %02d:%02d:%02d",
+             newTime.tm_year + 1900,
+             newTime.tm_mon + 1,
+             newTime.tm_mday,
+             newTime.tm_hour,
+             newTime.tm_min,
+             newTime.tm_sec);
 }
 
+
 void date_time_task(void) {
-   
+    time_t now = time(NULL);
+    now += 19800;  // Add IST offset (+5 hours 30 minutes)
+
+    struct tm timeinfo;
+    gmtime_r(&now, &timeinfo);
+
+    snprintf(currentDateTime, sizeof(currentDateTime), "%04d-%02d-%02d %02d:%02d:%02d",
+             timeinfo.tm_year + 1900,
+             timeinfo.tm_mon + 1,
+             timeinfo.tm_mday,
+             timeinfo.tm_hour,
+             timeinfo.tm_min,
+             timeinfo.tm_sec);
 
     while (1) {
         incrementDateTimeByOneSecond(currentDateTime, updatedDateTime);
         strcpy(currentDateTime, updatedDateTime);
 
-        // printf("Current DateTime: %s\n", currentDateTime);
+        // Debug print
+        // printf("IST Time: %s\n", currentDateTime);
 
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay 1 second
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
