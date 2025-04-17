@@ -418,6 +418,7 @@ void gpio_read_n_act(void)
                     if (CurrentValueOfChangeValue == 0)
                     {
                         StartTime = millis();
+                        PinPressed = 0;
                     }
                     else
                     {

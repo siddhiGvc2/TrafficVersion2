@@ -33,6 +33,12 @@ s2pinit if added will set a test output , normally keep it off
 UART2 not yet tested/not working
 wifi/server disconnection to be tested
 
+
+170425
+added *POWERON# command sent to MQTT at power on.
+added TCP off/on time
+added *TCP-OK# and *TCP-NOTOK# command
+
 040125
 added *STATUS?# command in main/src/anaysePacketUart.c/process_uart_packet
 

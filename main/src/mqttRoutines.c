@@ -148,6 +148,13 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
           
         if(MQTTRequired)
         {
+            if (FirstPowerOn)
+            {
+                FirstPowerOn = false;
+                sprintf(payload, "*POWERON#"); 
+                mqtt_publish_msg(payload);    
+            }
+            
             if(strlen(MQTT_DISCON_DTIME)>0)
             {
             sprintf(payload, "*MQTT,%s,%s#",MQTT_DISCON_DTIME,currentDateTime); 

@@ -46,6 +46,7 @@ void app_main(void)
     char payload[100];
     MQTTRequired = 1;
     FirstTryMQTT = 1;
+    FirstPowerOn = 1;
     for (int i = 0 ; i < 7 ; i++)
     {
         Totals[i] = 0;
@@ -66,7 +67,7 @@ void app_main(void)
     console_uart_init();
     uart_write_string(FWVersion);
     read_mac_address();
-    xTaskCreate(tcpip_client_task, "tcpip_client_task", 8192, NULL, 7, NULL);
+    xTaskCreate(tcpip_client_task, "tcpip_client_task", 1024 * 10, NULL, 12, NULL);
     load_settings_nvs();
     ESP_LOGI(TAG, "*Starting ICH#");
     ICH_init();

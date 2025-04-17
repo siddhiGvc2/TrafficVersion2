@@ -17,6 +17,7 @@ char WIFI_SSID_3[64];
 char WIFI_PASS_3[64];
 
 bool connected_to_wifi = false;
+bool FirstPowerOn =true;
 
 char server_ip_addr[100];
 char ipstr[100]; // host mapped

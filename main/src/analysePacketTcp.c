@@ -67,6 +67,7 @@ void tcpip_client_task(){
             //if wifi connected try to connect to tcp server
              resolve_hostname(server_ip_addr);
             struct sockaddr_in dest_addr;
+            IsSocketConnected = 0;
             dest_addr.sin_addr.s_addr = inet_addr(ipstr);
             dest_addr.sin_family = AF_INET;
             dest_addr.sin_port = htons(server_port);
@@ -89,10 +90,11 @@ void tcpip_client_task(){
                 if (err != 0) {
                     ESP_LOGE(TAG, "*Socket unable to connect: errno %d#", errno);
                     ESP_LOGE(TAG, "*Shutting down socket and restarting...#");
+                    vTaskDelay(pdMS_TO_TICKS(500)); // Haresh: TCP deinit needs some time to clear a queue in TCP thread
                     if(IsSocketConnected)
                     {
-                        uart_write_string_ln("TCP DISCONNECTED");
-                        mqtt_publish_msg("TCP DISCONNECTED");
+                        uart_write_string_ln("*TCP-NOTOK#");
+                        mqtt_publish_msg("*TCP-NOTOK#");
                         strcpy(TCP_DISCON_DTIME,currentDateTime);
                         utils_nvs_set_str(NVS_TCP_DISCON_DTIME, TCP_DISCON_DTIME);
                         IsSocketConnected=0;
@@ -119,11 +121,11 @@ void tcpip_client_task(){
                     if(IsSocketConnected==0)
                     {
                         IsSocketConnected=1; 
-                        uart_write_string_ln("TCP CONNECTED");
+                        uart_write_string_ln("*TCP-OK#");
                       
                          if(MQTTRequired)
                         {
-                            mqtt_publish_msg("TCP CONNECTED");
+                            mqtt_publish_msg("*TCP-OK#");
                             if(strlen(TCP_DISCON_DTIME)>0)
                             {
                             sprintf(payload, "*TCP,%s,%s#",TCP_DISCON_DTIME,currentDateTime); 
@@ -181,7 +183,18 @@ void tcpip_client_task(){
                             if (len < 0) {
                                 ESP_LOGE(TAG, "*recv failed: errno %d#", errno);
                                 ESP_LOGE(TAG, "*Shutting down socket and restarting...#");
-                              
+                                if(IsSocketConnected)
+                                {
+                                    uart_write_string_ln("*TCP-NOTOK#");
+                                    mqtt_publish_msg("*TCP-NOTOK#");
+                                    strcpy(TCP_DISCON_DTIME,currentDateTime);
+                                    utils_nvs_set_str(NVS_TCP_DISCON_DTIME, TCP_DISCON_DTIME);
+                                    IsSocketConnected=0;
+                                }
+                                // uart_write_string_ln("*TCP-NOTOK#");
+                                // if(MQTTRequired){
+                                // mqtt_publish_msg("*TCP-NOTOK#");
+                                // }
                                 shutdown(sock, 0);
                                 close(sock);
                                 sock  = -1;
