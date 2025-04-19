@@ -50,7 +50,7 @@ void resolve_hostname(const char *);
 void RestartDevice (void)
 {
      ESP_LOGI(TAG, "**************Restarting after 3 second******#");
-     send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
+     sendSocketData(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
      ESP_LOGI(TAG, "*RST-OK#");
      uart_write_string_ln("*Resetting device#");
      led_state = WAITING_FOR_RESTART;
@@ -219,12 +219,12 @@ void gpio_read_n_act(void)
                     {
                         ErasePinStatus = 0;
                         ESP_LOGI(TAG,"*Eraseing All Parameters#");
-                        send(sock, "*ERASE-LOCAL#", strlen("*ERASE-LOCAL#"), 0);
+                        sendSocketData(sock, "*ERASE-LOCAL#", strlen("*ERASE-LOCAL#"), 0);
                         utils_nvs_erase_all();
                         utils_nvs_set_str(NVS_SERIAL_NUMBER,SerialNumber);
 
                         ESP_LOGI(TAG, "**************Restarting after 3 second******#");
-                        send(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
+                        sendSocketData(sock, "*RST-OK#", strlen("*RST-OK#"), 0);
                         ESP_LOGI(TAG, "*RST-OK#");
                         uart_write_string_ln("*Resetting device#");
                         RestartDevice();
@@ -308,7 +308,7 @@ void gpio_read_n_act(void)
             // if (gpio_get_level(JUMPER) == 0)
             // {
                 sprintf(payload, "*INH,%d#",INHInputValue); 
-                send(sock, payload, strlen(payload), 0);
+                sendSocketData(sock, payload, strlen(payload), 0);
             // }
         }
         InputPin = 0;
@@ -371,7 +371,7 @@ void gpio_read_n_act(void)
                    if (gpio_get_level(JUMPER) == 0)
                    {
                         sprintf(payload, "*RP,%d,%d#",LastInputPin,TotalPulses); 
-                        send(sock, payload, strlen(payload), 0);
+                        sendSocketData(sock, payload, strlen(payload), 0);
                    }
                    // create same pules on same output pin 17-06-24
                    // provided this is not hardware test mode

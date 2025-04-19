@@ -36,7 +36,7 @@ void SendResponse(const char *Message,const char *OutputVia)
 {
     if(strcmp(OutputVia, "TCP") == 0)
     {
-        send(sock, Message, strlen(Message), 0);
+        sendSocketData(sock, Message, strlen(Message), 0);
         uart_write_string_ln(Message);
         if(MQTT_CONNEECTED && connected_to_wifi && MQTTRequired)
         {
@@ -212,14 +212,14 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
      else if(strncmp(rx_buffer, "*HBT#",5) == 0)
      {
             sprintf(payload, "*HBT-OK#");
-            send(sock, payload, strlen(payload), 0);
+            sendSocketData(sock, payload, strlen(payload), 0);
             ServerHBTTimeOut = 0;
             uart_write_string_ln("*SERVER HBT-OK#");
             hbt_received();
      }
      
      else if(strncmp(rx_buffer, "*RESTART#", 9) == 0){
-        send(sock, "*RESTART-OK#", strlen("*RESTART-OK#"), 0);
+        sendSocketData(sock, "*RESTART-OK#", strlen("*RESTART-OK#"), 0);
         uart_write_string_ln("*Resetting device#");
         tx_event_pending = 1;
         RestartDevice();
@@ -318,7 +318,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             if (sscanf(rx_buffer, "*PT:%[^:]:%[^:]:%[^:#]#", tempUserName, tempDateTime, tempBuf) == 3) {
             // Check if any of the parsed values are empty
             if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0 ) {
-                // Send error message if any required parameters are missing or invalid
+                // send error message if any required parameters are missing or invalid
                 const char* errorMsg = "*Error: Missing or invalid parameters#";
                 SendResponse(errorMsg,InputVia);
             }
@@ -883,7 +883,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             if (strcmp(ErasedSerialNumber, SerialNumber) != 0) {
                // send (payload,"*Erase:Serial Not Matched Command:%s Actual:%s#",tempBuf,SerialNumber);
                const char* errorMsg = "*Erase:Serial Not Matched#";
-               // send(sock, errorMsg, strlen(errorMsg), 0);
+               // sendSocketData(sock, errorMsg, strlen(errorMsg), 0);
                SendResponse(errorMsg,InputVia);
            }
            else{
@@ -974,7 +974,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             utils_nvs_set_str(NVS_CC_USERNAME, CCuserName);
             utils_nvs_set_str(NVS_CC_DATETIME, CCdateTime);  // added on 20-12-24 as per EC10
             utils_nvs_set_str(NVS_UNIX_TS, UniqueTimeStamp);
-            // send(sock, payload, strlen(payload), 0);
+            // sendSocketData(sock, payload, strlen(payload), 0);
             for (int i = 0 ; i < 7 ; i++)
             {
                 Totals[i] = 0;
@@ -1024,11 +1024,11 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
                 utils_nvs_set_str(NVS_SERIAL_NUMBER, SerialNumber);
                 utils_nvs_set_str(NVS_SN_USERNAME, SNuserName);
                 utils_nvs_set_str(NVS_SN_DATETIME, SNdateTime);
-                send(sock, "*SN-OK#", strlen("*SN-OK#"), 0);
+                sendSocketData(sock, "*SN-OK#", strlen("*SN-OK#"), 0);
             }
             else
             {
-               send(sock, "*SN CAN NOT BE SET#", strlen("*SN CAN NOT BE SET#"), 0);
+               sendSocketData(sock, "*SN CAN NOT BE SET#", strlen("*SN CAN NOT BE SET#"), 0);
 
             }
                 tx_event_pending = 1; 

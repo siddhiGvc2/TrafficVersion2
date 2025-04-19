@@ -1,6 +1,6 @@
 #
 # Automatically generated file. DO NOT EDIT.
-# Espressif IoT Development Framework (ESP-IDF) 5.2.3 Project Configuration
+# Espressif IoT Development Framework (ESP-IDF) 5.2.5 Project Configuration
 #
 CONFIG_SOC_BROWNOUT_RESET_SUPPORTED="Not determined"
 CONFIG_SOC_TWAI_BRP_DIV_SUPPORTED="Not determined"
@@ -837,6 +837,7 @@ CONFIG_ESP_PHY_CALIBRATION_MODE=0
 # Power Management
 #
 # CONFIG_PM_ENABLE is not set
+# CONFIG_PM_SLP_IRAM_OPT is not set
 # end of Power Management
 
 #
@@ -1142,7 +1143,6 @@ CONFIG_HAL_ASSERTION_EQUALS_SYSTEM=y
 CONFIG_HAL_DEFAULT_ASSERTION_LEVEL=2
 CONFIG_HAL_SPI_MASTER_FUNC_IN_IRAM=y
 CONFIG_HAL_SPI_SLAVE_FUNC_IN_IRAM=y
-# CONFIG_HAL_ECDSA_GEN_SIG_CM is not set
 # end of Hardware Abstraction Layer (HAL) and Low Level (LL)
 
 #

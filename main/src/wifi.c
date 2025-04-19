@@ -408,19 +408,14 @@ void wifi_init_sta(void)
         }
     }
   
-    if(connected_to_wifi){
-       
-      
-      
+    if(connected_to_wifi){     
         connected_to_wifi_and_internet = true;
-
         uart_write_string_ln("WIFI CONNECTED");
 
         if(MQTTRequired)
         {
             mqtt_publish_msg("WIFI CONNECTED");
-        char payload[300];
-       
+            char payload[300];
             if(strlen(WIFI_DISCON_DTIME)>0)
             {
             sprintf(payload, "*WIFI,%s,%s#",WIFI_DISCON_DTIME,currentDateTime); 
@@ -447,7 +442,6 @@ void wifi_init_sta(void)
     }
     else // restart
     {
-       
         strcpy(WIFI_DISCON_DTIME,currentDateTime);
         utils_nvs_set_str(NVS_WIFI_DISCON_DTIME, WIFI_DISCON_DTIME);
         ESP_LOGI(TAG,"*All tries over");

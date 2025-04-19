@@ -92,4 +92,5 @@ extern void NetworkConnect(void);
 
 
 
+extern int sendSocketData (int  , const char*  , int, int );
 

@@ -39,10 +39,23 @@ void sendHBT (void);
 void tcp_ip_client_send_str(const char *);
 
 
+int sendSocketData (int sock , const char* socketMessage , int length, int option)
+{
+    char payload[200];
+    int err = send (sock, socketMessage , length, option);
+    if (err)
+    {
+        sprintf (payload,"*TCP-Error,%s#", socketMessage);
+        mqtt_publish_msg(payload);
+        uart_write_string_ln("Error in TCP");
+    }
+    return err;
+}
 
 void sendError(int sock, const char* errorMsg) {
-    send(sock, errorMsg, strlen(errorMsg), 0);
+    sendSocketData(sock, errorMsg, strlen(errorMsg), 0);
 }
+
 
 void sendSSIDData(int sock, const char* SSuserName, const char* SSdateTime, int WiFiNumber, const char* WIFI_SSID_1, const char* WIFI_SSID_2, const char* WIFI_SSID_3) {
     char payload[256];  // Ensure this buffer is large enough to hold the formatted string
@@ -54,7 +67,7 @@ void sendSSIDData(int sock, const char* SSuserName, const char* SSdateTime, int 
     }
 
     sprintf(payload, "*SSID,%s,%s,%d,%s,%s,%s#", SSuserName, SSdateTime, WiFiNumber, WIFI_SSID_1, WIFI_SSID_2 ? WIFI_SSID_2 : "", WIFI_SSID_3 ? WIFI_SSID_3 : "");
-    send(sock, payload, strlen(payload), 0);
+    sendSocketData(sock, payload, strlen(payload), 0);
 }
 void tcpip_client_task(){
     char payload[700];
@@ -115,7 +128,7 @@ void tcpip_client_task(){
                     uart_write_string_ln(payload);
                   
                     
-                    int err = send(sock, payload, strlen(payload), 0);
+                    int err = sendSocketData(sock, payload, strlen(payload), 0);
                    
                     ESP_LOGI(TAG, "*Successfully connected#"); 
                     if(IsSocketConnected==0)
@@ -149,10 +162,10 @@ void tcpip_client_task(){
                         ESP_LOGI(TAG, "*MAC,%s,%s#", MAC_ADDRESS_ESP,SerialNumber) ;
 
                     sprintf(payload, "*WiFi,%d#", WiFiNumber); //actual when in production
-                    err = send(sock, payload, strlen(payload), 0);
+                    err = sendSocketData(sock, payload, strlen(payload), 0);
 
                     ESP_LOGI(TAG, "*%s#",FWVersion);
-                    err = send(sock, FWVersion, strlen(FWVersion), 0);
+                    err = sendSocketData(sock, FWVersion, strlen(FWVersion), 0);
 
                     sprintf(payload, "*QR-OK,%s#",QrString); 
           
@@ -265,7 +278,7 @@ void sendHBT (void)
     for (;;) {
         ESP_LOGI(TAG, "*HBT,%s,%s#", MAC_ADDRESS_ESP,SerialNumber);
         sprintf(payload, "*HBT,%s,%s#", MAC_ADDRESS_ESP,SerialNumber); //actual when in production
-        int err = send(sock, payload, strlen(payload), 0);
+        int err = sendSocketData(sock, payload, strlen(payload), 0);
         // gpio_set_level(LedHBT, 1);
         // vTaskDelay(200/portTICK_PERIOD_MS);
         // gpio_set_level(LedHBT, 0);
@@ -279,7 +292,7 @@ void tcp_ip_client_send_str(const char * str){
     if(sock != -1){
         ESP_LOGI(TAG, "Sending packet to TCP socket : %s", str);
         uart_write_string(tcp_packet);
-        int err = send(sock, tcp_packet, strlen(tcp_packet), 0);
+        int err = sendSocketData(sock, tcp_packet, strlen(tcp_packet), 0);
         if (err < 0) {
             ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
             sock = -1;

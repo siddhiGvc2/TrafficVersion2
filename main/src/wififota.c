@@ -83,7 +83,7 @@ void http_fota(void){
     
     if ((err = esp_http_client_open(client, 0)) != ESP_OK) {
         ESP_LOGE(TAG, "*Failed to open HTTP connection: %s#", esp_err_to_name(err));
-        send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
+        sendSocketData(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
         uart_write_string_ln("*FOTA-ERROR#");
         fotaStatus=0;
         uart_write_string_ln("*Failed to open http#");
@@ -122,7 +122,7 @@ void http_fota(void){
             if (read_len <= 0) {
                 ESP_LOGI(TAG, "*Error read data#");
                 fotaStatus=0;
-                send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
+                sendSocketData(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
                 uart_write_string_ln("*FOTA-ERROR#");
             }
             //ESP_LOGI(TAG, "read_len = %d", read_len);
@@ -130,7 +130,7 @@ void http_fota(void){
             err = esp_ota_write(ota_handle, (const void *)data, read_len);
             if (err != ESP_OK) {
                 printf("Failed to write OTA data: %s\n", esp_err_to_name(err));
-                send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
+                sendSocketData(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
                 fotaStatus=0;
                 uart_write_string_ln("*FOTA-ERROR#");
                 esp_http_client_cleanup(client);
@@ -155,7 +155,7 @@ void http_fota(void){
     err = esp_ota_end(ota_handle);
     if (err != ESP_OK) {
         printf("*OTA update failed: %s\n#", esp_err_to_name(err));
-        send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
+        sendSocketData(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
         uart_write_string_ln("*FOTA-ERROR#");
         fotaStatus=0;
         uart_write_string_ln("*ota data written#");
@@ -170,7 +170,7 @@ void http_fota(void){
     err = esp_ota_set_boot_partition(update_partition);
     if (err != ESP_OK) {
         printf("Failed to set boot partition: %s\n", esp_err_to_name(err));
-        send(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
+        sendSocketData(sock, "*FOTA-ERROR#", strlen("*FOTA-ERROR#"), 0);
         fotaStatus=0;
         uart_write_string_ln("*FOTA-ERROR#");
         esp_http_client_cleanup(client);
@@ -183,7 +183,7 @@ void http_fota(void){
     
     esp_http_client_cleanup(client);
     printf("*OTA update successful! Restarting...\n#");
-    send(sock, "*FOTA-OVER#", strlen("*FOTA-OVER#"), 0);
+    sendSocketData(sock, "*FOTA-OVER#", strlen("*FOTA-OVER#"), 0);
     fotaStatus=0;
     uart_write_string_ln("*FOTA-OVER#");
     uart_write_string_ln("OTA update successful! Restarting...");
