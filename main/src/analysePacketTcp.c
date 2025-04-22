@@ -52,6 +52,12 @@ int sendSocketData (int sock , const char* socketMessage , int length, int optio
             mqtt_publish_msg(payload);
             uart_write_string_ln(payload);
         }
+        else if (err != length)
+        {
+            sprintf (payload,"*TCP-Length Mismatch,%d,%d#", length,err);
+            mqtt_publish_msg(payload);
+            uart_write_string_ln(payload);
+        }
     }
     else
     {
