@@ -170,7 +170,7 @@ extern TCPIP_Socket_State socket_state;
 extern bool connected_to_wifi_and_internet,LED4TCPPacket;
 extern bool FirstPowerOn;
 extern int WiFiNumber;
-extern int serverStatus;
+//extern int serverStatus;
 extern int fotaStatus;
 
 extern int rx_event_pending;

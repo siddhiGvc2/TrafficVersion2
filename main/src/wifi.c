@@ -357,18 +357,18 @@ void wifi_init_sta(void)
             //ESP_LOGI(TAG, "Trying to connect to SSID2 %S | %S",DEFAULT_SSID2, DEFAULT_PASS1);
             set_led_state(SEARCH_FOR_WIFI2);
             ESP_LOGI(TAG, "*Trying to connect to SSID2# ");
-            serverStatus=0;
-            sprintf(buffer, "*NOSERVER#");
-            uart_write_string_ln(buffer); 
+           // serverStatus=0;
+           // sprintf(buffer, "*NOSERVER#"); // removed on 220425
+           // uart_write_string_ln(buffer); 
             uart_write_string_ln("*Trying to connect to SSID2#");
             WiFiNumber = 2;
             s_retry_num = 0;
             if(!connect_to_wifi(WIFI_SSID_2, WIFI_PASS_2)){
 
                 ESP_LOGI(TAG, "*Trying to connect to SSID3# ");
-                serverStatus=0;
-                 sprintf(buffer, "*NOSERVER#");
-                uart_write_string_ln(buffer); 
+              //  serverStatus=0;
+             //    sprintf(buffer, "*NOSERVER#"); // removed on 220425
+              //  uart_write_string_ln(buffer); 
                 uart_write_string_ln("*Trying to connect to SSID3#");
 
                 WiFiNumber = 3;
@@ -383,8 +383,8 @@ void wifi_init_sta(void)
                 }
                 else{
                 ESP_LOGI(TAG, "*Connected To WiFi3#");
-                serverStatus=1;
-                 sprintf(buffer, "*NOSERVER#");
+              //  serverStatus=1;
+              //   sprintf(buffer, "*NOSERVER#"); // removed on 220425
                 uart_write_string_ln(buffer); 
                 connected_to_wifi = true;
                 break;
@@ -392,16 +392,16 @@ void wifi_init_sta(void)
             }
             else{
                 ESP_LOGI(TAG, "*Connected To WiFi2#");
-                serverStatus=1;
-                 sprintf(buffer, "*NOSERVER#");
-                uart_write_string_ln(buffer); 
+               // serverStatus=1;
+               //  sprintf(buffer, "*NOSERVER#");
+               // uart_write_string_ln(buffer); 
                 connected_to_wifi = true;
                 break;
             }
         }else{
             ESP_LOGI(TAG, "*Connected To WiFi1#");
-            serverStatus=1;
-            sprintf(buffer, "*N#");
+            //serverStatus=1;
+            //sprintf(buffer, "*N#");
             uart_write_string_ln(buffer); 
             connected_to_wifi = true;
             break;

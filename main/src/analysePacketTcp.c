@@ -128,7 +128,7 @@ void tcpip_client_task(){
                         utils_nvs_set_str(NVS_TCP_DISCON_DTIME, TCP_DISCON_DTIME);
                         IsSocketConnected=0;
                     }
-                    serverStatus=0;
+                    //serverStatus=0;
                     sprintf(payload, "*NOSERVER#");
                     shutdown(sock, 0);
                     close(sock);
@@ -168,7 +168,7 @@ void tcpip_client_task(){
                   
                     strcpy(RICON_DTIME,currentDateTime);
                     utils_nvs_set_str(NVS_RICON_DTIME, RICON_DTIME);
-                    serverStatus=1;
+                    //serverStatus=1;
                      sprintf(payload, "*QR:%s#",QrString); 
                     uart_write_string_ln(payload);
 
@@ -270,8 +270,9 @@ void tcpip_client_task(){
                              
                                     strcpy(InputVia,"TCP");
                                     AnalyzeInputPkt(rx_buffer,InputVia);
-                                  
-                                
+                                    // added on 220424 to make LED position correct
+                                    if ((led_state == SEARCH_FOR_WIFI1) || (led_state == SEARCH_FOR_WIFI2) || (led_state == SEARCH_FOR_WIFI3) ) 
+                                        set_led_state(EVERYTHING_OK_LED);
 //                                Write On UART
                                 uart_write_string(rx_buffer);
                                 // gpio_set_level(LedTCP, 1);

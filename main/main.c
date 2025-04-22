@@ -102,7 +102,7 @@ void app_main(void)
    // Create monitor task
    // xTaskCreate(hbt_monitor_task, "hbt_monitor_task", 2048, NULL, 5, NULL);
     xTaskCreate(date_time_task, "date_time_task", 2048, NULL, 5, NULL);
-    xTaskCreate(SendTCcommand,"SendTCcommand", 4048, NULL, 6, NULL);
+    xTaskCreate(SendTCcommand,"SendTCcommand", 8192, NULL, 6, NULL);
     xTaskCreate(TestCoin, "TestCoin", 2048, NULL, 6, NULL);
    
     for (;;) 

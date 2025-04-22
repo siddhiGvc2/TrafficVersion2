@@ -296,13 +296,13 @@ void InitMqtt (void)
      ESP_LOGI(TAG,"MQTT Initiated");
 }
 
-
+// 220425 not being used now
 void hbt_received(void)
 {
     // Call this whenever HBT command is received
     last_hbt_time_us = esp_timer_get_time();
     uart_write_string_ln( "HBT received. Timer reset.");
-    set_led_state(EVERYTHING_OK_LED);
+    //set_led_state(EVERYTHING_OK_LED);
    
 }
 

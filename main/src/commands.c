@@ -40,7 +40,20 @@ void SendResponse(const char *Message,const char *OutputVia)
         uart_write_string_ln(Message);
         if(MQTT_CONNEECTED && connected_to_wifi && MQTTRequired)
         {
-            mqtt_publish_msg(Message);
+            char message[200];
+            strcpy(message,Message);
+            if (message[0] == '*' && message[strlen(message)-1] == '#') {
+                // Extract the command between * and #
+                char command[100];
+                char modified_message[256];
+                strncpy(command, message + 1, strlen(message) - 2);
+                command[strlen(message) - 2] = '\0';
+                
+                // Create new message with serial number
+                sprintf(modified_message, "*TCP-OUT,%s#", command);
+                mqtt_publish_msg(modified_message);
+            }
+            
         }
     }
     else if(strcmp(OutputVia, "UART") == 0)
@@ -70,8 +83,23 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
     {
         if(MQTTRequired)
         {
-           
-            mqtt_publish_msg(rx_buffer);
+
+            char message[200];
+            strcpy(message,rx_buffer);
+            if (message[0] == '*' && message[strlen(message)-1] == '#') {
+                // Extract the command between * and #
+                char command[100];
+                char modified_message[256];
+                strncpy(command, message + 1, strlen(message) - 2);
+                command[strlen(message) - 2] = '\0';
+                
+                // Create new message with serial number
+                sprintf(modified_message, "*TCP-IN,%s#", command);
+                mqtt_publish_msg(modified_message);
+            }
+            
+            
+            
             
         }
     }
@@ -106,12 +134,14 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
           sprintf(payload, "*FOTA#");
           SendResponse(payload,InputVia);  
         }
-        else if(serverStatus==0)
+//        else if(serverStatus==0)
+        else if(IsSocketConnected==0)
         {
          sprintf(payload, "*NOSERVER#");
          SendResponse(payload,InputVia);
         }
-        else if(serverStatus==1){
+        else if(IsSocketConnected==0){
+//        else if(serverStatus==1){
           sprintf(payload, "*QR:%s#",QrString); 
           SendResponse(payload,InputVia);
         }
