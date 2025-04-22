@@ -42,12 +42,22 @@ void tcp_ip_client_send_str(const char *);
 int sendSocketData (int sock , const char* socketMessage , int length, int option)
 {
     char payload[200];
-    int err = send (sock, socketMessage , length, option);
-    if (err)
+    int err = -1;
+    if (IsSocketConnected)
     {
-        sprintf (payload,"*TCP-Error,%s#", socketMessage);
+        err = send(sock, socketMessage , length, option);
+        if (err < 0)
+        {
+            sprintf (payload,"*TCP-Error,%s#", socketMessage);
+            mqtt_publish_msg(payload);
+            uart_write_string_ln(payload);
+        }
+    }
+    else
+    {
+        sprintf (payload,"*NO SOCKET %s#", socketMessage);
         mqtt_publish_msg(payload);
-        uart_write_string_ln("Error in TCP");
+        uart_write_string_ln(payload);
     }
     return err;
 }
@@ -119,18 +129,6 @@ void tcpip_client_task(){
                     sock = -1;
                 }else{
                
-                    ServerRetryCount = 0;
-                    set_led_state(EVERYTHING_OK_LED); 
-                    if (gpio_get_level(JUMPER) == 0)
-                        sprintf(payload, "*MAC,%s,%s#", MAC_ADDRESS_ESP,SerialNumber);  // for GVC use ,
-                    else
-                        sprintf(payload, "*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber);  // for KP use :
-                    uart_write_string_ln(payload);
-                  
-                    
-                    int err = sendSocketData(sock, payload, strlen(payload), 0);
-                   
-                    ESP_LOGI(TAG, "*Successfully connected#"); 
                     if(IsSocketConnected==0)
                     {
                         IsSocketConnected=1; 
@@ -149,6 +147,18 @@ void tcpip_client_task(){
                             }
                         }
                     }
+                    ServerRetryCount = 0;
+                    set_led_state(EVERYTHING_OK_LED); 
+                    if (gpio_get_level(JUMPER) == 0)
+                        sprintf(payload, "*MAC,%s,%s#", MAC_ADDRESS_ESP,SerialNumber);  // for GVC use ,
+                    else
+                        sprintf(payload, "*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber);  // for KP use :
+                    uart_write_string_ln(payload);
+                  
+                    
+                    int err = sendSocketData(sock, payload, strlen(payload), 0);
+                   
+                    ESP_LOGI(TAG, "*Successfully connected#"); 
                   
                     strcpy(RICON_DTIME,currentDateTime);
                     utils_nvs_set_str(NVS_RICON_DTIME, RICON_DTIME);
@@ -276,6 +286,7 @@ void sendHBT (void)
 {
     char payload[400];
     for (;;) {
+        
         ESP_LOGI(TAG, "*HBT,%s,%s#", MAC_ADDRESS_ESP,SerialNumber);
         sprintf(payload, "*HBT,%s,%s#", MAC_ADDRESS_ESP,SerialNumber); //actual when in production
         int err = sendSocketData(sock, payload, strlen(payload), 0);
