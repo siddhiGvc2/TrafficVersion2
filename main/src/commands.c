@@ -1106,6 +1106,16 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
       
         
     }
+    else if(strncmp(rx_buffer,"*LedState?#",11)==0)
+    {
+        sprintf(payload, "*LedState,%d#",led_state);
+        SendResponse(payload,InputVia); 
+    }
+    else if(strncmp(rx_buffer,"*CommState?#",12)==0)
+    {
+        sprintf(payload, "*CommState,%d,%ld#",IsSocketConnected,MQTT_CONNEECTED);
+        SendResponse(payload,InputVia); 
+    }
     else{
         int l = strlen(rx_buffer);
         char buf[l+1];
