@@ -391,7 +391,13 @@ void gpio_read_n_act(void)
                    sprintf(payload, "*RP,%d,%d,%d#",LastInputPin,TotalPulses,InputPin); 
                    uart_write_string(payload);
                    ESP_LOGI(TAG,"*RP,%d,%d,%d#",LastInputPin,TotalPulses,InputPin);
-                   prev_state = led_state;
+                   // 240425 avoid locking of INCOMING_PULSE_DETECTED
+                   if (prev_state != INCOMING_PULSE_DETECTED)
+                   {
+                    prev_state = led_state;
+                    sprintf(payload,"Led State & Prev State %d,%d",(int)led_state,(int)prev_state);
+                    uart_write_string_ln(payload);    
+                    }
                    ticks_100 = 0;
                    set_led_state(INCOMING_PULSE_DETECTED);
                    TimeToBlinkLed = 400;
@@ -427,7 +433,7 @@ void gpio_read_n_act(void)
 //                         sprintf(payload,"Width %lu, ChangeValue %d , InputPin %d",CurrentWidth,ChangeValue,InputPin);
                          sprintf(payload," Current Width %d ChangeValue %d , InputPin %d",CurrentWidth,ChangeValue,InputPin);
                          uart_write_string_ln(payload);
-                         if ((CurrentWidth > 25) && (CurrentWidth < 15000)) 
+                         if ((CurrentWidth > 25) && (CurrentWidth <250)) 
                          {
                             
                             PinPressed = 0;
