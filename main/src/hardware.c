@@ -415,7 +415,7 @@ void gpio_read_n_act(void)
                 DebounceCount--;
                 if (DebounceCount == 0)
                 {
-                    if (CurrentValueOfChangeValue == 0)
+                    if (CurrentValueOfChangeValue)
                     {
                         StartTime = millis();
                         PinPressed = 0;
