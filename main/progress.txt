@@ -1,5 +1,15 @@
 /*     
 
+260425
+connected_to_wifi_and_internet
+connected_to_wifi
+
+In Publish message of Mqtt aded '*' with SerialNumber & Message.
+Led State pins changes for MQTT_DISCONNECTED
+Publisher_Task bug solved.
+
+
+
 wifi sequence
 Connect WiFi at Power On
 

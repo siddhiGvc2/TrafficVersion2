@@ -82,7 +82,7 @@ void publish_message(const char *message, esp_mqtt_client_handle_t client) {
         command[strlen(message) - 2] = '\0';
         
         // Create new message with serial number
-        sprintf(modified_message, "*%s,%s#", SerialNumber, command);
+        sprintf(modified_message, "*%s,*%s#", SerialNumber, command);
         message = modified_message;
     }
     
@@ -119,8 +119,8 @@ void Publisher_Task(void *params)
     if(MQTT_CONNEECTED)
     {
         publish_message("*HBT#", client);
-        vTaskDelay(120000 / portTICK_PERIOD_MS);
     }
+    vTaskDelay(120000 / portTICK_PERIOD_MS);
   }
 }
 
@@ -182,6 +182,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         break;
 
     case MQTT_EVENT_DISCONNECTED:
+        if (connected_to_wifi)
+        {
         ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
         uart_write_string_ln("MQTT_EVENT_DISCONNECTED");
 
@@ -189,6 +191,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         utils_nvs_set_str(NVS_MQTT_DISCON_DTIME, MQTT_DISCON_DTIME);
 
         set_led_state(MQTT_DISCONNECTED);
+        }
         MQTT_CONNEECTED = 0;
         break;
 
@@ -249,9 +252,11 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         break;
 
     case MQTT_EVENT_ERROR:
+        if (connected_to_wifi)
+        {
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
         uart_write_string_ln( "MQTT_EVENT_ERROR");
-      
+        }
         break;
 
     default:
@@ -264,6 +269,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 void mqtt_app_start(void)
 {
     ESP_LOGI(TAG, "STARTING MQTT");
+    uart_write_string_ln("STARTING MQTT");
     esp_mqtt_client_config_t mqttConfig = {
          .broker.address.uri = "mqtt://snackboss-iot.in:1883",
         .session.protocol_ver = MQTT_PROTOCOL_V_3_1_1,

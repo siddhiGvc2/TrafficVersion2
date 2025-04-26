@@ -105,8 +105,8 @@ void leds_update_task(){
             numberOfPulses = 4;
             LedInUse= 2;            
         }else if(led_state == MQTT_DISCONNECTED){
-            numberOfPulses = 2;
-            LedInUse= 4;            
+            numberOfPulses = 8;
+            LedInUse= 1;            
         }else if(led_state == MQTT_PUBLISH_FAILED){
             numberOfPulses = 4;
             LedInUse= 4;            
