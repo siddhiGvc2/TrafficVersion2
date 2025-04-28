@@ -392,14 +392,16 @@ void gpio_read_n_act(void)
                    uart_write_string(payload);
                    ESP_LOGI(TAG,"*RP,%d,%d,%d#",LastInputPin,TotalPulses,InputPin);
                    // 240425 avoid locking of INCOMING_PULSE_DETECTED
-                   if (prev_state != INCOMING_PULSE_DETECTED)
+                   if( (prev_state != INCOMING_PULSE_DETECTED) && (led_state != INCOMING_PULSE_DETECTED) )
                    {
                     prev_state = led_state;
                     sprintf(payload,"Led State & Prev State %d,%d",(int)led_state,(int)prev_state);
                     uart_write_string_ln(payload);    
-                    }
+                   }
                    ticks_100 = 0;
                    set_led_state(INCOMING_PULSE_DETECTED);
+                //    sprintf(payload,"Led State & Prev State %d,%d",(int)led_state,(int)prev_state);
+                //    uart_write_string_ln(payload);    
                    TimeToBlinkLed = 400;
                    TotalPulses = 0;
                 }
@@ -411,8 +413,8 @@ void gpio_read_n_act(void)
             CurrentValueOfChangeValue = ChangeValue & InputPin;
             LastValue = InputPin;
             DebounceCount = 2;
-            sprintf(payload,"Current Value %d, Change Value %d , Current Change of Value %d",InputPin,ChangeValue,CurrentValueOfChangeValue);
-            uart_write_string_ln(payload);
+           // sprintf(payload,"Current Value %d, Change Value %d , Current Change of Value %d",InputPin,ChangeValue,CurrentValueOfChangeValue);
+           // uart_write_string_ln(payload);
         }
         else
         {
@@ -432,7 +434,7 @@ void gpio_read_n_act(void)
                          CurrentWidth = StopTime - StartTime;   
 //                         sprintf(payload,"Width %lu, ChangeValue %d , InputPin %d",CurrentWidth,ChangeValue,InputPin);
                          sprintf(payload," Current Width %d ChangeValue %d , InputPin %d",CurrentWidth,ChangeValue,InputPin);
-                         uart_write_string_ln(payload);
+                         //uart_write_string_ln(payload);
                          if ((CurrentWidth > 25) && (CurrentWidth <250)) 
                          {
                             
