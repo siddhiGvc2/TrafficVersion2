@@ -1108,7 +1108,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
     }
     else if(strncmp(rx_buffer,"*LedState?#",11)==0)
     {
-        sprintf(payload, "*LedState,%d#",led_state);
+        sprintf(payload, "*LedState,%d,%d#",prev_state,led_state);
         SendResponse(payload,InputVia); 
     }
     else if(strncmp(rx_buffer,"*CommState?#",12)==0)

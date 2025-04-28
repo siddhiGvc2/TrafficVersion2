@@ -190,7 +190,7 @@ void gpio_read_n_act(void)
     uint8_t i;
     uint16_t PinPressed = 0;
     uint8_t MultiplePressed = 0;
-    Led_State_t prev_state = STANDBY_LED;
+  
     for (;;)
     {
         if (TimeToBlinkLed)
