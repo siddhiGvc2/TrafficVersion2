@@ -307,7 +307,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
     }
 // All settings commands
     else if(strncmp(rx_buffer, "*INH:", 5) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             sscanf(rx_buffer, "*INH:%[^:]:%[^:]:%d#",INHuserName,INHdateTime, &INHOutputValue);
           
@@ -316,12 +316,6 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         {
             sscanf(rx_buffer, "*INH:%d#",&INHOutputValue);
             strcpy(INHuserName,"LOCAL");
-            strcpy(INHdateTime,"00/00/00");
-        }
-        else if(strcmp(InputVia, "MQTT") == 0)
-        {
-            sscanf(rx_buffer, "*INH:%d#",&INHOutputValue);
-            strcpy(INHuserName,"MQTT_LOCAL");
             strcpy(INHdateTime,"00/00/00");
         }
 
@@ -342,7 +336,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         utils_nvs_set_int(NVS_INH_KEY, INHOutputValue);
      }  
      else if(strncmp(rx_buffer, "*PT:", 4) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             char tempUserName[64], tempDateTime[64], tempBuf[64] ;
             if (sscanf(rx_buffer, "*PT:%[^:]:%[^:]:%[^:#]#", tempUserName, tempDateTime, tempBuf) == 3) {
@@ -371,13 +365,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             strcpy(PTuserName, "LOCAL");
             strcpy(PTdateTime, "00/00/00");
         }
-        else if(strcmp(InputVia,"MQTT") == 0)
-        {
-            sscanf(rx_buffer, "*PT:%[^#]#",PassThruValue);
-            strcpy(PTuserName, "MQTT_LOCAL");
-            strcpy(PTdateTime, "00/00/00");
-        }
-
+    
         if (strstr(PassThruValue, "Y") == NULL && strstr(PassThruValue, "N") == NULL) {
             strcpy(PassThruValue, "Y");
         }
@@ -391,7 +379,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 
      }
      else if(strncmp(rx_buffer, "*SP:", 4) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             sscanf(rx_buffer, "*SP:%[^:]:%[^:]:%d#",SPuserName,SPdateTime, &jumperPort);
         }
@@ -401,13 +389,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             strcpy(SPuserName,"LOCAL");
             strcpy(SPdateTime,"00/00/00");
         }
-        else if(strcmp(InputVia, "MQTT") == 0)
-        {
-            sscanf(rx_buffer, "*SP:%d#",&jumperPort);
-            strcpy(SPuserName,"MQTT_LOCAL");
-            strcpy(SPdateTime,"00/00/00");
-        }
-
+    
         sprintf(payload, "*SP-OK,%s,%s,%d#",SPuserName,SPdateTime,jumperPort);
         utils_nvs_set_str(NVS_SP_USERNAME, SPuserName);
         utils_nvs_set_str(NVS_SP_DATETIME, SPdateTime);
@@ -417,7 +399,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 
      }
      else if(strncmp(rx_buffer, "*CA:", 4) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             char tempUserName[64], tempDateTime[64], tempBuf[64],tempBuf2[64];
             if (sscanf(rx_buffer, "*CA:%[^:]:%[^:]:%[^:]:%[^:#]#", tempUserName, tempDateTime, tempBuf,tempBuf2) == 4) {
@@ -446,13 +428,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             strcpy(CAuserName,"LOCAL");
             strcpy(CAdateTime,"00/00/00"); 
         }
-        else if(strcmp(InputVia, "MQTT") == 0)
-        {
-            sscanf(rx_buffer, "*CA:%d:%d#",&numValue,&polarity);
-            strcpy(CAuserName,"MQTT_LOCAL");
-            strcpy(CAdateTime,"00/00/00");
-        }
-
+       
       
      
        ESP_LOGI(InputVia, "Generate @ numValue %d polarity %d",numValue,polarity);
@@ -478,7 +454,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
        utils_nvs_set_int(NVS_CA_KEY, numValue*2+polarity);
     }
     else if(strncmp(rx_buffer, "*SS:", 4) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             char tempUserName[64], tempDateTime[64], tempBuf[64];
 
@@ -508,13 +484,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             strcpy(SSuserName,"LOCAL");
             strcpy(SSdateTime,"00/00/00");
         }
-        else if(strcmp(InputVia, "MQTT") == 0)
-        {
-            sscanf(rx_buffer, "*SS:%[^#]#", WIFI_SSID_1);
-            strcpy(SSuserName,"MQTT_LOCAL");
-            strcpy(SSdateTime,"00/00/00");
-        }
-
+    
            // Save the values to non-volatile storage
            utils_nvs_set_str(NVS_SSID_1_KEY, WIFI_SSID_1);
            utils_nvs_set_str(NVS_SS_USERNAME, SSuserName);
@@ -527,7 +497,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 
     }
     else if(strncmp(rx_buffer, "*SS1:", 5) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             char tempUserName[64], tempDateTime[64], tempBuf[64];
 
@@ -557,12 +527,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             strcpy(SS1userName,"LOCAL");
             strcpy(SS1dateTime,"00/00/00");
         }
-        else if(strcmp(InputVia, "MQTT") == 0)
-        {
-            sscanf(rx_buffer, "*SS1:%[^#]#", WIFI_SSID_2);
-            strcpy(SS1userName,"MQTT_LOCAL");
-            strcpy(SS1dateTime,"00/00/00");
-        }
+       
 
            // Save the values to non-volatile storage
            utils_nvs_set_str(NVS_SSID_2_KEY, WIFI_SSID_2);
@@ -576,7 +541,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 
     }
     else if(strncmp(rx_buffer, "*SS2:", 5) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             char tempUserName[64], tempDateTime[64], tempBuf[64];
 
@@ -606,12 +571,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             strcpy(SS2userName,"LOCAL");
             strcpy(SS2dateTime,"00/00/00");
         }
-        else if(strcmp(InputVia, "MQTT") == 0)
-        {
-            sscanf(rx_buffer, "*SS2:%[^#]#", WIFI_SSID_3);
-            strcpy(SS2userName,"MQTT_LOCAL");
-            strcpy(SS2dateTime,"00/00/00");
-        }
+       
 
            // Save the values to non-volatile storage
            utils_nvs_set_str(NVS_SSID_2_KEY, WIFI_SSID_2);
@@ -625,7 +585,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 
     }
     else if(strncmp(rx_buffer, "*PW:", 4) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             char tempUserName[64], tempDateTime[64], tempBuf[64];
 
@@ -655,12 +615,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             strcpy(PWuserName,"LOCAL");
             strcpy(PWdateTime,"00/00/00");
         }
-        else if(strcmp(InputVia, "MQTT") == 0)
-        {
-            sscanf(rx_buffer, "*PW:%[^#]#",WIFI_PASS_1);
-            strcpy(PWuserName,"MQTT_LOCAL");
-            strcpy(PWdateTime,"00/00/00");
-        }
+      
 
            // Save the values to non-volatile storage
            utils_nvs_set_str(NVS_PASS_1_KEY, WIFI_PASS_1);
@@ -674,7 +629,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 
     }
     else if(strncmp(rx_buffer, "*PW1:", 5) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             char tempUserName[64], tempDateTime[64], tempBuf[64];
 
@@ -704,13 +659,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             strcpy(PW1userName,"LOCAL");
             strcpy(PW1dateTime,"00/00/00");
         }
-        else if(strcmp(InputVia, "MQTT") == 0)
-        {
-            sscanf(rx_buffer, "*PW1:%[^#]#",WIFI_PASS_2);
-            strcpy(PW1userName,"MQTT_LOCAL");
-            strcpy(PW1dateTime,"00/00/00");
-        }
-
+        
            // Save the values to non-volatile storage
            utils_nvs_set_str(NVS_PASS_2_KEY, WIFI_PASS_2);
            utils_nvs_set_str(NVS_PW1_USERNAME, PW1userName);
@@ -723,7 +672,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 
     }
     else if(strncmp(rx_buffer, "*PW2:", 5) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             char tempUserName[64], tempDateTime[64], tempBuf[64];
 
@@ -753,12 +702,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             strcpy(PW2userName,"LOCAL");
             strcpy(PW2dateTime,"00/00/00");
         }
-        else if(strcmp(InputVia, "MQTT") == 0)
-        {
-            sscanf(rx_buffer, "*PW2:%[^#]#",WIFI_PASS_3);
-            strcpy(PW2userName,"MQTT_LOCAL");
-            strcpy(PW2dateTime,"00/00/00");
-        }
+    
 
            // Save the values to non-volatile storage
            utils_nvs_set_str(NVS_PASS_3_KEY, WIFI_PASS_3);
@@ -772,7 +716,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 
     }
     else if(strncmp(rx_buffer, "*URL:", 5) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             char tempUserName[64], tempDateTime[64], tempBuf[64];
 
@@ -802,12 +746,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             strcpy(URLuserName,"LOCAL");
             strcpy(URLdateTime,"00/00/00");
         }
-        else if(strcmp(InputVia, "MQTT") == 0)
-        {
-            sscanf(rx_buffer, "*URL:%[^#]#", FOTA_URL);
-            strcpy(URLuserName,"MQTT_LOCAL");
-            strcpy(URLdateTime,"00/00/00");
-        }
+        
         utils_nvs_set_str(NVS_OTA_URL_KEY, FOTA_URL);
         sprintf(payload, "*URL-OK,%s,%s#",URLuserName,URLdateTime);
         utils_nvs_set_str(NVS_URL_USERNAME, URLuserName);
@@ -818,7 +757,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
     }
     else if(strncmp(rx_buffer, "*SIP:", 5) == 0){
 
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             char tempUserName[64], tempDateTime[64], tempBuf[64] ,tempBuf2[64];
 
@@ -847,12 +786,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             strcpy(SIPuserName,"LOCAL");
             strcpy(SIPdateTime,"00/00/00");
         }
-        else if(strcmp(InputVia, "MQTT") == 0)
-        {
-            sscanf(rx_buffer, "*SIP:%d#",&SipNumber);
-            strcpy(SIPuserName,"MQTT_LOCAL");
-            strcpy(SIPdateTime,"00/00/00");
-        }
+      
 
         if ((SipNumber == 0) || (SipNumber >MAXSIPNUMBER))  
         {  
@@ -872,7 +806,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 
     }
     else if (strncmp(rx_buffer, "*ERASE:", 7) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             char tempUserName[64], tempDateTime[64], tempBuf[64];
                                        // if seria no of device != ErasedSerialNumber then do not erase
@@ -923,19 +857,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
          
            }
         }
-        else if(strcmp(InputVia, "MQTT") == 0)
-        {
-            sscanf(rx_buffer, "*ERASE:%[^:]#",ErasedSerialNumber);
-            if (strcmp(ErasedSerialNumber, SerialNumber) != 0) {
-               const char* errorMsg = "*Erase:Serial Not Matched#";
-            
-              SendResponse("*Erase:Serial Not Matched#",InputVia);
-           }
-           else{
-           strcpy(ERASEuserName,"MQTT_LOCAL");
-           strcpy(ERASEdateTime,"00/00/00");
-           }
-        }
+       
 
         utils_nvs_set_str(NVS_ERASE_USERNAME, ERASEuserName);
         utils_nvs_set_str(NVS_ERASE_DATETIME, ERASEdateTime);
@@ -945,7 +867,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         SendResponse("*ERASE-OK#",InputVia);
     }
     else if(strncmp(rx_buffer, "*SL:", 4) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             if (edges == 0)
             {
@@ -960,12 +882,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             strcpy(SLuserName,"LOCAL");
             strcpy(SLdateTime,"00/00/00");
         }
-        else if(strcmp(InputVia, "MQTT") == 0)
-        {
-            sscanf(rx_buffer, "*SL:%d:%d#", &ledpin,&ledstatus);
-             strcpy(SLuserName,"MQTT_LOCAL");
-             strcpy(SLdateTime,"00/00/00");
-        }
+     
          
                 ESP_LOGI(InputVia, "Set LED @ Pin %d Status %d",ledpin,ledstatus);
                 
@@ -980,7 +897,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 
     }
     else if(strncmp(rx_buffer, "*CC", 3) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             sscanf(rx_buffer, "*CC:%[^:]:%[^:]:%[^#]#",CCuserName,CCdateTime,UniqueTimeStamp); // changed on 20-12-24 as per EC10
           
@@ -993,14 +910,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             sprintf(payload, "*CC-OK,%s,%s#",CCuserName,CCdateTime);
             SendResponse(payload,InputVia);
         }
-        else if(strcmp(InputVia, "MQTT") == 0){
-
-            strcpy(CCuserName,"MQTT_LOCAL");
-            strcpy(CCdateTime,"00/00/00");
-            sprintf(payload, "*CC-OK,%s,%s#",CCuserName,CCdateTime);
-            SendResponse(payload,InputVia);
-        }
-       
+     
             utils_nvs_set_str(NVS_CC_USERNAME, CCuserName);
             utils_nvs_set_str(NVS_CC_DATETIME, CCdateTime);  // added on 20-12-24 as per EC10
             utils_nvs_set_str(NVS_UNIX_TS, UniqueTimeStamp);
@@ -1020,7 +930,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 
     }
     else if(strncmp(rx_buffer, "*RST", 4) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             sscanf(rx_buffer, "*RST:%[^:]:%[^#]#",RSTuserName,RSTdateTime);
         }
@@ -1029,11 +939,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             strcpy(RSTuserName,"LOCAL");
             strcpy(RSTdateTime,"00/00/00");
         }
-        else if(strcmp(InputVia,"MQTT")==0)
-        {
-            strcpy(RSTuserName,"LOCAL");
-            strcpy(RSTdateTime,"00/00/00");
-        }
+       
        
         ESP_LOGI(InputVia, "**************Restarting after 3 second*******");
         utils_nvs_set_str(NVS_RST_USERNAME, RSTuserName);
@@ -1046,7 +952,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
 
     }
     else if(strncmp(rx_buffer, "*SN:", 4) == 0){
-        if(strcmp(InputVia, "TCP") == 0)
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
         {
             if (strstr(SerialNumber,"999999"))
             {
@@ -1077,18 +983,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
             SendResponse("*SN-OK#",InputVia);
             tx_event_pending = 1;
         }
-        else if(strcmp(InputVia,"MQTT")==0)
-        {
-            sscanf(rx_buffer, "*SN:%[^#]#",SerialNumber);
-            strcpy(SSuserName,"MQTT_LOCAL");
-            strcpy(SSdateTime,"00/00/00");
-          
-            sprintf(payload, "*SN-OK,%s,%s#",SNuserName,SNdateTime);
-            utils_nvs_set_str(NVS_SN_USERNAME, SNuserName);
-            utils_nvs_set_str(NVS_SN_DATETIME, SNdateTime);
-            SendResponse(payload,InputVia);
-            tx_event_pending = 1;
-        }
+      
   
     }
     else if(strncmp(rx_buffer, "*FOTA", 5) == 0){
