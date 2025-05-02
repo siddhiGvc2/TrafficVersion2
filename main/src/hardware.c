@@ -395,8 +395,8 @@ void gpio_read_n_act(void)
                    SendTCResponse();
                    uart_write_string(payload);
                    ESP_LOGI(TAG,"*RP,%d,%d,%d#",LastInputPin,TotalPulses,InputPin);
-                   mqtt_publish_msg(payload);
-                   SendTCResponse();
+                //    mqtt_publish_msg(payload);
+                //    SendTCResponse();
                    // 240425 avoid locking of INCOMING_PULSE_DETECTED
                    if( (prev_state != INCOMING_PULSE_DETECTED) && (led_state != INCOMING_PULSE_DETECTED) )
                    {
