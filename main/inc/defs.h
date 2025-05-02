@@ -148,7 +148,8 @@ typedef enum TCPIP_SOCKET_STATE{
 #define NVS_TCP_DISCON_DTIME "WIFI_DISCON_DTIME"
 
 //# define HBTTIMEBEFORERESTART 21000
-# define HBTTIMEBEFORERESTART 3600
+# define HBTTIMEBEFORERESTART 900 // seconds
+# define DeviceHBTTime 300000 // msec
 
 // #define DEFAULT_SERVER_IP_ADDR_TRY "gvc.co.in"
 // #define DEFAULT_SERVER_IP_ADDR "159.89.248.57"
@@ -165,7 +166,7 @@ typedef enum TCPIP_SOCKET_STATE{
 
 #define PASS_THRU   "Y"
 
-#define FWVersion "*Kwikpay_260425_VER_1.22H Naico Ltd#"
+#define FWVersion "*Kwikpay_020525_VER_1.22I Naico Ltd#"
 
 
 

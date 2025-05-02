@@ -118,9 +118,9 @@ void Publisher_Task(void *params)
   {
     if(MQTT_CONNEECTED)
     {
-        publish_message("*HBT#", client);
+        publish_message("*HBT-D#", client);
     }
-    vTaskDelay(120000 / portTICK_PERIOD_MS);
+    vTaskDelay(DeviceHBTTime / portTICK_PERIOD_MS);
   }
 }
 
@@ -173,11 +173,18 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
       
         set_led_state(EVERYTHING_OK_LED);
         sprintf(topic, "GVC/KP/%s", SerialNumber);
-        sprintf (payload,"Topic is %s",topic);
+        sprintf (payload,"*Subscribe to %s#",topic);
         uart_write_string_ln(payload);
         msg_id = esp_mqtt_client_subscribe(client, topic, 0);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
-
+        ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
+   
+        strcpy (payload,"*Subscribed to is GVC/KP/BROADCAST#");
+        strcpy (topic,"GVC/KP/BROADCAST");
+        uart_write_string_ln(payload);
+        mqtt_publish_msg(payload);
+        msg_id = esp_mqtt_client_subscribe(client, topic, 0);
+        ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
         break;
 
@@ -330,19 +337,33 @@ void hbt_monitor_task(void)
 }
 
 
+void SendTCResponse (void)
+{
+    if(MQTT_CONNEECTED && connected_to_wifi )
+    {
+        uart_write_string_ln("Traying To Send TC?");
+        char InputTC[200];
+        if  (MQTTRequired)
+        {
+            strcpy(InputVia,"MQTT");
+            strcpy(InputTC,"*TC?#");
+            AnalyzeInputPkt(InputTC,InputVia);
+        }
+        if  (TCPRequired)
+        {
+            char payload[200];
+            sprintf(payload, "*TC,%s,%d,%d,%d,%d,%d,%d,%d#", 
+            UniqueTimeStamp,CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]);
+            sendSocketData(sock, payload, strlen(payload), 0);
+        }        
+    }
+
+}
 
 void SendTCcommand(void){
     while(1)
     {
-        if(MQTT_CONNEECTED && connected_to_wifi && MQTTRequired)
-        {
-        uart_write_string_ln("Traying To Send TC?");
-        char InputTC[200];
-        strcpy(InputVia,"MQTT");
-        strcpy(InputTC,"*TC?#");
-        AnalyzeInputPkt(InputTC,InputVia);
-        }
-
+        SendTCResponse();
         vTaskDelay(900000/portTICK_PERIOD_MS);
     }
 }

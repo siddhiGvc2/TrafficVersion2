@@ -45,6 +45,7 @@ void app_main(void)
     // set totals to 0
     char payload[100];
     MQTTRequired = 1;
+    TCPRequired = 1;
     FirstTryMQTT = 1;
     FirstPowerOn = 1;
     for (int i = 0 ; i < 7 ; i++)
@@ -107,23 +108,33 @@ void app_main(void)
    
     for (;;) 
     {
-        vTaskDelay(100/portTICK_PERIOD_MS);  // 100 msec delay
+        vTaskDelay(1000/portTICK_PERIOD_MS);  // 1 sec delay
         // logic added on 251224
-        // display No HBT For X minutes once every minute
+        //  display No HBT For X minutes once every minute
         // and restart if no HBT for Y minutes
 
         // removed on 301224 as advised by Neeraj Ji
-        // ServerHBTTimeOut++;
-        // if ( ((ServerHBTTimeOut % 600) == 40) && (ServerHBTTimeOut > 620))
-        // {
-        //     sprintf(payload,"*No HBT For %d Minutes",ServerHBTTimeOut/600);
-        //     uart_write_string_ln(payload);
-        // }
-        // if (ServerHBTTimeOut > HBTTIMEBEFORERESTART)
-        // {
-        //     RestartDevice();
-        // }
-        // 1 min = 60 sec, 30 min  = 1800 seconds = 18000 X 100 msec ticks  
+        if (IsSocketConnected) 
+        {
+            if (MQTTRequired)
+            {
+                    if (MQTT_CONNEECTED)
+                    ServerHBTTimeOut++;
+            }    
+            else
+                ServerHBTTimeOut++;
+        }    
+    // skip Error in first minute
+        if ( ((ServerHBTTimeOut % 60) == 10) && (ServerHBTTimeOut > 65) )
+        {
+            sprintf(payload,"*No HBT For %d Minutes",ServerHBTTimeOut/60);
+            uart_write_string_ln(payload);
+        }
+        if (ServerHBTTimeOut > HBTTIMEBEFORERESTART)
+        {
+            RestartDevice();
+        }
+     //   1 min = 60 sec, 30 min  = 1800 seconds = 18000 X 100 msec ticks  
         // 35 mins = 2100 seconds = 21000 X 100 msecs ticks
     }
 }

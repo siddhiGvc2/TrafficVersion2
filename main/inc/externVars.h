@@ -20,7 +20,7 @@ extern bool connected_to_wifi;
 extern char server_ip_addr[100];
 extern char ipstr[100]; // host mapped
 
-extern int MQTTRequired;
+extern int MQTTRequired,TCPRequired;
 extern char MAC_ADDRESS_ESP[40];
 extern char FOTA_URL[356];
 extern int16_t server_port;
@@ -183,7 +183,7 @@ extern uint32_t last_update_led1;
 extern uint8_t led1_gpio_state;
 extern uint8_t led2_gpio_state;
 
-extern int32_t MQTT_CONNEECTED;
+extern int MQTT_CONNEECTED;
 extern int AckPulseReceived;
 extern int ServerHBTTimeOut;
 
@@ -195,4 +195,3 @@ extern int FirstTryMQTT;
 // Last time HBT was received (in microseconds)
 extern int64_t last_hbt_time_us;
 
-extern int32_t MQTT_CONNEECTED ;

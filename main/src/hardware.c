@@ -372,6 +372,8 @@ void gpio_read_n_act(void)
                    {
                         sprintf(payload, "*RP,%d,%d#",LastInputPin,TotalPulses); 
                         sendSocketData(sock, payload, strlen(payload), 0);
+                        mqtt_publish_msg(payload);
+                        SendTCResponse();
                    }
                    // create same pules on same output pin 17-06-24
                    // provided this is not hardware test mode
@@ -389,8 +391,12 @@ void gpio_read_n_act(void)
                     uart_write_string(payload);
                    }
                    sprintf(payload, "*RP,%d,%d,%d#",LastInputPin,TotalPulses,InputPin); 
+                   mqtt_publish_msg(payload);
+                   SendTCResponse();
                    uart_write_string(payload);
                    ESP_LOGI(TAG,"*RP,%d,%d,%d#",LastInputPin,TotalPulses,InputPin);
+                   mqtt_publish_msg(payload);
+                   SendTCResponse();
                    // 240425 avoid locking of INCOMING_PULSE_DETECTED
                    if( (prev_state != INCOMING_PULSE_DETECTED) && (led_state != INCOMING_PULSE_DETECTED) )
                    {
@@ -435,7 +441,7 @@ void gpio_read_n_act(void)
 //                         sprintf(payload,"Width %lu, ChangeValue %d , InputPin %d",CurrentWidth,ChangeValue,InputPin);
                          sprintf(payload," Current Width %d ChangeValue %d , InputPin %d",CurrentWidth,ChangeValue,InputPin);
                          //uart_write_string_ln(payload);
-                         if ((CurrentWidth > 25) && (CurrentWidth <250)) 
+                         if ((CurrentWidth > 20) && (CurrentWidth <250)) 
                          {
                             
                             PinPressed = 0;
@@ -474,96 +480,6 @@ void gpio_read_n_act(void)
 }
 
 
-// static void gpio_read_n_act_old(void* arg)
-// {
-//     char buff[50];
-//     uint16_t Pin = 0;
-//     uint16_t Counter = 0;
-//     for (;;) {
-
-//         x=0;
-//         Pin = 0;
-//         if (gpio_get_level(ICH1) == 0)
-//         {
-//             x=x+1;
-//             Pin = 1;
-//         }
-//         if (gpio_get_level(ICH2) == 0)
-//         {
-//             x=x+2;
-//             Pin = 2;
-//         }
-//         if (gpio_get_level(ICH3) == 0)
-//         {
-//             x=x+4;
-//             Pin = 3;
-//         }
-//         if (gpio_get_level(ICH4) == 0)
-//         {
-//             x=x+8;
-//             Pin = 4;
-//         }
-//         if (gpio_get_level(ICH5) == 0)
-//         {
-//             x=x+16;
-//             Pin = 5;
-//         }
-//         if (gpio_get_level(ICH6) == 0)
-//         {
-//             x=x+32;
-//             Pin = 6;
-//         }
-//         if (gpio_get_level(ICH7) == 0)
-//         {
-//             x=x+64;
-//             Pin = 7;
-//         }
-//         if (x!= PreviousSwitchStatus)
-//         {
-//              PreviousSwitchStatus =x;
-//              DebounceCount = 1;   
-//              ESP_LOGI("COIN","Counter %d Input Value:%d Pin %d",Counter,SwitchStatus,Pin);
-//              if (Pin == 0)
-//                 Counter = 0;
-//              else  
-//                 Counter++;      
-//         }   
-//         else if (DebounceCount>0)
-//         {
-//             DebounceCount--;
-//             if (DebounceCount == 0)
-//             {
-//                 SwitchStatus = PreviousSwitchStatus;
-//                 if (SwitchStatus != 0)
-//                 {
-//                     // if firts pulse, start timeout
-//                     if (PulseTimeOut == 0)
-//                         PulseCount = 1;
-//                     else    
-//                         PulseCount++;   
-//                     PulseTimeOut = 200; // 100  * delay
-//                 }         
-//                     Out4094Byte(SwitchStatus);    
-//  //                   blinkLEDNumber = 2;
-//                     //tcp_ip_client_send_str(buff);
-                
-//             }
-//         }
-//         if (PulseTimeOut>0)
-//         {
-//             PulseTimeOut--;
-//             if (PulseTimeOut == 0) 
-//             {
-//                  PulseCount = 0;    
-//             //    ESP_LOGI("COIN","*RP:%d:%d#",Pin,PulseCount);
-//                 sprintf (buff, "*RP:%d:%d#",Pin,PulseCount);
-//                 blinkLEDNumber = 2;
-//             //     tcp_ip_client_send_str(buff);
-//              }
-//         }
-//         vTaskDelay(5/portTICK_PERIOD_MS);
-//     }
-// }
 
 
 void ICH_init()
@@ -590,7 +506,7 @@ void ICH_init()
     // //start gpio task
 // **************** skip reading input
     if (Production)
-        xTaskCreate(gpio_read_n_act, "gpio_read_n_act", 2048, NULL, 10, NULL);
+        xTaskCreate(gpio_read_n_act, "gpio_read_n_act", 5*1024, NULL, 10, NULL);
 
     //install gpio isr service
     // gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);

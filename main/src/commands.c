@@ -239,7 +239,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         RestartDevice();
 
      } 
-     else if(strncmp(rx_buffer, "*HBT#",5) == 0)
+     else if(strncmp(rx_buffer, "*HBT-S#",5) == 0)
      {
             sprintf(payload, "*HBT-OK#");
             sendSocketData(sock, payload, strlen(payload), 0);
@@ -1008,7 +1008,7 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
     }
     else if(strncmp(rx_buffer,"*CommState?#",12)==0)
     {
-        sprintf(payload, "*CommState,%d,%ld#",IsSocketConnected,MQTT_CONNEECTED);
+        sprintf(payload, "*CommState,%d,%d#",IsSocketConnected,MQTT_CONNEECTED);
         SendResponse(payload,InputVia); 
     }
     else{
