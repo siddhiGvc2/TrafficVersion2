@@ -9,3 +9,6 @@
 -- if HBT-OK not received in X minutes and wifi is okay and MQTT is connected the reset the device
 -- HBT-D is the command from device and HBT-S is the command from server
 -- Pulse wisth is between 20 and 250 msec / hardware.c
+
+#4 030525
+-- stack for publish_mqtt task increased from 5k to 8k

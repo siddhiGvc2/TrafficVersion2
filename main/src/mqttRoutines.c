@@ -304,7 +304,7 @@ void mqtt_app_start(void)
 
 void InitMqtt (void)
 {
-     xTaskCreate(Publisher_Task, "Publisher_Task", 1024 * 5, NULL, 5, NULL);
+     xTaskCreate(Publisher_Task, "Publisher_Task", 1024 * 8, NULL, 5, NULL);
      FirstTryMQTT = 0;
      ESP_LOGI(TAG,"MQTT Initiated");
 }
