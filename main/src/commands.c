@@ -79,7 +79,15 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
     // sprintf(payload,"RESPONSE-OK");
     // SendResponse(payload,InputVia);
 // All Query Command
-    if(strcmp(InputVia,"TCP")==0)
+// blink LEDs
+// moved next 3 lines from analysePacketTcp.c to commands.c
+// on 050525 
+// so that led blinks in all cases
+    blinkLEDNumber = 1;
+    LED4TCPPacket = 1;
+    ticks_100 = 0;
+
+if(strcmp(InputVia,"TCP")==0)
     {
         if(MQTTRequired)
         {
@@ -97,10 +105,6 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
                 sprintf(modified_message, "*TCP-IN,%s#", command);
                 mqtt_publish_msg(modified_message);
             }
-            
-            
-            
-            
         }
     }
 
@@ -239,10 +243,11 @@ void AnalyzeInputPkt(const char *rx_buffer,const char *InputVia)
         RestartDevice();
 
      } 
-     else if(strncmp(rx_buffer, "*HBT-S#",5) == 0)
+     else if(strncmp(rx_buffer, "*HBT-S#",7) == 0)
      {
-            sprintf(payload, "*HBT-OK#");
-            sendSocketData(sock, payload, strlen(payload), 0);
+            // removed on 050525
+            //sprintf(payload, "*HBT-OK#");
+            //sendSocketData(sock, payload, strlen(payload), 0);
             ServerHBTTimeOut = 0;
             uart_write_string_ln("*SERVER HBT-OK#");
             hbt_received();

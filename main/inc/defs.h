@@ -5,6 +5,8 @@
 #define MAXWIFILOOPCOUNT 25 // As proposed by NB 10  // how many minutes? 30 minutes
 #define MAXSIPNUMBER 3
 
+#define QOS 1
+#define BroadcastTopic "GVC/KP/BROADCAST"
 
 typedef enum LED_STATES{
     STANDBY_LED,
@@ -166,7 +168,7 @@ typedef enum TCPIP_SOCKET_STATE{
 
 #define PASS_THRU   "Y"
 
-#define FWVersion "*Kwikpay_030525_VER_1.22Jx Naico Ltd#"
+#define FWVersion "*Kwikpay_050525_VER_1.22J Naico Ltd#"
 
 
 

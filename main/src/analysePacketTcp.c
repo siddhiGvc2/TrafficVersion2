@@ -238,9 +238,9 @@ void tcpip_client_task(){
                             }
                             // Data received
                             else {
-                                blinkLEDNumber = 1;
-                                LED4TCPPacket = 1;
-                                ticks_100 = 0;
+                                // blinkLEDNumber = 1;
+                                // LED4TCPPacket = 1;
+                                // ticks_100 = 0;
                                 rx_event_pending = 1;
                                 rx_buffer[len] = 0; // Null-terminate whatever we received and treat like a string
                                 ESP_LOGI(TAG, "Received %d bytes from %s Pulses %d:", len, server_ip_addr,pulses);

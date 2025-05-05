@@ -175,16 +175,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         sprintf(topic, "GVC/KP/%s", SerialNumber);
         sprintf (payload,"*Subscribe to %s#",topic);
         uart_write_string_ln(payload);
-        msg_id = esp_mqtt_client_subscribe(client, topic, 0);
+        msg_id = esp_mqtt_client_subscribe(client, topic, QOS);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
-        ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
-   
-        strcpy (payload,"*Subscribed to is GVC/KP/BROADCAST#");
-        strcpy (topic,"GVC/KP/BROADCAST");
+       
+        strcpy (payload,"*Subscribed to GVC/KP/BROADCAST#");
+        strcpy (topic,BroadcastTopic);
         uart_write_string_ln(payload);
         mqtt_publish_msg(payload);
-        msg_id = esp_mqtt_client_subscribe(client, topic, 0);
-        ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
+        msg_id = esp_mqtt_client_subscribe(client, topic, QOS);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
         break;
 
@@ -228,30 +226,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             data[event->data_len] = '\0';
 
             char expected_topic[150];
+            char expected_topic1[150];
             sprintf(expected_topic, "GVC/KP/%s", SerialNumber);
+            // also expect replied from broadcast topic 050525
+            strcpy(expected_topic1, BroadcastTopic);
            
-            if (strcmp(topic, expected_topic) == 0) {
-             
-                // if (strcmp(data, "*HBT#") == 0) {
-                //     ESP_LOGI(TAG, "Heartbeat message received.");
-                // } else if (strcmp(data, "SS1:") == 0) {
-                //     ESP_LOGI(TAG, "Command 1 received.");
-                //     // Execute action for COMMAND1
-                // } else if (strcmp(data, "COMMAND2") == 0) {
-                //     ESP_LOGI(TAG, "Command 2 received.");
-                //     // Execute action for COMMAND2
-                // } 
-            
-               
-              
-         
-               
-               
-                
+            if ((strcmp(topic, expected_topic) == 0) || (strcmp(topic, expected_topic1) == 0)) {
                     strcpy(InputVia,"MQTT");
                     AnalyzeInputPkt(data,InputVia);
-                  
-                
             }
         } else {
             ESP_LOGE(TAG, "Received topic/data too large");
@@ -279,6 +261,7 @@ void mqtt_app_start(void)
     uart_write_string_ln("STARTING MQTT");
     esp_mqtt_client_config_t mqttConfig = {
          .broker.address.uri = "mqtt://snackboss-iot.in:1883",
+         .task.stack_size = 1024*10, 
         .session.protocol_ver = MQTT_PROTOCOL_V_3_1_1,
         .network.disable_auto_reconnect = true,
         .credentials.username = "123",

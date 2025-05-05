@@ -12,3 +12,10 @@
 
 #4 030525
 -- stack for publish_mqtt task increased from 5k to 8k
+#5 050525
+-- do not reply when *HBT-S# is received / command.c
+-- QOS option added on Subscribe
+-- compare topic with broadcast as well serial number to allow action
+-- ??? some times data not being senses by MQTT
+-- ??? on 3rd May 2:52:00 pm one pulse missed while generating or receiving
+-- blink leds when MQTT received moved 3 lines from analysePacketTcp.c to command.c
