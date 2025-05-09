@@ -1017,9 +1017,9 @@ if(strcmp(InputVia,"TCP")==0)
         SendResponse(payload,InputVia); 
     }
     // added on 090525
-    else if(strncmp(rx_buffer,"*MQTT:",5)==0)
+    else if(strncmp(rx_buffer,"*MQTT:",6)==0)
     {
-        sscanf(rx_buffer, "*MQTT:%s:%s#",mqtt_user,mqtt_pass);
+        sscanf(rx_buffer, "*MQTT:%[^:]:%[^#]#",mqtt_user,mqtt_pass);
         utils_nvs_set_str(NVS_MQTT_USER,mqtt_user);
         utils_nvs_set_str(NVS_MQTT_PASS,mqtt_pass);
         sprintf(payload, "*MQTT-OK,%s,%s#",mqtt_user,mqtt_pass);
