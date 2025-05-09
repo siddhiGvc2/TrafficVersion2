@@ -19,3 +19,12 @@
 -- ??? some times data not being senses by MQTT
 -- ??? on 3rd May 2:52:00 pm one pulse missed while generating or receiving
 -- blink leds when MQTT received moved 3 lines from analysePacketTcp.c to command.c
+
+## 1.23- 090525
+#1 090525
+-- Add setting for MQTT_BROKER1, MQTT_BROKER2, MQTT_BROKER3. changed in /main/inc/defs
+-- Change mqtt server as per *SIP:x#
+-- sent TC-D at sendTCresponse
+
+
+

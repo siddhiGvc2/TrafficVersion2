@@ -166,9 +166,14 @@ typedef enum TCPIP_SOCKET_STATE{
 #define TCP_PORT2   6666
 #define TCP_PORT3   6666
 
+// added on 090525
+#define MQTT_BROKER1  "mqtt://snackboss-iot.in:1883"
+#define MQTT_BROKER2  "mqtt://gvcsystems.com:1883"
+#define MQTT_BROKER3  "mqtt://snackboss-iot.in:1883"
+
 #define PASS_THRU   "Y"
 
-#define FWVersion "*Kwikpay_050525_VER_1.22J Naico Ltd#"
+#define FWVersion "*Kwikpay_050525_VER_1.23 Naico Ltd#"
 
 
 

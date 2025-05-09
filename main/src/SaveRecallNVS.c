@@ -160,16 +160,22 @@ void load_settings_nvs(){
     {
         strcpy(server_ip_addr, TCP_URL1);
         server_port = TCP_PORT1;
+        // added on 090525
+        strcpy(mqtt_uri, MQTT_BROKER1);
     }
     if (SipNumber == 2)
     {
         strcpy(server_ip_addr, TCP_URL2);
         server_port = TCP_PORT2;
+        // added on 090525
+        strcpy(mqtt_uri, MQTT_BROKER2);
     }
     if (SipNumber == 3)
     {
         strcpy(server_ip_addr, TCP_URL3);
         server_port = TCP_PORT3;
+        // added on 090525
+        strcpy(mqtt_uri, MQTT_BROKER3);
     }
     ESP_LOGI(TAG, "*Server IP Address : %s#", server_ip_addr);
     sprintf(payload,"*Server IP Address : %s#", server_ip_addr);

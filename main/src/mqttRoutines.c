@@ -260,7 +260,7 @@ void mqtt_app_start(void)
     ESP_LOGI(TAG, "STARTING MQTT");
     uart_write_string_ln("STARTING MQTT");
     esp_mqtt_client_config_t mqttConfig = {
-         .broker.address.uri = "mqtt://snackboss-iot.in:1883",
+         .broker.address.uri = mqtt_uri,
          .task.stack_size = 1024*10, 
         .session.protocol_ver = MQTT_PROTOCOL_V_3_1_1,
         .network.disable_auto_reconnect = true,
@@ -325,17 +325,20 @@ void SendTCResponse (void)
     if(MQTT_CONNEECTED && connected_to_wifi )
     {
         uart_write_string_ln("Traying To Send TC?");
+        char payload[200];
         char InputTC[200];
         if  (MQTTRequired)
         {
-            strcpy(InputVia,"MQTT");
-            strcpy(InputTC,"*TC?#");
-            AnalyzeInputPkt(InputTC,InputVia);
+            // added on 090525
+            sprintf(payload, "*TC-D,%s,%d,%d,%d,%d,%d,%d,%d#", 
+            UniqueTimeStamp,CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]);
+            mqtt_publish_msg(payload);
+            
         }
         if  (TCPRequired)
         {
-            char payload[200];
-            sprintf(payload, "*TC,%s,%d,%d,%d,%d,%d,%d,%d#", 
+            // added on 090525
+            sprintf(payload, "*TC-D,%s,%d,%d,%d,%d,%d,%d,%d#", 
             UniqueTimeStamp,CashTotals[0],CashTotals[1],CashTotals[2],CashTotals[3],CashTotals[4],CashTotals[5],CashTotals[6]);
             sendSocketData(sock, payload, strlen(payload), 0);
         }        

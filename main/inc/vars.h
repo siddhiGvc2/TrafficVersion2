@@ -105,6 +105,7 @@ char SerialNumber[100];
 
 char currentDateTime[50];
 char updatedDateTime[50];
+
 char DISCON_DTIME[50];
 char RICON_DTIME[50];
 
@@ -125,7 +126,8 @@ char ErasedSerialNumber[100];
 char QrString[100];
 
 int MQTTRequired,TCPRequired;
-
+// added on 090525
+char mqtt_uri[100];
 
 
 
