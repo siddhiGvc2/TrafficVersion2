@@ -309,6 +309,12 @@ void gpio_read_n_act(void)
             // {
                 sprintf(payload, "*INH,%d#",INHInputValue); 
                 sendSocketData(sock, payload, strlen(payload), 0);
+                // 090525
+                // send INH level to MQTT , TCP and UART
+                 mqtt_publish_msg(payload);
+                 uart_write_string_ln(payload);
+                ESP_LOGI(TAG,"*INH,%d#",INHInputValue);
+
             // }
         }
         InputPin = 0;

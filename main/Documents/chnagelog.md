@@ -28,6 +28,8 @@
 -- sent TC-D at sendTCresponse  changed in /main/src/mqttRoutine.c
 -- *MQTT?# command added changed in /main/src/commands/c
 --- & saved MQTT default user & pASSWORD values in memory. changed in/main/src/SaveRecallNvs.c
+-- remove comparison of topic with expected topic  case MQTT_EVENT_DATA:/mqttRoutines.c
+-- when INH input changes, send TCP/MQTT/UARt
 
 
 
