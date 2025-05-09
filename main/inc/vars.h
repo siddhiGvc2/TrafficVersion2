@@ -128,6 +128,8 @@ char QrString[100];
 int MQTTRequired,TCPRequired;
 // added on 090525
 char mqtt_uri[100];
+char mqtt_user[100];
+char mqtt_pass[100];
 
 
 

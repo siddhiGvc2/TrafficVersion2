@@ -23,8 +23,9 @@
 ## 1.23- 090525
 #1 090525
 -- Add setting for MQTT_BROKER1, MQTT_BROKER2, MQTT_BROKER3. changed in /main/inc/defs
--- Change mqtt server as per *SIP:x#
--- sent TC-D at sendTCresponse
+-- Change mqtt server as per *SIP:x# changed in /main/src/SaveRecallNVS.c
+-- *MQTT:user:password# command added & saved in memory  changed in /main/src/commands.c
+-- sent TC-D at sendTCresponse  changed in /main/src/mqttRoutine.c
 
 
 

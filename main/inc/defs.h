@@ -138,6 +138,9 @@ typedef enum TCPIP_SOCKET_STATE{
 
 #define NVS_SIP_NUMBER   "SIP_NUMBER"
 
+#define NVS_MQTT_PASS   "MQTT_PASS"
+#define NVS_MQTT_USER   "MQTT_USER"
+
 
 #define HBT_TIMEOUT_SEC 120
 

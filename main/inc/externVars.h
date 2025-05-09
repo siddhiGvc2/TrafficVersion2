@@ -23,6 +23,8 @@ extern char ipstr[100]; // host mapped
 extern int MQTTRequired,TCPRequired;
 // added on 090525
 extern char mqtt_uri[100];
+extern char mqtt_user[100];
+extern char mqtt_pass[100];
 
 extern char MAC_ADDRESS_ESP[40];
 extern char FOTA_URL[356];
