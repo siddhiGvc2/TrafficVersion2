@@ -227,14 +227,13 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
             char expected_topic[150];
             char expected_topic1[150];
-            sprintf(expected_topic, "GVC/KP/%s", SerialNumber);
-            // also expect replied from broadcast topic 050525
-            strcpy(expected_topic1, BroadcastTopic);
-           
-            if ((strcmp(topic, expected_topic) == 0) || (strcmp(topic, expected_topic1) == 0)) {
+            // comparison removed 090525
+            // sprintf(expected_topic, "GVC/KP/%s", SerialNumber);
+            // // also expect replied from broadcast topic 050525
+            // strcpy(expected_topic1, BroadcastTopic);
+            // if command also removed
                     strcpy(InputVia,"MQTT");
                     AnalyzeInputPkt(data,InputVia);
-            }
         } else {
             ESP_LOGE(TAG, "Received topic/data too large");
         }
