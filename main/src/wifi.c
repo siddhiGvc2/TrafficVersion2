@@ -370,7 +370,7 @@ void wifi_init_sta(void)
               //  serverStatus=0;
              //    sprintf(buffer, "*NOSERVER#"); // removed on 220425
               //  uart_write_string_ln(buffer); 
-                uart_write_string_ln("*Trying to connect to SSID3#");
+                uart_write_string_ln("* connect to SSID3#");
 
                 WiFiNumber = 3;
                 s_retry_num = 0;

@@ -26,6 +26,8 @@
 -- Change mqtt server as per *SIP:x# changed in /main/src/SaveRecallNVS.c
 -- *MQTT:user:password# command added & saved in memory  changed in /main/src/commands.c
 -- sent TC-D at sendTCresponse  changed in /main/src/mqttRoutine.c
+-- *MQTT?# command added changed in /main/src/commands/c
+--- & saved MQTT default user & pASSWORD values in memory. changed in/main/src/SaveRecallNvs.c
 
 
 

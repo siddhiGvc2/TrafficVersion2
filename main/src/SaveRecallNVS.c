@@ -102,14 +102,19 @@ void load_settings_nvs(){
     char payload[150];
     ESP_LOGI(TAG, "*NVS Reading Started#");
     
-    //added on 090525
-    if(utils_nvs_get_str(NVS_MQTT_USER,mqtt_user,100) == ESP_OK){
+    int IsMqttUser=0;
+    int IsMqttPass=0;
+      //added on 090525
+      if(utils_nvs_get_str(NVS_MQTT_USER,mqtt_user,100) == ESP_OK){
         utils_nvs_get_str(NVS_MQTT_USER,mqtt_user,100);
-       }
-
-    if(utils_nvs_get_str(NVS_MQTT_PASS,mqtt_pass,100) == ESP_OK){
+        IsMqttUser=1;
+    }
+      //added on 090525
+     if(utils_nvs_get_str(NVS_MQTT_PASS,mqtt_pass,100) == ESP_OK){
         utils_nvs_get_str(NVS_MQTT_PASS,mqtt_pass,100);
-       }
+        IsMqttPass=1;
+    }
+  
 
     if(utils_nvs_get_str(NVS_WIFI_DISCON_DTIME,WIFI_DISCON_DTIME,100) == ESP_OK){
         utils_nvs_get_str(NVS_WIFI_DISCON_DTIME,WIFI_DISCON_DTIME,100);
@@ -170,6 +175,9 @@ void load_settings_nvs(){
         server_port = TCP_PORT1;
         // added on 090525
         strcpy(mqtt_uri, MQTT_BROKER1);
+        if (!IsMqttUser) strcpy(mqtt_user, MQTT_USER1);
+        if (!IsMqttPass) strcpy(mqtt_pass, MQTT_PASS1);
+
     }
     if (SipNumber == 2)
     {
@@ -177,6 +185,8 @@ void load_settings_nvs(){
         server_port = TCP_PORT2;
         // added on 090525
         strcpy(mqtt_uri, MQTT_BROKER2);
+        if (!IsMqttUser) strcpy(mqtt_user, MQTT_USER2);
+        if (!IsMqttPass) strcpy(mqtt_pass, MQTT_PASS2);
     }
     if (SipNumber == 3)
     {
@@ -184,6 +194,8 @@ void load_settings_nvs(){
         server_port = TCP_PORT3;
         // added on 090525
         strcpy(mqtt_uri, MQTT_BROKER3);
+        if (!IsMqttUser) strcpy(mqtt_user, MQTT_USER3);
+        if (!IsMqttPass) strcpy(mqtt_pass, MQTT_PASS3);
     }
     ESP_LOGI(TAG, "*Server IP Address : %s#", server_ip_addr);
     sprintf(payload,"*Server IP Address : %s#", server_ip_addr);

@@ -324,7 +324,7 @@ void SendTCResponse (void)
 {
     if(MQTT_CONNEECTED && connected_to_wifi )
     {
-        uart_write_string_ln("Traying To Send TC?");
+       
         char payload[200];
         char InputTC[200];
         if  (MQTTRequired)
