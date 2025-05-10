@@ -17,3 +17,6 @@ response - *LedState,prevState,ledState#
 command - *DATA:currentDateTime#
 response - *DATA-OK:currentDateTime#
 
+command - *MIP?#
+response - *MIP,MIPusername,MIPdatetime,mqtt_uri,MipNumber#
+
