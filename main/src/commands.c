@@ -1030,6 +1030,11 @@ if(strcmp(InputVia,"TCP")==0)
         sprintf(payload, "*MQTT-OK,%s,%s#",mqtt_user,mqtt_pass);
         SendResponse(payload,InputVia); 
     }
+    else if(strncmp(rx_buffer,"*HEAP?#",7)==0)
+    {
+         sprintf(payload, "*HEAP,%d,%d#",free_heap,free_internal_heap);
+        SendResponse(payload,InputVia); 
+    }
     else{
         int l = strlen(rx_buffer);
         char buf[l+1];

@@ -31,5 +31,11 @@
 -- remove comparison of topic with expected topic  case MQTT_EVENT_DATA:/mqttRoutines.c
 -- when INH input changes, send TCP/MQTT/UARt
 
+## 1.23 - 100525
+-- write code to get free heap and free internal heap
+-- get that value on command *HEAP?#
+-- send value to MQTT and TCP and UART
+
+
 
 

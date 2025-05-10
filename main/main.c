@@ -27,6 +27,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include "esp_heap_caps.h"
 #include "calls.h"
 #include "vars.h"
 
@@ -38,11 +39,22 @@
 
 static const char *TAG = "main";
 
+void heap_monitor_task(void *pvParameters) {
+    while (1) {
+        free_heap = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+        free_internal_heap = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
+        printf("Free heap: %d bytes\n", free_heap);
+        vTaskDelay(pdMS_TO_TICKS(1000)); // 1 second delay
+    }
+}
+
 void app_main(void)
 {
     //Initialize NVS
     //esp_log_level_set("*", ESP_LOG_NONE);
     // set totals to 0
+
+    
     char payload[100];
     MQTTRequired = 1;
     TCPRequired = 1;
@@ -102,6 +114,7 @@ void app_main(void)
   
    // Create monitor task
    // xTaskCreate(hbt_monitor_task, "hbt_monitor_task", 2048, NULL, 5, NULL);
+    xTaskCreate(heap_monitor_task, "heap_monitor", 2048, NULL, 5, NULL);
     xTaskCreate(date_time_task, "date_time_task", 2048, NULL, 5, NULL);
     xTaskCreate(SendTCcommand,"SendTCcommand", 8192, NULL, 6, NULL);
     xTaskCreate(TestCoin, "TestCoin", 2048, NULL, 6, NULL);

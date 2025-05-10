@@ -195,3 +195,6 @@ int FirstTryMQTT = 1;
 int64_t last_hbt_time_us = 0;
 
 int MQTT_CONNEECTED = 0;
+
+size_t free_heap;
+size_t free_internal_heap;

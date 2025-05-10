@@ -200,3 +200,6 @@ extern int FirstTryMQTT;
 // Last time HBT was received (in microseconds)
 extern int64_t last_hbt_time_us;
 
+extern size_t free_heap;
+extern size_t free_internal_heap;
+
