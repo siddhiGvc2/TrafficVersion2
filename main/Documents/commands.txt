@@ -1,3 +1,19 @@
 #100525
-*HEAP?#
+command -  *HEAP?#
 response - *HEAP,Free,Internal Heap#
+
+command -  *MQTT?#
+response - *MQTT-OK,mqtt_user,mqtt_pass#
+
+command -  *MQTT:mqtt_user:mqtt_pass#
+response- *MQTT-OK,mqtt_user,mqtt_pass#
+
+command - *CommState?#
+response- *CommState,IsSocketConnected,MQTT_CONNEECTED#
+
+command - *LedState?#
+response - *LedState,prevState,ledState#
+
+command - *DATA:currentDateTime#
+response - *DATA-OK:currentDateTime#
+
