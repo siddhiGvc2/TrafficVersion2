@@ -262,7 +262,7 @@ void mqtt_app_start(void)
          .broker.address.uri = mqtt_uri,
          .task.stack_size = 1024*10, 
         .session.protocol_ver = MQTT_PROTOCOL_V_3_1_1,
-        .network.disable_auto_reconnect = true,
+        .network.disable_auto_reconnect = false,
         .credentials.username = mqtt_user,
         .credentials.authentication.password = mqtt_pass,
         .session.last_will.topic = "GVC/VM/00002",
