@@ -33,8 +33,10 @@
 
 ## 1.23 - 100525
 -- write code to get free heap and free internal heap
--- get that value on command *HEAP?#
--- send value to MQTT and TCP and UART
+-- get that value on command *HEAP?# /main/src/analysePacketUart.c
+-- send value to MQTT and TCP and UART 
+-- removed retyrMqtt task . /main/main.c
+-- enabled auto reconnect in mqtt configuration. //.network.disable_auto_reconnect = false,
 
 
 
