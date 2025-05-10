@@ -189,15 +189,17 @@ void load_settings_nvs(){
       
     }
 
-      ESP_LOGI(TAG,"*Reading SIP Number#");
-    if(utils_nvs_get_int(NVS_SIP_NUMBER,&SipNumber) == ESP_OK){
-       utils_nvs_get_int(NVS_SIP_NUMBER,&SipNumber);
-    }
-    else {
-        SipNumber = 1;
-    }
+
 
      // added on 100525
+     ESP_LOGI(TAG,"*Reading MIP Number#");
+    if(utils_nvs_get_int(NVS_MIP_NUMBER,&MipNumber) == ESP_OK){
+       utils_nvs_get_int(NVS_MIP_NUMBER,&MipNumber);
+    }
+    else {
+        MipNumber = 1;
+    }
+
     ESP_LOGI(TAG,"*MIP Number %d#",MipNumber);
     if ((MipNumber == 0) || (MipNumber > MAXMIPNUMBER))
         MipNumber = 1;
@@ -227,6 +229,8 @@ void load_settings_nvs(){
         if (!IsMqttUser) strcpy(mqtt_user, MQTT_USER3);
         if (!IsMqttPass) strcpy(mqtt_pass, MQTT_PASS3);
     }
+    
+
     ESP_LOGI(TAG, "*Server IP Address : %s#", server_ip_addr);
     sprintf(payload,"*Server IP Address : %s#", server_ip_addr);
     uart_write_string_ln(payload);

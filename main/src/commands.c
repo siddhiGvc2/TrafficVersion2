@@ -195,7 +195,7 @@ if(strcmp(InputVia,"TCP")==0)
     }
 
     // added on 10-05-25
-      else if(strncmp(rx_buffer, "*SIP?#", 6) == 0){
+      else if(strncmp(rx_buffer, "*MIP?#", 6) == 0){
         sprintf(payload,"*MIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,mqtt_uri,MipNumber);
         SendResponse(payload,InputVia);
         tx_event_pending = 1;
@@ -824,7 +824,7 @@ if(strcmp(InputVia,"TCP")==0)
         {
             char tempUserName[64], tempDateTime[64], tempBuf[64] ,tempBuf2[64];
 
-            if (sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%[^:]#", tempUserName, tempDateTime, tempBuf) == 3) { 
+            if (sscanf(rx_buffer, "*MIP:%[^:]:%[^:]:%[^:]#", tempUserName, tempDateTime, tempBuf) == 3) { 
                   if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0  ) {
                     // Send error message if any required parameters are missing or invalid
                     const char* errorMsg = "*Error: Missing or invalid parameters#";
@@ -834,7 +834,7 @@ if(strcmp(InputVia,"TCP")==0)
 
                         strcpy(MIPuserName, tempUserName);
                         strcpy(MIPdateTime, tempDateTime);
-                        SipNumber=atoi(tempBuf);
+                        MipNumber=atoi(tempBuf);
                 }
            
             }
@@ -846,13 +846,13 @@ if(strcmp(InputVia,"TCP")==0)
         }
         else if(strcmp(InputVia, "UART") == 0)
         {
-            sscanf(rx_buffer, "*SIP:%d#",&MipNumber);
+            sscanf(rx_buffer, "*MIP:%d#",&MipNumber);
             strcpy(MIPuserName,"LOCAL");
             strcpy(MIPdateTime,"00/00/00");
         }
       
 
-        if ((MipNumber == 0) || (MipNumber >MAXSIPNUMBER))  
+        if ((MipNumber == 0) || (MipNumber >MAXMIPNUMBER))  
         {  
             sprintf(payload, "*MIP-Error#");
             ESP_LOGI(InputVia,"*MIP-ERROR#");
