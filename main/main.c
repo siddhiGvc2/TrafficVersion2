@@ -43,7 +43,7 @@ void heap_monitor_task(void *pvParameters) {
     while (1) {
         free_heap = heap_caps_get_free_size(MALLOC_CAP_8BIT);
         free_internal_heap = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
-        printf("Free heap: %d bytes\n", free_heap);
+        // printf("Free heap: %d bytes\n", free_heap);
         vTaskDelay(pdMS_TO_TICKS(1000)); // 1 second delay
     }
 }

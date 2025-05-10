@@ -1032,7 +1032,10 @@ if(strcmp(InputVia,"TCP")==0)
     }
     else if(strncmp(rx_buffer,"*HEAP?#",7)==0)
     {
-         sprintf(payload, "*HEAP,%d,%d#",free_heap,free_internal_heap);
+         if (free_heap >= 1000)
+            sprintf(payload, "*HEAP,%dk,%dk#", free_heap / 1000, free_internal_heap / 1000);
+        else
+            sprintf(payload, "*HEAP,%d,%d#", free_heap, free_internal_heap);
         SendResponse(payload,InputVia); 
     }
     else{
