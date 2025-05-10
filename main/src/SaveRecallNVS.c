@@ -173,25 +173,55 @@ void load_settings_nvs(){
     {
         strcpy(server_ip_addr, TCP_URL1);
         server_port = TCP_PORT1;
-        // added on 090525
-        strcpy(mqtt_uri, MQTT_BROKER1);
-        if (!IsMqttUser) strcpy(mqtt_user, MQTT_USER1);
-        if (!IsMqttPass) strcpy(mqtt_pass, MQTT_PASS1);
+      
 
     }
     if (SipNumber == 2)
     {
         strcpy(server_ip_addr, TCP_URL2);
         server_port = TCP_PORT2;
-        // added on 090525
-        strcpy(mqtt_uri, MQTT_BROKER2);
-        if (!IsMqttUser) strcpy(mqtt_user, MQTT_USER2);
-        if (!IsMqttPass) strcpy(mqtt_pass, MQTT_PASS2);
+      
     }
     if (SipNumber == 3)
     {
         strcpy(server_ip_addr, TCP_URL3);
         server_port = TCP_PORT3;
+      
+    }
+
+      ESP_LOGI(TAG,"*Reading SIP Number#");
+    if(utils_nvs_get_int(NVS_SIP_NUMBER,&SipNumber) == ESP_OK){
+       utils_nvs_get_int(NVS_SIP_NUMBER,&SipNumber);
+    }
+    else {
+        SipNumber = 1;
+    }
+
+     // added on 100525
+    ESP_LOGI(TAG,"*MIP Number %d#",MipNumber);
+    if ((MipNumber == 0) || (MipNumber > MAXMIPNUMBER))
+        MipNumber = 1;
+
+    if (MipNumber == 1)
+    {
+        
+        // added on 090525
+        strcpy(mqtt_uri, MQTT_BROKER1);
+        if (!IsMqttUser) strcpy(mqtt_user, MQTT_USER1);
+        if (!IsMqttPass) strcpy(mqtt_pass, MQTT_PASS1);
+
+    }
+    if (MipNumber == 2)
+    {
+      
+        // added on 090525
+        strcpy(mqtt_uri, MQTT_BROKER2);
+        if (!IsMqttUser) strcpy(mqtt_user, MQTT_USER2);
+        if (!IsMqttPass) strcpy(mqtt_pass, MQTT_PASS2);
+    }
+    if (MipNumber == 3)
+    {
+       
         // added on 090525
         strcpy(mqtt_uri, MQTT_BROKER3);
         if (!IsMqttUser) strcpy(mqtt_user, MQTT_USER3);

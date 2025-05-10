@@ -37,6 +37,8 @@
 -- send value to MQTT and TCP and UART 
 -- removed retyrMqtt task . /main/main.c
 -- enabled auto reconnect in mqtt configuration. //.network.disable_auto_reconnect = false,
+-- *MIP:MipUsername:MipDateTime:MipNumber# command added in commands.c
+-- & recalled from SaveRecallNVS.c
 
 
 

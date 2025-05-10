@@ -3,7 +3,9 @@
 #define WIFIRETRYAFTERCONNECTIONLIMIT 75 // As proposed by NB 20 How many minutes 30 minutes
 // 75 seconds for one loop
 #define MAXWIFILOOPCOUNT 25 // As proposed by NB 10  // how many minutes? 30 minutes
+  // added on 100525
 #define MAXSIPNUMBER 3
+#define MAXMIPNUMBER 3
 
 #define QOS 1
 #define BroadcastTopic "GVC/KP/BROADCAST"
@@ -77,6 +79,10 @@ typedef enum TCPIP_SOCKET_STATE{
 #define NVS_SIP_USERNAME     "USERNAME_SIP"
 #define NVS_SIP_DATETIME   "DATETIME_SIP"
 
+  // added on 100525
+#define NVS_MIP_USERNAME     "USERNAME_MIP"
+#define NVS_MIP_DATETIME   "DATETIME_MIP"
+
 #define NVS_CA_USERNAME     "USERNAME_CA"
 #define NVS_CA_DATETIME   "DATETIME_CA"
 
@@ -137,6 +143,8 @@ typedef enum TCPIP_SOCKET_STATE{
 #define NVS_PASS_THRU   "Y"
 
 #define NVS_SIP_NUMBER   "SIP_NUMBER"
+  // added on 100525
+#define NVS_MIP_NUMBER   "MIP_NUMBER"
 
 #define NVS_MQTT_PASS   "MQTT_PASS"
 #define NVS_MQTT_USER   "MQTT_USER"

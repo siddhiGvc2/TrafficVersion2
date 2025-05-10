@@ -110,6 +110,7 @@ void app_main(void)
     
     xTaskCreate(sendHBT, "sendHBT", 4096, NULL, 6, NULL);
     xTaskCreate(BlinkLED, "BlinkLED", 2048, NULL, 6, NULL);
+    // removed on 10-05-25
     // xTaskCreate(RetryMqtt, "RetryMqtt", 2048, NULL, 6, NULL);
   
    // Create monitor task

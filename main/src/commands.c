@@ -193,6 +193,13 @@ if(strcmp(InputVia,"TCP")==0)
         SendResponse(payload,InputVia);
         tx_event_pending = 1;
     }
+
+    // added on 10-05-25
+      else if(strncmp(rx_buffer, "*SIP?#", 6) == 0){
+        sprintf(payload,"*MIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,mqtt_uri,MipNumber);
+        SendResponse(payload,InputVia);
+        tx_event_pending = 1;
+    }
     else if (strncmp(rx_buffer, "*ERASE?", 7) == 0){
         sprintf(payload,"*ERASE,%s,%s,%s#",ERASEuserName,ERASEdateTime,ErasedSerialNumber); 
         SendResponse(payload,InputVia);
@@ -804,6 +811,58 @@ if(strcmp(InputVia,"TCP")==0)
             utils_nvs_set_str(NVS_SIP_USERNAME, SIPuserName);
             utils_nvs_set_str(NVS_SIP_DATETIME, SIPdateTime);
             ESP_LOGI(InputVia,"*SIP-OK,%s,%s#",SIPuserName,SIPdateTime);
+        }    
+        SendResponse(payload,InputVia);
+        uart_write_string_ln(payload);
+        tx_event_pending = 1;
+
+    }
+      // added on 100525
+     else if(strncmp(rx_buffer, "*MIP:", 5) == 0){
+
+        if(strcmp(InputVia, "TCP") == 0 || strcmp(InputVia, "MQTT") == 0)
+        {
+            char tempUserName[64], tempDateTime[64], tempBuf[64] ,tempBuf2[64];
+
+            if (sscanf(rx_buffer, "*SIP:%[^:]:%[^:]:%[^:]#", tempUserName, tempDateTime, tempBuf) == 3) { 
+                  if (strlen(tempUserName) == 0 || strlen(tempDateTime) == 0 || strlen(tempBuf) == 0  ) {
+                    // Send error message if any required parameters are missing or invalid
+                    const char* errorMsg = "*Error: Missing or invalid parameters#";
+                    SendResponse(errorMsg,InputVia);
+                }
+                else{
+
+                        strcpy(MIPuserName, tempUserName);
+                        strcpy(MIPdateTime, tempDateTime);
+                        SipNumber=atoi(tempBuf);
+                }
+           
+            }
+            else {
+                // Send error message if parsing failed
+                const char* errorMsg = "*Error: Invalid format#";
+                SendResponse(errorMsg,InputVia);
+            }
+        }
+        else if(strcmp(InputVia, "UART") == 0)
+        {
+            sscanf(rx_buffer, "*SIP:%d#",&MipNumber);
+            strcpy(MIPuserName,"LOCAL");
+            strcpy(MIPdateTime,"00/00/00");
+        }
+      
+
+        if ((MipNumber == 0) || (MipNumber >MAXSIPNUMBER))  
+        {  
+            sprintf(payload, "*MIP-Error#");
+            ESP_LOGI(InputVia,"*MIP-ERROR#");
+        }else 
+        {
+            sprintf(payload, "*MIP-OK,%s,%s#",MIPuserName,MIPdateTime);                                                   
+            utils_nvs_set_int(NVS_MIP_NUMBER,  MipNumber);
+            utils_nvs_set_str(NVS_MIP_USERNAME, MIPuserName);
+            utils_nvs_set_str(NVS_MIP_DATETIME, MIPdateTime);
+            ESP_LOGI(InputVia,"*MIP-OK,%s,%s#",MIPuserName,MIPdateTime);
         }    
         SendResponse(payload,InputVia);
         uart_write_string_ln(payload);

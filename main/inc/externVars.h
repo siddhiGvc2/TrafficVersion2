@@ -54,6 +54,10 @@ extern char userName[100];
 extern char SIPdateTime[100];
 extern char SIPuserName[100];
 
+  // added on 100525
+extern char MIPdateTime[100];
+extern char MIPuserName[100];
+
 extern char CAdateTime[100];
 extern char CAuserName[100];
 
@@ -161,6 +165,9 @@ extern int ledpin;
 extern int ledstatus;
 extern int blinkLEDNumber;
 extern int SipNumber;
+
+  // added on 100525
+extern int MipNumber;
 
 #define EX_UART_NUM UART_NUM_2
 #define BUF_SIZE (1024)
