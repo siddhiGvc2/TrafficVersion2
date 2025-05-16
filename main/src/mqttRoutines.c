@@ -145,9 +145,13 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         uart_write_string_ln("MQTT_EVENT_CONNECTED");
         MQTT_CONNEECTED = 1;  // Ensure MQTT_CONNECTED is defined
         
-          
+      
         if(MQTTRequired)
         {
+
+            sprintf(payload, "*MQTT,%d#", MipNumber); 
+             mqtt_publish_msg(payload);  
+             uart_write_string_ln(payload);
             if (FirstPowerOn)
             {
                 FirstPowerOn = false;
@@ -182,6 +186,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         strcpy (topic,BroadcastTopic);
         uart_write_string_ln(payload);
         mqtt_publish_msg(payload);
+        
         msg_id = esp_mqtt_client_subscribe(client, topic, QOS);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
         break;
@@ -189,6 +194,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     case MQTT_EVENT_DISCONNECTED:
         if (connected_to_wifi)
         {
+              sprintf(payload, "*MQTT,%d FAILED#", MipNumber); 
+             uart_write_string_ln(payload);
         ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
         uart_write_string_ln("MQTT_EVENT_DISCONNECTED");
 

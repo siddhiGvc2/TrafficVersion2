@@ -104,16 +104,16 @@ void load_settings_nvs(){
     
     int IsMqttUser=0;
     int IsMqttPass=0;
-      //added on 090525
-      if(utils_nvs_get_str(NVS_MQTT_USER,mqtt_user,100) == ESP_OK){
-        utils_nvs_get_str(NVS_MQTT_USER,mqtt_user,100);
-        IsMqttUser=1;
-    }
-      //added on 090525
-     if(utils_nvs_get_str(NVS_MQTT_PASS,mqtt_pass,100) == ESP_OK){
-        utils_nvs_get_str(NVS_MQTT_PASS,mqtt_pass,100);
-        IsMqttPass=1;
-    }
+    //   //added on 090525
+    //   if(utils_nvs_get_str(NVS_MQTT_USER,mqtt_user,100) == ESP_OK){
+    //     utils_nvs_get_str(NVS_MQTT_USER,mqtt_user,100);
+    //     IsMqttUser=1;
+    // }
+    //   //added on 090525
+    //  if(utils_nvs_get_str(NVS_MQTT_PASS,mqtt_pass,100) == ESP_OK){
+    //     utils_nvs_get_str(NVS_MQTT_PASS,mqtt_pass,100);
+    //     IsMqttPass=1;
+    // }
   
 
     if(utils_nvs_get_str(NVS_WIFI_DISCON_DTIME,WIFI_DISCON_DTIME,100) == ESP_OK){
