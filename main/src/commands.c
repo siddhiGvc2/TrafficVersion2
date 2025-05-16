@@ -1124,7 +1124,7 @@ if(strcmp(InputVia,"TCP")==0)
     }
        else if(strncmp(rx_buffer,"*MQTT2?#",8)==0)
     {
-        sprintf(payload, "*MQTT1-OK,%s,%s#",mqtt_user1,mqtt_pass1);
+        sprintf(payload, "*MQTT2-OK,%s,%s#",mqtt_user2,mqtt_pass2);
         SendResponse(payload,InputVia); 
     }
          else if(strncmp(rx_buffer,"*MQTT3?#",8)==0)
