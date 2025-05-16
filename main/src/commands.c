@@ -196,7 +196,7 @@ if(strcmp(InputVia,"TCP")==0)
 
     // added on 10-05-25
       else if(strncmp(rx_buffer, "*MIP?#", 6) == 0){
-        sprintf(payload,"*MIP,%s,%s,%s,%d#",SIPuserName,SIPdateTime,mqtt_uri,MipNumber);
+        sprintf(payload,"*MIP,%s,%s,%s,%d#",MIPuserName,MIPdateTime,mqtt_uri,MipNumber);
         SendResponse(payload,InputVia);
         tx_event_pending = 1;
     }
