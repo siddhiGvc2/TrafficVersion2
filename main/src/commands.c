@@ -1084,11 +1084,55 @@ if(strcmp(InputVia,"TCP")==0)
         sprintf(payload, "*MQTT-OK,%s,%s#",mqtt_user,mqtt_pass);
         SendResponse(payload,InputVia); 
     }
+
+
     else if(strncmp(rx_buffer,"*MQTT?#",7)==0)
     {
         sprintf(payload, "*MQTT-OK,%s,%s#",mqtt_user,mqtt_pass);
         SendResponse(payload,InputVia); 
     }
+    //added on 160525
+
+     else if(strncmp(rx_buffer,"*MQTT1:",7)==0)
+    {
+        sscanf(rx_buffer, "*MQTT1:%[^:]:%[^#]#",mqtt_user1,mqtt_pass1);
+        utils_nvs_set_str(NVS_MQTT_USER1,mqtt_user1);
+        utils_nvs_set_str(NVS_MQTT_PASS1,mqtt_pass1);
+        sprintf(payload, "*MQTT1-OK,%s,%s#",mqtt_user1,mqtt_pass1);
+        SendResponse(payload,InputVia); 
+    }
+      else if(strncmp(rx_buffer,"*MQTT2:",7)==0)
+    {
+        sscanf(rx_buffer, "*MQTT2:%[^:]:%[^#]#",mqtt_user2,mqtt_pass2);
+        utils_nvs_set_str(NVS_MQTT_USER2,mqtt_user2);
+        utils_nvs_set_str(NVS_MQTT_PASS2,mqtt_pass2);
+        sprintf(payload, "*MQTT2-OK,%s,%s#",mqtt_user2,mqtt_pass2);
+        SendResponse(payload,InputVia); 
+    }
+        else if(strncmp(rx_buffer,"*MQTT3:",7)==0)
+    {
+        sscanf(rx_buffer, "*MQTT3:%[^:]:%[^#]#",mqtt_user3,mqtt_pass3);
+        utils_nvs_set_str(NVS_MQTT_USER3,mqtt_user3);
+        utils_nvs_set_str(NVS_MQTT_PASS3,mqtt_pass3);
+        sprintf(payload, "*MQTT3-OK,%s,%s#",mqtt_user3,mqtt_pass3);
+        SendResponse(payload,InputVia); 
+    }
+     else if(strncmp(rx_buffer,"*MQTT1?#",8)==0)
+    {
+        sprintf(payload, "*MQTT1-OK,%s,%s#",mqtt_user1,mqtt_pass1);
+        SendResponse(payload,InputVia); 
+    }
+       else if(strncmp(rx_buffer,"*MQTT2?#",8)==0)
+    {
+        sprintf(payload, "*MQTT1-OK,%s,%s#",mqtt_user1,mqtt_pass1);
+        SendResponse(payload,InputVia); 
+    }
+         else if(strncmp(rx_buffer,"*MQTT3?#",8)==0)
+    {
+        sprintf(payload, "*MQTT3-OK,%s,%s#",mqtt_user3,mqtt_pass3);
+        SendResponse(payload,InputVia); 
+    }
+
     else if(strncmp(rx_buffer,"*HEAP?#",7)==0)
     {
          if (free_heap >= 1000)

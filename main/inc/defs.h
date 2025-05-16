@@ -149,6 +149,15 @@ typedef enum TCPIP_SOCKET_STATE{
 #define NVS_MQTT_PASS   "MQTT_PASS"
 #define NVS_MQTT_USER   "MQTT_USER"
 
+#define NVS_MQTT_PASS1   "MQTT_PASS1"
+#define NVS_MQTT_USER1   "MQTT_USER1"
+
+#define NVS_MQTT_PASS2   "MQTT_PASS2"
+#define NVS_MQTT_USER2   "MQTT_USER2"
+
+#define NVS_MQTT_PASS3   "MQTT_PASS3"
+#define NVS_MQTT_USER3   "MQTT_USER3"
+
 
 #define HBT_TIMEOUT_SEC 120
 
@@ -179,7 +188,7 @@ typedef enum TCPIP_SOCKET_STATE{
 
 // added on 090525
 #define MQTT_BROKER1  "mqtt://159.89.248.57:1883"
-#define MQTT_BROKER2  "mqtt://57.245.29.144:1883"
+#define MQTT_BROKER2  "mqtt://157.245.29.144:1883"
 #define MQTT_BROKER3  "mqtt://snackboss-iot.in:1883"
 
 #define MQTT_USER1  "kpmqtt"

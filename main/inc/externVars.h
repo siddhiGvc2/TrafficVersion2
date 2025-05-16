@@ -26,6 +26,15 @@ extern char mqtt_uri[100];
 extern char mqtt_user[100];
 extern char mqtt_pass[100];
 
+extern char mqtt_user1[100];
+extern char mqtt_pass1[100];
+
+extern char mqtt_user2[100];
+extern char mqtt_pass2[100];
+
+extern char mqtt_user3[100];
+extern char mqtt_pass3[100];
+
 extern char MAC_ADDRESS_ESP[40];
 extern char FOTA_URL[356];
 extern int16_t server_port;

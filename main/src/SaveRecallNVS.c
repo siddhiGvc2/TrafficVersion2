@@ -101,19 +101,58 @@ void load_settings_nvs(){
     
     char payload[150];
     ESP_LOGI(TAG, "*NVS Reading Started#");
-    
-    int IsMqttUser=0;
-    int IsMqttPass=0;
-    //   //added on 090525
-    //   if(utils_nvs_get_str(NVS_MQTT_USER,mqtt_user,100) == ESP_OK){
-    //     utils_nvs_get_str(NVS_MQTT_USER,mqtt_user,100);
-    //     IsMqttUser=1;
-    // }
-    //   //added on 090525
-    //  if(utils_nvs_get_str(NVS_MQTT_PASS,mqtt_pass,100) == ESP_OK){
-    //     utils_nvs_get_str(NVS_MQTT_PASS,mqtt_pass,100);
-    //     IsMqttPass=1;
-    // }
+  
+ 
+    // added on 160525
+      if(utils_nvs_get_str(NVS_MQTT_USER1,mqtt_user1,100) == ESP_OK){
+        utils_nvs_get_str(NVS_MQTT_USER1,mqtt_user1,100);
+       
+      }
+      else {
+         strcpy(mqtt_user1, MQTT_USER1);
+         utils_nvs_set_str(NVS_MQTT_USER1,mqtt_user1);
+      }
+
+        if(utils_nvs_get_str(NVS_MQTT_USER2,mqtt_user2,100) == ESP_OK){
+        utils_nvs_get_str(NVS_MQTT_USER2,mqtt_user2,100);
+       
+      }
+      else {
+         strcpy(mqtt_user2, MQTT_USER2);
+         utils_nvs_set_str(NVS_MQTT_USER2,mqtt_user2);
+      }
+
+         if(utils_nvs_get_str(NVS_MQTT_USER3,mqtt_user3,100) == ESP_OK){
+        utils_nvs_get_str(NVS_MQTT_USER3,mqtt_user3,100);
+       
+      }
+      else {
+        strcpy(mqtt_user3, MQTT_USER3);
+         utils_nvs_set_str(NVS_MQTT_USER3,mqtt_user3);
+      }
+
+       if(utils_nvs_get_str(NVS_MQTT_PASS1,mqtt_pass1,100) == ESP_OK){
+        utils_nvs_get_str(NVS_MQTT_PASS1,mqtt_pass1,100);
+    }
+    else{
+         strcpy(mqtt_pass1, MQTT_PASS1);
+         utils_nvs_set_str(NVS_MQTT_PASS1,mqtt_pass1);
+    }
+
+     if(utils_nvs_get_str(NVS_MQTT_PASS2,mqtt_pass2,100) == ESP_OK){
+        utils_nvs_get_str(NVS_MQTT_PASS2,mqtt_pass2,100);
+    }
+    else{
+         strcpy(mqtt_pass2, MQTT_PASS2);
+         utils_nvs_set_str(NVS_MQTT_PASS2,mqtt_pass2);
+    }
+
+     if(utils_nvs_get_str(NVS_MQTT_PASS3,mqtt_pass3,100) == ESP_OK){
+        utils_nvs_get_str(NVS_MQTT_PASS3,mqtt_pass3,100);
+    }else{
+         strcpy(mqtt_pass3, MQTT_PASS3);
+         utils_nvs_set_str(NVS_MQTT_PASS3,mqtt_pass3);
+    }
   
 
     if(utils_nvs_get_str(NVS_WIFI_DISCON_DTIME,WIFI_DISCON_DTIME,100) == ESP_OK){
@@ -189,7 +228,10 @@ void load_settings_nvs(){
       
     }
 
-
+      
+    ESP_LOGI(TAG, "*Server IP Address : %s#", server_ip_addr);
+    sprintf(payload,"*Server IP Address : %s#", server_ip_addr);
+    uart_write_string_ln(payload);
 
      // added on 100525
      ESP_LOGI(TAG,"*Reading MIP Number#");
@@ -209,8 +251,8 @@ void load_settings_nvs(){
         
         // added on 090525
         strcpy(mqtt_uri, MQTT_BROKER1);
-        if (!IsMqttUser) strcpy(mqtt_user, MQTT_USER1);
-        if (!IsMqttPass) strcpy(mqtt_pass, MQTT_PASS1);
+        strcpy(mqtt_user,mqtt_user1);
+        strcpy(mqtt_pass,mqtt_pass1);
 
     }
     if (MipNumber == 2)
@@ -218,22 +260,20 @@ void load_settings_nvs(){
       
         // added on 090525
         strcpy(mqtt_uri, MQTT_BROKER2);
-        if (!IsMqttUser) strcpy(mqtt_user, MQTT_USER2);
-        if (!IsMqttPass) strcpy(mqtt_pass, MQTT_PASS2);
+        strcpy(mqtt_user,mqtt_user2);
+        strcpy(mqtt_pass,mqtt_pass2);
+
     }
     if (MipNumber == 3)
     {
        
         // added on 090525
         strcpy(mqtt_uri, MQTT_BROKER3);
-        if (!IsMqttUser) strcpy(mqtt_user, MQTT_USER3);
-        if (!IsMqttPass) strcpy(mqtt_pass, MQTT_PASS3);
+         strcpy(mqtt_user,mqtt_user3);
+        strcpy(mqtt_pass,mqtt_pass3);
+       
     }
     
-
-    ESP_LOGI(TAG, "*Server IP Address : %s#", server_ip_addr);
-    sprintf(payload,"*Server IP Address : %s#", server_ip_addr);
-    uart_write_string_ln(payload);
    
 
     if(utils_nvs_get_str(NVS_ERASE_DATETIME,ERASEdateTime,100) == ESP_OK){
