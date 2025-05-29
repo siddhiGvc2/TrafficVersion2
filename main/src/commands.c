@@ -167,6 +167,11 @@ if(strcmp(InputVia,"TCP")==0)
          tx_event_pending = 1;
      
      }
+     else if(strncmp(rx_buffer,"*RSSI?#",7)==0)
+     {
+        sprintf(payload,"*RSSI,%d",RSSI);
+        SendResponse(payload,InputVia);
+     }
      else if(strncmp(rx_buffer, "*SSID?#", 7) == 0){
         sprintf(payload, "*SSID,%s,%s,%d,%s,%s,%s#",SSuserName,SSdateTime,WiFiNumber,WIFI_SSID_1,WIFI_SSID_2,WIFI_SSID_3); 
         SendResponse(payload,InputVia);

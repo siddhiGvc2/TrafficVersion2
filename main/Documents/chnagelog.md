@@ -44,6 +44,8 @@
 ## 1.23A - 290525
 -- *TESTON# will start self test. Send pulse once per second and MQTT when all seven pulses match with input
 -- change TESTCOIN and gpio_read_n_act
+-- get RSSI info every 15 seocnds if wifi connected
+-- *RSSI?# reply with *RSSI,value);
 
 
 

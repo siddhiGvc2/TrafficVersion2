@@ -56,6 +56,7 @@ void app_main(void)
 
     
     char payload[100];
+    int Ticks = 0;
     MQTTRequired = 1;
     TCPRequired = 1;
     FirstTryMQTT = 1;
@@ -122,7 +123,24 @@ void app_main(void)
    
     for (;;) 
     {
+        wifi_ap_record_t ap_info;
+       
         vTaskDelay(1000/portTICK_PERIOD_MS);  // 1 sec delay
+        Ticks = Ticks + 1;
+     
+        if (Ticks == 15)
+        {
+            Ticks = 0;
+            if (connected_to_wifi)
+            {
+                esp_wifi_sta_get_ap_info(&ap_info);
+                RSSI = ap_info.rssi;
+                // uart_write_string_ln(ap_info);
+                sprintf(payload,"*RSSI of %s is %d#",ap_info.ssid, RSSI);
+                uart_write_string_ln(payload);
+            }
+        }
+
         // logic added on 251224
         //  display No HBT For X minutes once every minute
         // and restart if no HBT for Y minutes

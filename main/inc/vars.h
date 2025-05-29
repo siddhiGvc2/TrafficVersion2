@@ -215,3 +215,5 @@ int MQTT_CONNEECTED = 0;
 
 size_t free_heap;
 size_t free_internal_heap;
+
+ int RSSI;
