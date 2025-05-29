@@ -41,6 +41,11 @@
 -- & recalled from SaveRecallNVS.c
 -- *MIP? command added in commands.c
 
+## 1.23A - 290525
+-- *TESTON# will start self test. Send pulse once per second and MQTT when all seven pulses match with input
+-- change TESTCOIN and gpio_read_n_act
+
+
 
 
 

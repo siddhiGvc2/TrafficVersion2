@@ -231,7 +231,8 @@ if(strcmp(InputVia,"TCP")==0)
 //All Order Commands
     else if(strncmp(rx_buffer, "*TESTON#",8) == 0)
     {
-        HardwareTestMode = 1;    
+        HardwareTestMode = 1;
+        HardwareTestCount = 0;    
         pin = 0;    
         ESP_LOGI(InputVia, "*Hardware Test Started#");
         uart_write_string_ln("*Hardware Test Started#");

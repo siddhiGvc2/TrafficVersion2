@@ -118,7 +118,7 @@ void app_main(void)
     xTaskCreate(heap_monitor_task, "heap_monitor", 2048, NULL, 5, NULL);
     xTaskCreate(date_time_task, "date_time_task", 2048, NULL, 5, NULL);
     xTaskCreate(SendTCcommand,"SendTCcommand", 8192, NULL, 6, NULL);
-    xTaskCreate(TestCoin, "TestCoin", 2048, NULL, 6, NULL);
+    xTaskCreate(TestCoin, "TestCoin", 8192, NULL, 6, NULL);
    
     for (;;) 
     {

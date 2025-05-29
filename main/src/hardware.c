@@ -397,20 +397,27 @@ void gpio_read_n_act(void)
                     uart_write_string(payload);
                    }
                    sprintf(payload, "*RP,%d,%d,%d#",LastInputPin,TotalPulses,InputPin); 
-                   mqtt_publish_msg(payload);
-                   SendTCResponse();
-                   uart_write_string(payload);
-                   ESP_LOGI(TAG,"*RP,%d,%d,%d#",LastInputPin,TotalPulses,InputPin);
-                //    mqtt_publish_msg(payload);
+                   if (HardwareTestMode == 0)
+                   {
+                    mqtt_publish_msg(payload);
+                    SendTCResponse();
+                    uart_write_string(payload);
+                    ESP_LOGI(TAG,"*RP,%d,%d,%d#",LastInputPin,TotalPulses,InputPin);
+                   } 
+                    //    mqtt_publish_msg(payload);
                 //    SendTCResponse();
                    // 240425 avoid locking of INCOMING_PULSE_DETECTED
                    if( (prev_state != INCOMING_PULSE_DETECTED) && (led_state != INCOMING_PULSE_DETECTED) )
                    {
                     prev_state = led_state;
-                    sprintf(payload,"Led State & Prev State %d,%d",(int)led_state,(int)prev_state);
-                    uart_write_string_ln(payload);    
-                   }
-                   ticks_100 = 0;
+                    if (HardwareTestMode == 0)
+                    {
+                        sprintf(payload,"Led State & Prev State %d,%d",(int)led_state,(int)prev_state);
+                        uart_write_string_ln(payload);    
+                   
+                    }
+                }
+                    ticks_100 = 0;
                    set_led_state(INCOMING_PULSE_DETECTED);
                 //    sprintf(payload,"Led State & Prev State %d,%d",(int)led_state,(int)prev_state);
                 //    uart_write_string_ln(payload);    
@@ -452,8 +459,11 @@ void gpio_read_n_act(void)
                             
                             PinPressed = 0;
                             MultiplePressed = 0;
-                            sprintf(payload,"CHange Value %d",ChangeValue);
-                            uart_write_string_ln(payload);
+                            if (HardwareTestMode == 0)
+                            {
+                                sprintf(payload,"CHange Value %d",ChangeValue);
+                                uart_write_string_ln(payload);
+                            }                
                             for (i = 0 ; i <= 7 ; i++)
                             {
                                 if (ChangeValue == (0x01<<i))
@@ -462,8 +472,11 @@ void gpio_read_n_act(void)
                                         PinPressed = i+1;
                                     else 
                                         MultiplePressed = 1;
+                                    if (HardwareTestMode == 0)
+                                    {
                                     sprintf(payload,"value of PinPressed is %d",PinPressed);
                                     uart_write_string_ln(payload);
+                                    }    
                                 }
                             }
                          }
@@ -636,10 +649,13 @@ void GeneratePulsesInBackGround (void)
             pulses++;
             if (edges == 0)
             {
-                 ESP_LOGI("GenPulse","*Generate Pulses %d on Pin %d, gap %d# ",pulses/2,pin,pulseWitdh/(int)portTICK_PERIOD_MS);
-                 sprintf(buffer,"*Generate Pulses %d on Pin %d, gap %d#",pulses/2,pin,pulseWitdh/(int)portTICK_PERIOD_MS);
-                 uart_write_string_ln(buffer);
-                 pulses=0;
+                if (HardwareTestMode == 0)
+                {
+                    ESP_LOGI("GenPulse","*Generate Pulses %d on Pin %d, gap %d# ",pulses/2,pin,pulseWitdh/(int)portTICK_PERIOD_MS);
+                    sprintf(buffer,"*Generate Pulses %d on Pin %d, gap %d#",pulses/2,pin,pulseWitdh/(int)portTICK_PERIOD_MS);
+                    uart_write_string_ln(buffer);
+                }
+                pulses=0;
             }
         }
         vTaskDelay(pulseWitdh/portTICK_PERIOD_MS);
@@ -670,13 +686,27 @@ void TestCoin (void)
                         sprintf(buffer, "Error - Pin %d & Count Number %d ",i+1,CashTotals[i]); //actual when in production
                         ESP_LOGI("TestCoin","Error %d - Pin %d, Count",i+1 , CashTotals[i]);
                         uart_write_string_ln(buffer);
-                        j++;
+                        j = i;
                     }
-                    if (j == 0)
-                    {    
-                        ESP_LOGI("TestCoin","Test Cycle Okay");
-                        uart_write_string_ln("Test Cycle Okay");        
-                    }   
+                }
+                if (j == 0)
+                {    
+                    sprintf(buffer,"*Test %d OKAY#",HardwareTestCount);
+                    ESP_LOGI("TestCoin","Test Cycle Okay %d",HardwareTestCount);
+                    uart_write_string_ln(buffer);
+                    mqtt_publish_msg(buffer);
+                }   
+                else
+                {
+                    sprintf(buffer,"*Error %d Pin %d",HardwareTestCount,j);
+                    ESP_LOGI("TestCoin","Error in Cycle%d",HardwareTestCount);
+                    uart_write_string_ln(buffer);
+                    mqtt_publish_msg(buffer);
+                    for (int i = 0 ; i < 7 ; i++)
+                    {
+                        CashTotals[i] = HardwareTestCount;
+                    } 
+
                 }
             }   
             if ((pin == 1) || (pin == 4))
@@ -685,14 +715,12 @@ void TestCoin (void)
                 gpio_set_level(L2, 1);
             if ((pin == 3) || (pin == 6))
                 gpio_set_level(L3, 1);
-
-            edges = 2;    
-            ESP_LOGI("TestCoin","Test Coin Pin Number %d ",pin);
-            sprintf(buffer, "Test Coin Pin Number %d ",pin); //actual when in production
-            uart_write_string_ln(buffer);
+            if (HardwareTestMode)
+                edges = 2;    
+            
             
         }
-        vTaskDelay(2000/portTICK_PERIOD_MS);
+        vTaskDelay(1000/portTICK_PERIOD_MS);
     }
 }
 
