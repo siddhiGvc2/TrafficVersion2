@@ -101,7 +101,9 @@ void load_settings_nvs(){
     
     char payload[150];
     ESP_LOGI(TAG, "*NVS Reading Started#");
-  
+    
+
+     CallTrafficNVS();
  
     // added on 160525
       if(utils_nvs_get_str(NVS_MQTT_USER1,mqtt_user1,100) == ESP_OK){

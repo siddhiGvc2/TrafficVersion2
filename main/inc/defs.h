@@ -1,3 +1,5 @@
+#include "defsTraffic.h"
+
 //#define GVCOptionRequired 0
 //90 second before restart in loop count is 3
 #define WIFIRETRYAFTERCONNECTIONLIMIT 75 // As proposed by NB 20 How many minutes 30 minutes
@@ -201,7 +203,7 @@ typedef enum TCPIP_SOCKET_STATE{
 
 #define PASS_THRU   "Y"
 
-#define FWVersion "*Kwikpay_290525_VER_1.23B Naico Ltd#"
+#define FWVersion "*Traffic_0206250525_VER_1.0#"
 
 
 

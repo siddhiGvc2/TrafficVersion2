@@ -1150,6 +1150,7 @@ if(strcmp(InputVia,"TCP")==0)
     else{
         int l = strlen(rx_buffer);
         char buf[l+1];
+         AnalaysePacketTrafficTCP(rx_buffer);
         if(strcmp(InputVia, "TCP") == 0)
         {
         if(extractSubstring(rx_buffer, buf) == true){

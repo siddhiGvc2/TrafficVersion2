@@ -1,4 +1,5 @@
 #include "defs.h"
+#include "ExtVarsTraffic.h"
 
 extern int HardwareTestMode;
 extern int HardwareTestCount;

@@ -1,3 +1,5 @@
+#include "CallsTraffic.h"
+
 // NVS
 extern void utils_nvs_init(void);
 extern esp_err_t utils_nvs_get_str(const char *  , char * , size_t );

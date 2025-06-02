@@ -1,4 +1,5 @@
 #include "defs.h"
+#include "VarsTraffic.h"
 
 int HardwareTestMode = 0;
 int HardwareTestCount = 0;

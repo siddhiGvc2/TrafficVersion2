@@ -72,7 +72,7 @@ void publish_message(const char *message, esp_mqtt_client_handle_t client) {
     char topic[200];
     char modified_message[256];
     
-    sprintf(topic,"GVC/KP/ALL");
+    sprintf(topic,"GVC/TRA/ALL");
     
     // Check if message starts with * and ends with #
     if (message[0] == '*' && message[strlen(message)-1] == '#') {
@@ -176,7 +176,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         }
       
         set_led_state(EVERYTHING_OK_LED);
-        sprintf(topic, "GVC/KP/%s", SerialNumber);
+        sprintf(topic, "GVC/TRA/%s", SerialNumber);
         sprintf (payload,"*Subscribe to %s#",topic);
         uart_write_string_ln(payload);
         msg_id = esp_mqtt_client_subscribe(client, topic, QOS);
