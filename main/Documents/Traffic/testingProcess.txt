@@ -1,0 +1,8 @@
+1. Switch on unit without wifi - It should not display time
+2. It will start in fixed mode
+3. As soon as wifi and server is connected, show time
+4. Switch to server mode and check display - RED should show ATC after current cycle is over (ie after amber)
+5. *SERVER# - use this command to switch server mode
+6. check all commands in ./Traffic/commands.txt
+7. first green is on & when green value is 0 then amber  will on of same road. 
+8. check the values of all road using command & compare to the display values.
