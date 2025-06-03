@@ -211,7 +211,7 @@ typedef enum TCPIP_SOCKET_STATE{
 #define LEDR    13
 #define LEDG    12
 
-#define JUMPER  15
+#define JUMPER  18
 #define JUMPER2  18
 
 

@@ -219,6 +219,11 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
            sprintf(payload, "*MODE:%s#",Mode);
            send(sock, payload, strlen(payload), 0);
             ESP_LOGI(TAG,"%s",payload);
+            
+               strcpy(stageMode, "SERVER");
+           
+              
+            
            if(uartDebugInfo)
               uart_write_string_ln(payload);
 
@@ -228,6 +233,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
            sprintf(payload, "*MODE:%s#",Mode);
            send(sock, payload, strlen(payload), 0);
             ESP_LOGI(TAG,"%s",payload);
+             strcpy(stageMode, "FIXED");
            if(uartDebugInfo)
               uart_write_string_ln(payload);
 

@@ -93,26 +93,22 @@ void CalculateRedTimeings (void)
 {
             int i,j,k;
             char payload[100];
-            i = road % MAX_ITEMS;
-            j = i;
+            i = road-1;
+         
+            k = PhaseTime[i*2] + PhaseTime[i*2 + 1];
+            i = (i+1) % MAX_ITEMS ;
+            CDTime[i] = k;
+            sprintf(CDTColor[i], "R"); 
 
-            if (i == 0)
-                i = MAX_ITEMS;
-            k = PhaseTime[(i-1)*2] + PhaseTime[(i-1)*2 + 1];
-            CDTime[j] = k;
-            sprintf(CDTColor[j], "R"); 
+            k = k+ PhaseTime[i*2] + PhaseTime[i*2 + 1];
+            i = (i+1) % MAX_ITEMS ;
+            CDTime[i] = k;
+            sprintf(CDTColor[i], "R"); 
 
-            j++;
-            j = j%MAX_ITEMS;
-            k = k+ PhaseTime[j*2] + PhaseTime[j*2 + 1];
-            CDTime[j] = k;
-            sprintf(CDTColor[j], "R"); 
-
-            j++;
-            j = j%MAX_ITEMS;
-            k = k+ PhaseTime[j*2] + PhaseTime[j*2 + 1];
-            CDTime[j] = k;
-            sprintf(CDTColor[j], "R"); 
+            k = k+ PhaseTime[i*2] + PhaseTime[i*2 + 1];
+            i = (i+1) % MAX_ITEMS ;
+            CDTime[i] = k;
+            sprintf(CDTColor[i], "R"); 
 
             sprintf(payload,"Time/Color %s%d  %s%d  %s%d  %s%d", CDTColor[0],CDTime[0],CDTColor[1],CDTime[1],CDTColor[2],CDTime[2],CDTColor[3],CDTime[3]);   
             uart_write_string_ln(payload);    
@@ -253,12 +249,7 @@ void decrement_CDTColor() {
                         } else {
                              DecodeStage(ATC4);
                          }
-                         if(strcmp(Mode, "FIXED") != 0) {
-                             strcpy(stageMode, "SERVER");
-                         }
-                         else{
-                             strcpy(stageMode, "FIXED");
-                         }
+                        
                          break;
                  }
  
@@ -266,12 +257,14 @@ void decrement_CDTColor() {
 
             }
 
-        if(CDTimeInput[i]==0)
-        {
+// if server mode and RED color display ATC
+        if ( (strstr(CDTColor[i], "R") != NULL) && (strstr(stageMode,"SERVER")!=NULL)){
+            strcpy(Command,"ATC");
             lv_label_set_text_fmt(color_label[i], "%s", Command);
         }
       
-        if (color_label[i] != NULL && CDTimeInput[i]!=0) {
+// if fixed mode or server mode and green/amber color display time       
+        else {
             lv_label_set_text_fmt(color_label[i], "%d", CDTime[i]);
            // ESP_LOGI(TAG,"Color Label %02d changed to %02d",i,CDTime[i]);
         }
