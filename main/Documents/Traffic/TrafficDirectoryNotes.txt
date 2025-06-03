@@ -1,0 +1,23 @@
+Traffic Directory Notes (Summary)
+
+1. analysePktTcpTraffic.c
+- Handles incoming TCP packets related to traffic commands.
+- Processes commands with prefixes CMD_PREFIX1 and CMD_PREFIX2.
+- Updates DEF and ATC buffers, saves data to non-volatile storage (NVS).
+- Sends responses and manages modes like SERVER and FIXED.
+- Calls CalculateAllTime() to update timing.
+
+2. nvsTraffic.c
+- Initializes traffic data from non-volatile storage (NVS).
+- Loads DEF, ATC, and stage data from NVS or sets defaults if not present.
+- Calls CalculateAllTime() to update timing after loading data.
+
+3. TrafficLight.c
+- Manages traffic light display and timing using lvgl library.
+- Functions to decode traffic light and stage inputs.
+- Calculates timing for red lights and all phases.
+- Updates countdown timer colors and times.
+- Timer callback updates time display and decrements timers.
+- Initializes and displays traffic light UI elements.
+
+This summary provides a quick overview of the main traffic-related source files in the Traffic directory.

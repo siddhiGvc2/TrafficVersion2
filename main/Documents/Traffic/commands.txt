@@ -1,0 +1,43 @@
+Traffic Protocol Commands
+
+Purpose:
+- Communication between Server and Device for traffic control settings.
+
+Commands:
+
+1. Save Default Values (Fixed Mode):
+   - Command: *STAGE,road,A20,G30#
+   - Response: *STAGEroad-OK#
+   - Description: Save default traffic stage values for a specific road.
+
+2. Save Values for Server Mode:
+   - Command: *NXT,road,A20,G30#
+   - Response: *NXTroad-OK#
+   - Description: Save traffic values for server-controlled mode.
+
+3. Check Saved Default Value (per road):
+   - Command: *STAGE,road?#
+   - Response: *STAGEroad-VAL,1,G20,A5#
+   - Description: Query saved default values for a road.
+
+4. Check Saved Server Value (per road):
+   - Command: *NXT,road?#
+   - Response: *NXTroad-VAL,1,G20,A5#
+   - Description: Query saved server mode values for a road.
+
+5. Set Mode to SERVER:
+   - Command: *SERVER#
+   - Response: *MODE:SERVER#
+   - Description: Switch device to server-controlled mode.
+
+6. Set Mode to FIXED:
+   - Command: *FIXED#
+   - Response: *MODE:FIXED#
+   - Description: Switch device to fixed mode.
+
+7. Check Current Mode:
+   - Command: *CURRENT?#
+   - Response: *MODE:{MODE}#
+   - Description: Query the current operating mode of the device.
+
+This document summarizes the key protocol commands for traffic control communication.

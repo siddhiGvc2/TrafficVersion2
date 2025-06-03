@@ -1,0 +1,31 @@
+Traffic Codes Notes (User-Friendly Summary)
+
+1. Key Definitions (from defsTraffic.h):
+- CMD_PREFIX1, CMD_PREFIX2: Prefixes used to identify traffic commands.
+- DEFAULT_DEF1 to DEFAULT_DEF4: Default traffic command settings.
+- NVS_DEF1 to NVS_DEF4: Keys to save/load these settings in memory.
+- DEFAULT_ATC1 to DEFAULT_ATC4: Default automatic traffic control commands.
+- NVS_ATC1 to NVS_ATC4: Keys for saving/loading automatic control commands.
+- DEFAULT_STAGE1 to DEFAULT_STAGE7: Default traffic light stages (steps in traffic light sequence).
+- NVS_STAGE1 to NVS_STAGE7: Keys for saving/loading traffic light stages.
+
+2. Important Variables (from VarsTraffic.h):
+- CommandTable: List of possible traffic commands (e.g., FIX, VA).
+- Command, Mode, stageMode: Current command and mode names.
+- stage, road, nextRoad: Indicators for current and upcoming traffic stages/roads.
+- ATC1 to ATC4, DEF1 to DEF4: Buffers holding traffic command data.
+- stage1 to stage7: Buffers holding data for each traffic stage.
+- TimerSet: Flag indicating if a timer is active.
+- CDTColor, CDTime: Colors and times for countdown timers.
+
+3. Key Functions (from CallsTraffic.h):
+- AnalaysePacketTrafficTCP: Processes incoming traffic data packets.
+- CallTrafficNVS: Manages traffic data storage in memory.
+- DecodeTL: Decodes traffic light commands.
+- DecodeStage: Decodes traffic stage information.
+- decrement_CDTColor: Updates countdown timer colors.
+- update_time_label: Refreshes time display.
+- CalculateAllTime: Calculates timing for traffic stages.
+- displayLights: Controls the traffic light display.
+
+This summary helps you quickly understand the main components of traffic codes in the project.
