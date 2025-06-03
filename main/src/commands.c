@@ -1098,7 +1098,7 @@ if(strcmp(InputVia,"TCP")==0)
 
         // Parse currentDateTime string into Hours, Mins, Secs
         parseCurrentDateTime(currentDateTime);
-        
+        TimeReceived=true;
         SendResponse("*DATA-OK#",InputVia); 
       
         
