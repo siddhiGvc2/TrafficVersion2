@@ -95,7 +95,8 @@ void publish_message(const char *message, esp_mqtt_client_handle_t client) {
    
     if (msg_id == -1) {
         ESP_LOGE(TAG, "Publish failed! MQTT client not ready or disconnected.");
-        uart_write_string_ln("Publish failed! MQTT client not ready or disconnected.");
+        if(uartDebugInfo)
+           uart_write_string_ln("Publish failed! MQTT client not ready or disconnected.");
         set_led_state(MQTT_PUBLISH_FAILED);
         // Optional: queue it, retry later, or alert
     } else {
@@ -142,7 +143,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-        uart_write_string_ln("MQTT_EVENT_CONNECTED");
+         if(uartDebugInfo)
+            uart_write_string_ln("MQTT_EVENT_CONNECTED");
         MQTT_CONNEECTED = 1;  // Ensure MQTT_CONNECTED is defined
         
       
@@ -150,8 +152,9 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         {
 
             sprintf(payload, "*MQTT,%d#", MipNumber); 
-             mqtt_publish_msg(payload);  
-             uart_write_string_ln(payload);
+             mqtt_publish_msg(payload); 
+              if(uartDebugInfo) 
+                  uart_write_string_ln(payload);
             if (FirstPowerOn)
             {
                 FirstPowerOn = false;
@@ -163,14 +166,16 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             {
             sprintf(payload, "*MQTT,%s,%s#",MQTT_DISCON_DTIME,currentDateTime); 
             mqtt_publish_msg(payload);
-            uart_write_string_ln(payload);
+             if(uartDebugInfo)
+                uart_write_string_ln(payload);
             strcpy(MQTT_DISCON_DTIME,"");
             utils_nvs_set_str(NVS_MQTT_DISCON_DTIME, MQTT_DISCON_DTIME);
             }
 
             sprintf(payload, "*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber); 
             mqtt_publish_msg(payload);
-            uart_write_string_ln(payload);
+             if(uartDebugInfo)
+                 uart_write_string_ln(payload);
 
 
         }
@@ -178,13 +183,15 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         set_led_state(EVERYTHING_OK_LED);
         sprintf(topic, "GVC/TRA/%s", SerialNumber);
         sprintf (payload,"*Subscribe to %s#",topic);
-        uart_write_string_ln(payload);
+         if(uartDebugInfo)
+             uart_write_string_ln(payload);
         msg_id = esp_mqtt_client_subscribe(client, topic, QOS);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
        
         strcpy (payload,"*Subscribed to GVC/KP/BROADCAST#");
         strcpy (topic,BroadcastTopic);
-        uart_write_string_ln(payload);
+         if(uartDebugInfo)
+             uart_write_string_ln(payload);
         mqtt_publish_msg(payload);
         
         msg_id = esp_mqtt_client_subscribe(client, topic, QOS);
@@ -195,9 +202,11 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         if (connected_to_wifi)
         {
               sprintf(payload, "*MQTT,%d FAILED#", MipNumber); 
-             uart_write_string_ln(payload);
+               if(uartDebugInfo)
+                   uart_write_string_ln(payload);
         ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
-        uart_write_string_ln("MQTT_EVENT_DISCONNECTED");
+         if(uartDebugInfo)
+             uart_write_string_ln("MQTT_EVENT_DISCONNECTED");
 
         strcpy(MQTT_DISCON_DTIME,currentDateTime);
         utils_nvs_set_str(NVS_MQTT_DISCON_DTIME, MQTT_DISCON_DTIME);

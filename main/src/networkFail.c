@@ -42,7 +42,8 @@ void NetworkConnect(void)
     strcpy(RICON_DTIME,currentDateTime);
     utils_nvs_set_str(NVS_RICON_DTIME, RICON_DTIME);
     sprintf(payload,"*NETWORKOKAY,%s#",RICON_DTIME);
-    uart_write_string_ln(payload);
+     if(uartDebugInfo)
+        uart_write_string_ln(payload);
     if(MQTTRequired)
     {
         mqtt_publish_msg(payload);

@@ -31,13 +31,35 @@
 #include "calls.h"
 
 
+void parseCurrentDateTime(const char* currentDateTime) {
+    // currentDateTime format is "HHMMSS" as a string of 6 digits
+    if (currentDateTime != NULL) {
+        char timeStr[7] = {0}; // 6 chars + null terminator
+        strncpy(timeStr, currentDateTime, 6);
+        timeStr[6] = '\0';
+        if (strlen(timeStr) == 6) {
+            char hourStr[3] = {timeStr[0], timeStr[1], '\0'};
+            char minStr[3] = {timeStr[2], timeStr[3], '\0'};
+            char secStr[3] = {timeStr[4], timeStr[5], '\0'};
+            Hours = atoi(hourStr);
+            Mins = atoi(minStr);
+            Secs = atoi(secStr);
+            return;
+        }
+    }
+    // Parsing failed, set default values
+    Hours = 0;
+    Mins = 0;
+    Secs = 0;
+}
 
 void SendResponse(const char *Message,const char *OutputVia)
 {
     if(strcmp(OutputVia, "TCP") == 0)
     {
         sendSocketData(sock, Message, strlen(Message), 0);
-        uart_write_string_ln(Message);
+         if(uartDebugInfo)
+             uart_write_string_ln(Message);
         if(MQTT_CONNEECTED && connected_to_wifi && MQTTRequired)
         {
             char message[200];
@@ -58,14 +80,16 @@ void SendResponse(const char *Message,const char *OutputVia)
     }
     else if(strcmp(OutputVia, "UART") == 0)
     {
-        uart_write_string_ln(Message);
+         if(uartDebugInfo)
+           uart_write_string_ln(Message);
     }
     else if(strcmp(OutputVia, "MQTT") == 0)
     {
         if(MQTT_CONNEECTED && connected_to_wifi && MQTTRequired)
         {
             mqtt_publish_msg(Message);
-            uart_write_string_ln(Message);
+             if(uartDebugInfo)
+                uart_write_string_ln(Message);
         }
     }
 }
@@ -240,7 +264,8 @@ if(strcmp(InputVia,"TCP")==0)
         HardwareTestCount = 0;    
         pin = 0;    
         ESP_LOGI(InputVia, "*Hardware Test Started#");
-        uart_write_string_ln("*Hardware Test Started#");
+         if(uartDebugInfo)
+            uart_write_string_ln("*Hardware Test Started#");
         // clear TC also
         for (int i = 0 ; i < 7 ; i++)
         {
@@ -252,7 +277,8 @@ if(strcmp(InputVia,"TCP")==0)
         HardwareTestMode = 0;    
         pin = 0;    
         ESP_LOGI(InputVia, "*Hardware Test Stopped#");
-        uart_write_string_ln("*Hardware Test Stopped#");
+         if(uartDebugInfo)
+           uart_write_string_ln("*Hardware Test Stopped#");
         RestartDevice();
 
      } 
@@ -262,12 +288,14 @@ if(strcmp(InputVia,"TCP")==0)
             //sprintf(payload, "*HBT-OK#");
             //sendSocketData(sock, payload, strlen(payload), 0);
             ServerHBTTimeOut = 0;
-            uart_write_string_ln("*SERVER HBT-OK#");
+            if(uartDebugInfo)
+                uart_write_string_ln("*SERVER HBT-OK#");
             hbt_received();
      }
      
      else if(strncmp(rx_buffer, "*RESTART#", 9) == 0){
         sendSocketData(sock, "*RESTART-OK#", strlen("*RESTART-OK#"), 0);
+    
         uart_write_string_ln("*Resetting device#");
         tx_event_pending = 1;
         RestartDevice();
@@ -1067,6 +1095,10 @@ if(strcmp(InputVia,"TCP")==0)
     }
     else if(strncmp(rx_buffer, "*DATA:", 6) == 0){
         sscanf(rx_buffer, "*DATA:%s#",currentDateTime);
+
+        // Parse currentDateTime string into Hours, Mins, Secs
+        parseCurrentDateTime(currentDateTime);
+        
         SendResponse("*DATA-OK#",InputVia); 
       
         

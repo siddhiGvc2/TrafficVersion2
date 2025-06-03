@@ -309,7 +309,7 @@ void update_time_label(void) {
         }
     }
    
-    if (time_label != NULL) {
+    if (time_label != NULL && connected_to_wifi) {
         lv_label_set_text_fmt(time_label, "%02d:%02d:%02d",Hours, Mins, Secs);
     }
 

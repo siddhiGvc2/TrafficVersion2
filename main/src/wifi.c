@@ -99,7 +99,8 @@ void event_handler(void* arg, esp_event_base_t event_base,
          {
              set_led_state(WAIT4ESPTOUCH);
              ESP_LOGI(TAG,"*Waiting for jumper to be removed#");
-            uart_write_string_ln("*Waiting for jumper to be removed#");
+             if(uartDebugInfo)
+                uart_write_string_ln("*Waiting for jumper to be removed#");
             while (1)
             {
                 while (gpio_get_level(JUMPER2) == 0)
@@ -113,7 +114,8 @@ void event_handler(void* arg, esp_event_base_t event_base,
             xTaskCreate(smartconfig_example_task, "smartconfig_example_task", 4096, NULL, 6, NULL);
             set_led_state(SEARCH_FOR_ESPTOUCH);
             ESP_LOGI(TAG,"*Start Looking for ESP TOUCH#");
-            uart_write_string_ln("*Start Looking for ESP TOUCH#");
+             if(uartDebugInfo)
+                uart_write_string_ln("*Start Looking for ESP TOUCH#");
          }
          else
          {
@@ -126,7 +128,8 @@ void event_handler(void* arg, esp_event_base_t event_base,
             ESP_LOGI(TAG, "*WiFi:%d#",WiFiNumber);
             sprintf(buffer, "*WiFi:%d#", WiFiNumber); //actual when in production
             // sprintf(buffer,"*WiFi Connected %d#",WiFiNumber);
-            uart_write_string_ln(buffer);
+            if(uartDebugInfo)
+               uart_write_string_ln(buffer);
             s_retry_num = 0;
             FirstWiFiConnection = 1;
             connected_to_wifi_and_internet = true;
@@ -295,7 +298,8 @@ void smartconfig_example_task(void * parm)
         uxBits = xEventGroupWaitBits(s_wifi_event_group, CONNECTED_BIT | ESPTOUCH_DONE_BIT, true, false, portMAX_DELAY);
         if(uxBits & CONNECTED_BIT) {
             ESP_LOGI(TAG, "*WiFi Connected to ap after esp touch#");
-            uart_write_string_ln("*WiFi Connected to ap after esp touch#");
+            if(uartDebugInfo)
+               uart_write_string_ln("*WiFi Connected to ap after esp touch#");
         }
         if(uxBits & ESPTOUCH_DONE_BIT) {
             ESP_LOGI(TAG, "*smartconfig over#");
@@ -369,8 +373,9 @@ void wifi_init_sta(void)
                 ESP_LOGI(TAG, "*Trying to connect to SSID3# ");
               //  serverStatus=0;
              //    sprintf(buffer, "*NOSERVER#"); // removed on 220425
-              //  uart_write_string_ln(buffer); 
-                uart_write_string_ln("* connect to SSID3#");
+              //  uart_write_string_ln(buffer);
+                if(uartDebugInfo) 
+                   uart_write_string_ln("* connect to SSID3#");
 
                 WiFiNumber = 3;
                 s_retry_num = 0;
@@ -379,7 +384,8 @@ void wifi_init_sta(void)
                      ESP_LOGI(TAG, "Could not connect to SSID3. Ttrying from 1....");
                      WiFiLoopCount++;
                      sprintf (buffer,"*Trying from 1. Retry Count is %d",WiFiLoopCount);
-                     uart_write_string_ln(buffer);
+                     if(uartDebugInfo)
+                        uart_write_string_ln(buffer);
                      continue;
                 }
                 else{

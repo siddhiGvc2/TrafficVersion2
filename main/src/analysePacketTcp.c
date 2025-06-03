@@ -50,20 +50,23 @@ int sendSocketData (int sock , const char* socketMessage , int length, int optio
         {
             sprintf (payload,"*TCP-Error,%s#", socketMessage);
             mqtt_publish_msg(payload);
-            uart_write_string_ln(payload);
+             if(uartDebugInfo)
+                uart_write_string_ln(payload);
         }
         else if (err != length)
         {
             sprintf (payload,"*TCP-Length Mismatch,%d,%d#", length,err);
             mqtt_publish_msg(payload);
-            uart_write_string_ln(payload);
+             if(uartDebugInfo)
+                uart_write_string_ln(payload);
         }
     }
     else
     {
         sprintf (payload,"*NO SOCKET %s#", socketMessage);
         mqtt_publish_msg(payload);
-        uart_write_string_ln(payload);
+         if(uartDebugInfo)
+             uart_write_string_ln(payload);
     }
     return err;
 }
@@ -122,7 +125,8 @@ void tcpip_client_task(){
                     vTaskDelay(pdMS_TO_TICKS(500)); // Haresh: TCP deinit needs some time to clear a queue in TCP thread
                     if(IsSocketConnected)
                     {
-                        uart_write_string_ln("*TCP-NOTOK#");
+                         if(uartDebugInfo)
+                             uart_write_string_ln("*TCP-NOTOK#");
                         mqtt_publish_msg("*TCP-NOTOK#");
                         strcpy(TCP_DISCON_DTIME,currentDateTime);
                         utils_nvs_set_str(NVS_TCP_DISCON_DTIME, TCP_DISCON_DTIME);
@@ -138,7 +142,8 @@ void tcpip_client_task(){
                     if(IsSocketConnected==0)
                     {
                         IsSocketConnected=1; 
-                        uart_write_string_ln("*TCP-OK#");
+                         if(uartDebugInfo)
+                             uart_write_string_ln("*TCP-OK#");
                       
                          if(MQTTRequired)
                         {
@@ -147,7 +152,8 @@ void tcpip_client_task(){
                             {
                             sprintf(payload, "*TCP,%s,%s#",TCP_DISCON_DTIME,currentDateTime); 
                             mqtt_publish_msg(payload);
-                            uart_write_string_ln(payload);
+                             if(uartDebugInfo)
+                                 uart_write_string_ln(payload);
                             strcpy(TCP_DISCON_DTIME,"");
                             utils_nvs_set_str(NVS_TCP_DISCON_DTIME,TCP_DISCON_DTIME);
                             }
@@ -159,7 +165,8 @@ void tcpip_client_task(){
                         sprintf(payload, "*MAC,%s,%s#", MAC_ADDRESS_ESP,SerialNumber);  // for GVC use ,
                     else
                         sprintf(payload, "*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber);  // for KP use :
-                    uart_write_string_ln(payload);
+                     if(uartDebugInfo)
+                        uart_write_string_ln(payload);
                   
                     
                     int err = sendSocketData(sock, payload, strlen(payload), 0);
@@ -170,7 +177,8 @@ void tcpip_client_task(){
                     utils_nvs_set_str(NVS_RICON_DTIME, RICON_DTIME);
                     //serverStatus=1;
                      sprintf(payload, "*QR:%s#",QrString); 
-                    uart_write_string_ln(payload);
+                     if(uartDebugInfo)
+                        uart_write_string_ln(payload);
 
                     if (gpio_get_level(JUMPER) == 0)
                         ESP_LOGI(TAG, "*MAC,%s,%s#", MAC_ADDRESS_ESP,SerialNumber) ;
@@ -184,12 +192,14 @@ void tcpip_client_task(){
                     err = sendSocketData(sock, FWVersion, strlen(FWVersion), 0);
 
                     sprintf(payload, "*QR-OK,%s#",QrString); 
-          
-                    uart_write_string_ln(payload);
-                    uart_write_string_ln('*BOOTING#');
+                     if(uartDebugInfo)
+                         uart_write_string_ln(payload);
+                      if(uartDebugInfo)
+                        uart_write_string_ln('*BOOTING#');
 
                     sprintf(payload,"*FW:%s#",FWVersion);
-                    uart_write_string_ln(payload);
+                     if(uartDebugInfo)
+                        uart_write_string_ln(payload);
 
 
                     if (err < 0) {
@@ -214,7 +224,8 @@ void tcpip_client_task(){
                                 ESP_LOGE(TAG, "*Shutting down socket and restarting...#");
                                 if(IsSocketConnected)
                                 {
-                                    uart_write_string_ln("*TCP-NOTOK#");
+                                     if(uartDebugInfo)
+                                         uart_write_string_ln("*TCP-NOTOK#");
                                     mqtt_publish_msg("*TCP-NOTOK#");
                                     strcpy(TCP_DISCON_DTIME,currentDateTime);
                                     utils_nvs_set_str(NVS_TCP_DISCON_DTIME, TCP_DISCON_DTIME);
@@ -274,6 +285,7 @@ void tcpip_client_task(){
                                     if ((led_state == SEARCH_FOR_WIFI1) || (led_state == SEARCH_FOR_WIFI2) || (led_state == SEARCH_FOR_WIFI3) ) 
                                         set_led_state(EVERYTHING_OK_LED);
 //                                Write On UART
+                            if(uartDebugInfo)
                                 uart_write_string(rx_buffer);
                                 // gpio_set_level(LedTCP, 1);
                                 // vTaskDelay(200/portTICK_PERIOD_MS);
@@ -309,7 +321,8 @@ void tcp_ip_client_send_str(const char * str){
     strcpy(tcp_packet, str);
     if(sock != -1){
         ESP_LOGI(TAG, "Sending packet to TCP socket : %s", str);
-        uart_write_string(tcp_packet);
+         if(uartDebugInfo)
+             uart_write_string(tcp_packet);
         int err = sendSocketData(sock, tcp_packet, strlen(tcp_packet), 0);
         if (err < 0) {
             ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
