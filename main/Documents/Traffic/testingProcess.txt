@@ -1,5 +1,30 @@
 1. Switch on unit without wifi - It should not display time
 2. It will start in fixed mode
+ 
+  check commands-
+   *STAGE,1?#
+   *STAGE,2?#
+   *STAGE,3?#
+   *STAGE,4?#
+   
+   *NXT,1?#
+   *NXT,2?#
+   *NXT,3?#
+   *NXT,4?#
+   
+
+  default stage values - 
+    DEFAULT_STAGE1 "1,G20,A5"
+    DEFAULT_STAGE2 "2,G20,A5"
+    DEFAULT_STAGE3 "3,G20,A5"
+    DEFAULT_STAGE4 "4,G20,A5"
+
+    DEFAULT_NXT1 "1,G20,A5"
+    DEFAULT_NXT2 "2,G20,A5"
+    DEFAULT_NXT3 "3,G20,A5"
+    DEFAULT_NXT4 "4,G20,A5"
+
+
 3. As soon as wifi and server is connected, show time
 4. Switch to server mode and check display - RED should show ATC after current cycle is over (ie after amber)
 5. *SERVER# - use this command to switch server mode
