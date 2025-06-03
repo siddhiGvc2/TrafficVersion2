@@ -30,6 +30,7 @@
 #include "externVars.h"
 #include "calls.h"
 
+static const char *TAG = "COMMAND";
 
 void parseCurrentDateTime(const char* currentDateTime) {
     // currentDateTime format is "HHMMSS" as a string of 6 digits
@@ -80,8 +81,9 @@ void SendResponse(const char *Message,const char *OutputVia)
     }
     else if(strcmp(OutputVia, "UART") == 0)
     {
-         if(uartDebugInfo)
-           uart_write_string_ln(Message);
+           ESP_LOGI(TAG,"%s",Message);
+           if(uartDebugInfo)
+              uart_write_string_ln(Message);
     }
     else if(strcmp(OutputVia, "MQTT") == 0)
     {

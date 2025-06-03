@@ -181,29 +181,29 @@ typedef enum TCPIP_SOCKET_STATE{
 //#define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/esp_wifi_tcp_fota.bin"
 #define DEFAULT_FOTA_URL  "http://test-firmware.kwikpay.uk/firmware/fw070125_118.bin"
 //#define TCP_URL1  "gvc.co.in"
-#define TCP_URL1  "TCP.KWIKPAY.COM"
+#define TCP_URL1  "159.65.147.171"
 #define TCP_URL2  "TESTTCP.KWIKPAY.COM"
 #define TCP_URL3  "GVCTCP.KWIKPAY.COM"
-#define TCP_PORT1   6666
+
+#define TCP_PORT1   6687
 #define TCP_PORT2   6666
 #define TCP_PORT3   6666
-
-// added on 090525
-#define MQTT_BROKER1  "mqtt://159.89.248.57:1883"
+// added on 090525   
+#define MQTT_BROKER1  "mqtt://snackboss-iot.in:1883"
 #define MQTT_BROKER2  "mqtt://157.245.29.144:1883"
-#define MQTT_BROKER3  "mqtt://snackboss-iot.in:1883"
+#define MQTT_BROKER3  "mqtt://159.89.248.57:1883"
 
-#define MQTT_USER1  "kpmqtt"
+#define MQTT_USER1  "gvcMqttServer"
 #define MQTT_USER2  "kpmqtt"
-#define MQTT_USER3  "gvcMqttServer"
+#define MQTT_USER3  "kpmqtt"
 
-#define MQTT_PASS1  "KP*tcpeash?101PW"
+#define MQTT_PASS1  "gvcMqttServer"
 #define MQTT_PASS2  "KP*sandbox@101PW"
 #define MQTT_PASS3  "gvcMqttServer"
 
 #define PASS_THRU   "Y"
 
-#define FWVersion "*Traffic_0206250525_VER_1.0#"
+#define FWVersion "*Traffic_020625_VER_1.0#"
 
 
 

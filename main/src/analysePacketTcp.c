@@ -167,9 +167,13 @@ void tcpip_client_task(){
                         sprintf(payload, "*MAC:%s:%s#", MAC_ADDRESS_ESP,SerialNumber);  // for KP use :
                      if(uartDebugInfo)
                         uart_write_string_ln(payload);
+
+                    
                   
                     
                     int err = sendSocketData(sock, payload, strlen(payload), 0);
+                     sprintf(payload, "{\"mac\":\"%s\"}", MAC_ADDRESS_ESP);
+                     send(sock, payload, strlen(payload), 0);
                    
                     ESP_LOGI(TAG, "*Successfully connected#"); 
                   
@@ -184,6 +188,9 @@ void tcpip_client_task(){
                         ESP_LOGI(TAG, "*MAC,%s,%s#", MAC_ADDRESS_ESP,SerialNumber) ;
                     else
                         ESP_LOGI(TAG, "*MAC,%s,%s#", MAC_ADDRESS_ESP,SerialNumber) ;
+
+
+                   
 
                     sprintf(payload, "*WiFi,%d#", WiFiNumber); //actual when in production
                     err = sendSocketData(sock, payload, strlen(payload), 0);
