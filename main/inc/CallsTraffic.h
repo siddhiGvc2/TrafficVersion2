@@ -1,7 +1,7 @@
 
 
 // extern void displayLights(void);
-extern void AnalaysePacketTrafficTCP(const char*);
+extern void AnalaysePacketTrafficTCP(const char*,const char*);
 extern void CallTrafficNVS(void);
 extern void DecodeTL(const char*);
 extern void decrement_CDTColor(void);

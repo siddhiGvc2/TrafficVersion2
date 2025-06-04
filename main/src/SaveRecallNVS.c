@@ -292,11 +292,11 @@ void load_settings_nvs(){
        utils_nvs_get_str(NVS_SERIAL_NUMBER, SerialNumber,100);
        if (strstr(SerialNumber,"NA-1507-"))
        {
-            ;
+         
        }
        else
        {
-            sprintf(payload,"NA-1507-%s",SerialNumber);
+            sprintf(payload,"%s",SerialNumber);
             strcpy (SerialNumber,payload);
             uart_write_string("SerialNumber is - ");
             uart_write_string_ln(SerialNumber);

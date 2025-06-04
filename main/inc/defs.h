@@ -66,12 +66,12 @@ typedef enum TCPIP_SOCKET_STATE{
 #define NVS_CASH6_KEY   "CASH6"
 #define NVS_CASH7_KEY   "CASH7"
 
-#define DEFAULT_SSID1  "Kwikpay_Wifi"
-#define DEFAULT_PASS1  "Kwik@123"
-#define DEFAULT_SSID2  "NA_iOt_WF"
-#define DEFAULT_PASS2  "N*kwik@1507"
-#define DEFAULT_SSID3  "Kwikpay_Wifi"
-#define DEFAULT_PASS3  "Kwik@123"
+#define DEFAULT_SSID1  "GVCSYS1"
+#define DEFAULT_PASS1  "GVC3065V"
+#define DEFAULT_SSID2  "GVCSYS2"
+#define DEFAULT_PASS2  "GVC3065V"
+#define DEFAULT_SSID3  "GVCSYS3"
+#define DEFAULT_PASS3  "GVC3065V"
 #define DEFAULT_TIMESTAMP "1733663095"
 
 #define NVS_UNIX_TS   "UNIX_TS"
@@ -179,14 +179,14 @@ typedef enum TCPIP_SOCKET_STATE{
 // #define DEFAULT_SERVER_IP_ADDR "159.89.248.57"
 #define DEFAULT_SERVER_PORT    6666
 //#define DEFAULT_FOTA_URL  "http://gvc.co.in/esp/esp_wifi_tcp_fota.bin"
-#define DEFAULT_FOTA_URL  "http://test-firmware.kwikpay.uk/firmware/fw070125_118.bin"
+#define DEFAULT_FOTA_URL  "http://snackboss-iot.in/TrafficTFT/fw.bin"
 //#define TCP_URL1  "gvc.co.in"
-#define TCP_URL1  "159.65.147.171"
-#define TCP_URL2  "TESTTCP.KWIKPAY.COM"
+#define TCP_URL1  "GVCTCP.KWIKPAY.COM"
+#define TCP_URL2  "159.65.147.171"
 #define TCP_URL3  "GVCTCP.KWIKPAY.COM"
 
-#define TCP_PORT1   6687
-#define TCP_PORT2   6666
+#define TCP_PORT1   6666
+#define TCP_PORT2   6687
 #define TCP_PORT3   6666
 // added on 090525   
 #define MQTT_BROKER1  "mqtt://snackboss-iot.in:1883"

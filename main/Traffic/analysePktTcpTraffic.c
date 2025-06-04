@@ -33,7 +33,7 @@
 
 static const char *TAG = "TrafficTCP";
 
-void AnalaysePacketTrafficTCP(const char* rx_buffer){
+void AnalaysePacketTrafficTCP(const char* rx_buffer,const char* InputVia){
    ESP_LOGI(TAG,"TRAFFIC TCP INITIALLIZED");
    if(uartDebugInfo)
      uart_write_string_ln("TRAFFIC TCP INITIALLIZED");
@@ -62,7 +62,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
             sprintf(DEF1, "%d,%s,%s", R, firstInput, secondInput);
             sprintf(payload, "*%s1-OK#",CMD_PREFIX1);
             utils_nvs_set_str(NVS_DEF1, DEF1);
-            send(sock, payload, strlen(payload), 0);
+            SendResponse(payload,InputVia);
             ESP_LOGI(TAG,"%s",payload);
             if(uartDebugInfo)
                uart_write_string_ln(payload);
@@ -73,7 +73,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
             sprintf(DEF2, "%d,%s,%s", R, firstInput, secondInput);
             sprintf(payload,"*%s2-OK#",CMD_PREFIX1);
             utils_nvs_set_str(NVS_DEF2, DEF2);
-            send(sock, payload, strlen(payload), 0);
+              SendResponse(payload,InputVia);
              ESP_LOGI(TAG,"%s",payload);
             if(uartDebugInfo)
               uart_write_string_ln(payload);
@@ -83,7 +83,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
             sprintf(DEF3, "%d,%s,%s", R, firstInput, secondInput);
             sprintf(payload, "*%s3-OK#",CMD_PREFIX1);
             utils_nvs_set_str(NVS_DEF3, DEF3);
-            send(sock, payload, strlen(payload), 0);
+              SendResponse(payload,InputVia);
              ESP_LOGI(TAG,"%s",payload);
             if(uartDebugInfo)
                uart_write_string_ln(payload);
@@ -93,7 +93,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
             sprintf(DEF4, "%d,%s,%s", R, firstInput, secondInput);
             sprintf(payload,"*%s4-OK#",CMD_PREFIX1);
             utils_nvs_set_str(NVS_DEF4, DEF4);
-            send(sock, payload, strlen(payload), 0);
+              SendResponse(payload,InputVia);
              ESP_LOGI(TAG,"%s",payload);
             if(uartDebugInfo)
                uart_write_string_ln(payload);
@@ -122,7 +122,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
                 }
 
         
-                send(sock, payload, strlen(payload), 0);
+                  SendResponse(payload,InputVia);
                  ESP_LOGI(TAG,"%s",payload);
                 if(uartDebugInfo)
                   uart_write_string_ln(payload);
@@ -144,7 +144,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
             sprintf(ATC1, "%d,%s,%s", R, firstInput, secondInput);
             sprintf(payload, "*%s1-OK#",CMD_PREFIX2);
             utils_nvs_set_str(NVS_ATC1, ATC1);
-            send(sock, payload, strlen(payload), 0);
+              SendResponse(payload,InputVia);
              ESP_LOGI(TAG,"%s",payload);
             if(uartDebugInfo)
               uart_write_string_ln(payload);
@@ -154,7 +154,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
             sprintf(ATC2, "%d,%s,%s", R, firstInput, secondInput);
             sprintf(payload, "*%s2-OK#",CMD_PREFIX2);
             utils_nvs_set_str(NVS_ATC2, ATC2);
-            send(sock, payload, strlen(payload), 0);
+              SendResponse(payload,InputVia);
              ESP_LOGI(TAG,"%s",payload);
             if(uartDebugInfo)
               uart_write_string_ln(payload);
@@ -164,7 +164,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
             sprintf(ATC3, "%d,%s,%s", R, firstInput, secondInput);
             sprintf(payload,"*%s3-OK#",CMD_PREFIX2);
             utils_nvs_set_str(NVS_ATC3, ATC3);
-            send(sock, payload, strlen(payload), 0);
+              SendResponse(payload,InputVia);
              ESP_LOGI(TAG,"%s",payload);
             if(uartDebugInfo)
               uart_write_string_ln(payload);
@@ -174,7 +174,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
             sprintf(ATC4, "%d,%s,%s", R, firstInput, secondInput);
             sprintf(payload, "*%s4-OK#",CMD_PREFIX2);
             utils_nvs_set_str(NVS_ATC4, ATC4);
-            send(sock, payload, strlen(payload), 0);
+              SendResponse(payload,InputVia);
              ESP_LOGI(TAG,"%s",payload);
             if(uartDebugInfo)
               uart_write_string_ln(payload);
@@ -200,7 +200,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
                 sprintf(payload, "*%s%d-VAL,%s#", CMD_PREFIX2,queryR,ATC4); // e.g., *DEF1-VAL,1,G20,A5#
                 }
         
-                send(sock, payload, strlen(payload), 0);
+                  SendResponse(payload,InputVia);
                  ESP_LOGI(TAG,"%s",payload);
                 if(uartDebugInfo)
                   uart_write_string_ln(payload);
@@ -217,7 +217,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
         else if (strncmp(rx_buffer, "*SERVER#", 8) == 0) {
            strcpy(Mode,"SERVER");
            sprintf(payload, "*MODE:%s#",Mode);
-           send(sock, payload, strlen(payload), 0);
+             SendResponse(payload,InputVia);
             ESP_LOGI(TAG,"%s",payload);
             
                strcpy(stageMode, "SERVER");
@@ -231,7 +231,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
         else if (strncmp(rx_buffer, "*FIXED#", 7) == 0) {
            strcpy(Mode,"FIXED");
            sprintf(payload, "*MODE:%s#",Mode);
-           send(sock, payload, strlen(payload), 0);
+             SendResponse(payload,InputVia);
             ESP_LOGI(TAG,"%s",payload);
              strcpy(stageMode, "FIXED");
            if(uartDebugInfo)
@@ -240,7 +240,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
         }
         else if (strncmp(rx_buffer, "*CURRENT?#", 10) == 0) {
             sprintf(payload, "*MODE:%s#",Mode);
-            send(sock, payload, strlen(payload), 0);
+              SendResponse(payload,InputVia);
              ESP_LOGI(TAG,"%s",payload);
             if(uartDebugInfo)
                uart_write_string_ln(payload);
@@ -276,7 +276,7 @@ void AnalaysePacketTrafficTCP(const char* rx_buffer){
         {
             sscanf(rx_buffer, "*TIME,%d,%d,%d#",&Hours,&Mins,&Secs);
             sprintf(payload, "*TIME-OK#");
-            send(sock, payload, strlen(payload), 0);
+              SendResponse(payload,InputVia);
              ESP_LOGI(TAG,"%s",payload);
             
         }

@@ -327,7 +327,7 @@ void tcp_ip_client_send_str(const char * str){
     pending_tcp_packet = true;
     strcpy(tcp_packet, str);
     if(sock != -1){
-        ESP_LOGI(TAG, "Sending packet to TCP socket : %s", str);
+        // ESP_LOGI(TAG, "Sending packet to TCP socket : %s", str);
          if(uartDebugInfo)
              uart_write_string(tcp_packet);
         int err = sendSocketData(sock, tcp_packet, strlen(tcp_packet), 0);

@@ -13,12 +13,13 @@
    *NXT,4?#
    
 
-  default stage values - 
+  default NXT values - 
     DEFAULT_STAGE1 "1,G20,A5"
     DEFAULT_STAGE2 "2,G20,A5"
     DEFAULT_STAGE3 "3,G20,A5"
     DEFAULT_STAGE4 "4,G20,A5"
-
+ 
+ default NXT values - 
     DEFAULT_NXT1 "1,G20,A5"
     DEFAULT_NXT2 "2,G20,A5"
     DEFAULT_NXT3 "3,G20,A5"
@@ -31,3 +32,5 @@
 6. check all commands in ./Traffic/commands.txt
 7. first green is on & when green value is 0 then amber  will on of same road. 
 8. check the values of all road using command & compare to the display values.
+9. *SIP:2# command for Traffic server & *RST#.
+10. Mqtt Topic is GVC/TRA/ALL

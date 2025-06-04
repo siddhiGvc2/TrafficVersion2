@@ -140,7 +140,7 @@ void console_uart_init(void){
     uart_param_config(EX_UART_NUM, &uart_config);
     uart_set_pin(MKM_IC_UART, MKM_IC_UART_TX, MKM_IC_UART_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 //    uart_set_pin(EX_UART_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    xTaskCreate(uart_event_task, "uart_event_task", 4096, NULL, 6, NULL);
+    xTaskCreate(uart_event_task, "uart_event_task", 8192, NULL, 6, NULL);
 }
 
 
