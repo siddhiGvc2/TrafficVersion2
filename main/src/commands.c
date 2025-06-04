@@ -149,6 +149,18 @@ if(strcmp(InputVia,"TCP")==0)
         SendResponse(payload,InputVia);
         tx_event_pending = 1;
     }
+    else if(strncmp(rx_buffer,"*WIFI?#",7)==0)
+    {
+        if(connected_to_wifi)
+        {
+           sprintf(payload, "*WIFI,1#"); 
+        }
+        else{
+           sprintf(payload, "*WIFI,0#");   
+        }
+        SendResponse(payload,InputVia);
+    
+    }
     else if(strncmp(rx_buffer, "*D?#",4) == 0){
         sprintf(payload, "*D-OK,%s#",UniqueTimeStamp); 
         SendResponse(payload,InputVia);

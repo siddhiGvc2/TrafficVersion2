@@ -1,0 +1,4 @@
+## 040625
+1.Wifi is not connecting on 2nd SSID
+2. At server mode Grren not working.
+3. not working mqtt after reconnecting wifi.

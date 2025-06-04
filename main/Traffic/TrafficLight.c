@@ -295,7 +295,7 @@ void decrement_CDTColor() {
 void update_time_label(void) {
     while (1) {
         // your task loop
-         if(connected_to_wifi && TimeReceived){
+         
     Secs++;
     decrement_CDTColor(); 
     if (Secs >= 60) {
@@ -310,13 +310,17 @@ void update_time_label(void) {
         }
     }
    
-    if (time_label != NULL && connected_to_wifi) {
+        if (time_label != NULL && connected_to_wifi && TimeReceived) {
+      
         lv_label_set_text_fmt(time_label, "%02d:%02d:%02d",Hours, Mins, Secs);
-    }
-    }
-    else{
-       lv_label_set_text_fmt(time_label,"%s","");    
-    }
+        
+        }
+        else if(time_label != NULL && !connected_to_wifi){
+        strcpy(stageMode, "FIXED");
+        lv_label_set_text_fmt(time_label,"%s","");    
+        }
+    
+
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
