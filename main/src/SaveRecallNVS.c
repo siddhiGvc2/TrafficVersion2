@@ -292,7 +292,10 @@ void load_settings_nvs(){
        utils_nvs_get_str(NVS_SERIAL_NUMBER, SerialNumber,100);
        if (strstr(SerialNumber,"NA-1507-"))
        {
-         
+           char Serial[200];
+           sscanf(SerialNumber,"NA-1507-%s",Serial);
+           strcpy(SerialNumber,Serial);
+
        }
        else
        {
