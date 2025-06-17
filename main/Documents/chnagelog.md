@@ -9,6 +9,13 @@
 1. change baud rate to 9600 for uart 13:18 - 13:20
 2. send command every second as *R22,A10,R20,R30# every second 13:20 - 13:40 
 3. worked on STM8 code 13:40 - 17:30
-4. 
+4. Change UART command to *SERVER,R22,A10,R20,R30#
+5. Set time to 0 in servermode
+
+pending
+6. In server mode - green not being sent
+7. in server mode - red time is calculated once and sent
+8. In fixed mode - time 0 is also sent
+9. Wifi bug (Second ssid not connected)
 
 

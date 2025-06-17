@@ -259,6 +259,7 @@ void decrement_CDTColor() {
 // if server mode and RED color display ATC
         if ( (strstr(CDTColor[i], "R") != NULL) && (strstr(stageMode,"SERVER")!=NULL)){
             strcpy(Command,"ATC");
+            CDTime[i] = 0;
             lv_label_set_text_fmt(color_label[i], "%s", Command);
         }
       
@@ -285,8 +286,9 @@ void decrement_CDTColor() {
             }
             CDTime[i]--;
             
-        }          
-        sprintf(payload,"*%s%d,%s%d,%s%d,%s%d#", CDTColor[0],CDTime[0],CDTColor[1],CDTime[1],CDTColor[2],CDTime[2],CDTColor[3],CDTime[3]);   
+        }      
+            sprintf(payload,"*%s,%s%d,%s%d,%s%d,%s%d#", stageMode,CDTColor[0],CDTime[0],CDTColor[1],CDTime[1],CDTColor[2],CDTime[2],CDTColor[3],CDTime[3]);   
+
         uart_write_string_ln(payload);    
 }
 
