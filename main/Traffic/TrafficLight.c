@@ -110,7 +110,8 @@ void CalculateRedTimeings (void)
             CDTime[i] = k;
             sprintf(CDTColor[i], "R"); 
 
-            sprintf(payload,"Time/Color %s%d  %s%d  %s%d  %s%d", CDTColor[0],CDTime[0],CDTColor[1],CDTime[1],CDTColor[2],CDTime[2],CDTColor[3],CDTime[3]);   
+
+            sprintf(payload,"*******New Time - Time/Color %s%d  %s%d  %s%d  %s%d*****", CDTColor[0],CDTime[0],CDTColor[1],CDTime[1],CDTColor[2],CDTime[2],CDTColor[3],CDTime[3]);   
             uart_write_string_ln(payload);    
 
 }
@@ -197,6 +198,7 @@ void CalculateAllTime (void)
 
 void decrement_CDTColor() {
     int i;
+    char payload[100];
     for (i = 0; i < 4; i++) 
     {
         int value;
@@ -206,9 +208,6 @@ void decrement_CDTColor() {
                   sprintf(CDTColor[i], "A"); 
                    CDTime[i] = PhaseTime[i*2+1];
          }
- 
-    
- 
          else if(CDTime[i] == 0 && (strstr(CDTColor[i], "A") != NULL)) {
              sprintf(CDTColor[i], "R"); 
              stage++;
@@ -285,7 +284,10 @@ void decrement_CDTColor() {
               
             }
             CDTime[i]--;
+            
         }          
+        sprintf(payload,"*%s%d,%s%d,%s%d,%s%d#", CDTColor[0],CDTime[0],CDTColor[1],CDTime[1],CDTColor[2],CDTime[2],CDTColor[3],CDTime[3]);   
+        uart_write_string_ln(payload);    
 }
 
 
