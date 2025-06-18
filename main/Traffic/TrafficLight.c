@@ -199,17 +199,21 @@ void CalculateAllTime (void)
 void decrement_CDTColor() {
     int i;
     char payload[100];
+    for (i = 0 ; i < 4 ; i++)
+    {        
+        if (CDTime[i])
+            CDTime[i]--;
+    }    
     for (i = 0; i < 4; i++) 
     {
         int value;
-        if (CDTime[i])
-            CDTime[i]--;
         if(CDTime[i]==0 && (strstr(CDTColor[i], "G") != NULL))
         {
                   sprintf(CDTColor[i], "A"); 
                    CDTime[i] = PhaseTime[i*2+1];
          }
-         else if(CDTime[i] == 0 && (strstr(CDTColor[i], "A") != NULL)) {
+         else if(CDTime[i] == 0 && (strstr(CDTColor[i], "A") != NULL)) 
+         {
              sprintf(CDTColor[i], "R"); 
              stage++;
              if (stage > MAX_ITEMS)
@@ -220,7 +224,7 @@ void decrement_CDTColor() {
                  switch(stage) {
                      case 1:
                          if(strcmp(stageMode, "FIXED") == 0) {
-                             CDTime[0] = PhaseTime[0];
+                             CDTime[0] = PhaseTime[0] ;
                              sprintf(CDTColor[0], "G"); 
                          } else {
                              DecodeStage(ATC1);
@@ -264,9 +268,10 @@ void decrement_CDTColor() {
                  }
                  if (strstr(stageMode,"FIXED")!=NULL)
                     CalculateRedTimeings();
-
             }
-
+        }
+    for (i = 0 ; i < 4 ; i++)
+    {        
 // if server mode and RED color display ATC
         if ( (strstr(CDTColor[i], "R") != NULL) && (strstr(stageMode,"SERVER")!=NULL)){
             strcpy(Command,"ATC");
@@ -277,8 +282,9 @@ void decrement_CDTColor() {
 // if fixed mode or server mode and green/amber color display time       
         else {
             lv_label_set_text_fmt(color_label[i], "%d", CDTime[i]);
-           // ESP_LOGI(TAG,"Color Label %02d changed to %02d",i,CDTime[i]);
+          // ESP_LOGI(TAG,"Color Label %02d changed to %02d",i,CDTime[i]);
         }
+
         if (CDTColor[i][0] != '\0')  // ✅ Correct null character check
             {
                 if (strstr(CDTColor[i], "R") != NULL)
@@ -297,8 +303,7 @@ void decrement_CDTColor() {
             }
             
         }      
-            sprintf(payload,"*%s,%s%d,%s%d,%s%d,%s%d#", stageMode,CDTColor[0],CDTime[0],CDTColor[1],CDTime[1],CDTColor[2],CDTime[2],CDTColor[3],CDTime[3]);   
-
+        sprintf(payload,"*%s,%s%d,%s%d,%s%d,%s%d#", stageMode,CDTColor[0],CDTime[0],CDTColor[1],CDTime[1],CDTColor[2],CDTime[2],CDTColor[3],CDTime[3]);   
         uart_write_string_ln(payload);    
 }
 

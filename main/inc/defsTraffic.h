@@ -6,21 +6,20 @@
 #define CMD_PREFIX2 "NXT"    // change command here dynamicallly
 
 
-
-#define DEFAULT_DEF1 "1,G20,A5"
-#define DEFAULT_DEF2 "2,G20,A5"
-#define DEFAULT_DEF3 "3,G20,A5"
-#define DEFAULT_DEF4 "4,G20,A5"
+#define DEFAULT_DEF1 "1,G11,A9"
+#define DEFAULT_DEF2 "2,G13,A7"
+#define DEFAULT_DEF3 "3,G15,A5"
+#define DEFAULT_DEF4 "4,G17,A3"
 
 #define NVS_DEF1 "DEF1"
 #define NVS_DEF2 "DEF2"
 #define NVS_DEF3 "DEF3"
 #define NVS_DEF4 "DEF4"
 
-#define DEFAULT_ATC1 "1,G20,A5"
-#define DEFAULT_ATC2 "2,G20,A5"
-#define DEFAULT_ATC3 "3,G20,A5"
-#define DEFAULT_ATC4 "4,G20,A5"
+#define DEFAULT_ATC1 "1,G10,A10"
+#define DEFAULT_ATC2 "2,G12,A8"
+#define DEFAULT_ATC3 "3,G14,A6"
+#define DEFAULT_ATC4 "4,G16,A4"
 
 #define NVS_ATC1 "ATC1"
 #define NVS_ATC2 "ATC2"
