@@ -13,17 +13,17 @@
    *NXT,4?#
    
 
-  default NXT values - 
-    DEFAULT_STAGE1 "1,G20,A5"
-    DEFAULT_STAGE2 "2,G20,A5"
-    DEFAULT_STAGE3 "3,G20,A5"
-    DEFAULT_STAGE4 "4,G20,A5"
+  default Stage values - 
+    DEFAULT_STAGE1 "1,G21,A3"
+    DEFAULT_STAGE2 "2,G23,A5"
+    DEFAULT_STAGE3 "3,G25,A7"
+    DEFAULT_STAGE4 "4,G27,A9"
  
  default NXT values - 
-    DEFAULT_NXT1 "1,G20,A5"
-    DEFAULT_NXT2 "2,G20,A5"
-    DEFAULT_NXT3 "3,G20,A5"
-    DEFAULT_NXT4 "4,G20,A5"
+    DEFAULT_NXT1 "1,G18,A4"
+    DEFAULT_NXT2 "2,G22,A6"
+    DEFAULT_NXT3 "3,G24,A8"
+    DEFAULT_NXT4 "4,G26,A10"
 
 
 3. As soon as wifi and server is connected, show time

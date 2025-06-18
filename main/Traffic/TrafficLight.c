@@ -59,33 +59,33 @@ void DecodeTL(const char* input){
       
       ESP_LOGI(TAG,"DECODING Road: %d,Input:%s",road,input);
       sprintf(payload,"DECODING Road: %d,Input:%s",road,input);
+      uart_write_string_ln(payload);
       sprintf(payload,"*R,%d,%s#",road,input);
       uart_write_string_ln(payload);
    
      if (sscanf(input, "%c%d", &CurText, &CurValue) == 2) 
      {
         sprintf(CDTColor[road-1], "%c", CurText);  // Store character as string
-        CDTime[road-1] = CurValue;
-        CDTimeInput[road-1]=CurValue;
+        
         sprintf(payload,"*R%d,C%c,T%d#",road,CurText,CurValue);
         uart_write_string_ln(payload);
-    
-   
         if (CurText == 'G')
         {
-
+            PhaseTime[(road-1)*2] = CurValue;
         }
+        if (CurText == 'A')
+        {
+            PhaseTime[(road-1)*2+1] = CurValue;
+        }
+    
     }   
 }
 
 void DecodeStage(const char* input){
     ESP_LOGI(TAG,"waiting to start decoding.%s",input);
-  
     sscanf(input, "%d,%[^,],%99[^:]",&road,CurInput,NextCurInput);
     DecodeTL(CurInput);
     DecodeTL(NextCurInput);
-  
-
 }
 
 
@@ -202,7 +202,8 @@ void decrement_CDTColor() {
     for (i = 0; i < 4; i++) 
     {
         int value;
-       
+        if (CDTime[i])
+            CDTime[i]--;
         if(CDTime[i]==0 && (strstr(CDTColor[i], "G") != NULL))
         {
                   sprintf(CDTColor[i], "A"); 
@@ -212,7 +213,9 @@ void decrement_CDTColor() {
              sprintf(CDTColor[i], "R"); 
              stage++;
              if (stage > MAX_ITEMS)
+             {   
                 stage = 1;
+             }
              road = stage;
                  switch(stage) {
                      case 1:
@@ -221,6 +224,8 @@ void decrement_CDTColor() {
                              sprintf(CDTColor[0], "G"); 
                          } else {
                              DecodeStage(ATC1);
+                             CDTime[0] = PhaseTime[0];
+                             sprintf(CDTColor[0], "G"); 
                          }
                          break;
                      case 2:
@@ -229,6 +234,8 @@ void decrement_CDTColor() {
                              sprintf(CDTColor[1], "G"); 
                          } else {
                              DecodeStage(ATC2);
+                             CDTime[1] = PhaseTime[2];
+                             sprintf(CDTColor[1], "G"); 
                          }
                          break;
                      case 3:
@@ -238,6 +245,8 @@ void decrement_CDTColor() {
     
                          } else {
                              DecodeStage(ATC3);
+                             CDTime[2] = PhaseTime[4];
+                             sprintf(CDTColor[2], "G"); 
                          }
                          break;
                      case 4:
@@ -247,12 +256,14 @@ void decrement_CDTColor() {
 
                         } else {
                              DecodeStage(ATC4);
+                             CDTime[3] = PhaseTime[6];
+                             sprintf(CDTColor[3], "G"); 
                          }
                         
                          break;
                  }
- 
-                 CalculateRedTimeings();
+                 if (strstr(stageMode,"FIXED")!=NULL)
+                    CalculateRedTimeings();
 
             }
 
@@ -284,7 +295,6 @@ void decrement_CDTColor() {
                 }
               
             }
-            CDTime[i]--;
             
         }      
             sprintf(payload,"*%s,%s%d,%s%d,%s%d,%s%d#", stageMode,CDTColor[0],CDTime[0],CDTColor[1],CDTime[1],CDTColor[2],CDTime[2],CDTColor[3],CDTime[3]);   

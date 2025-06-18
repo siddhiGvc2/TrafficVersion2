@@ -13,9 +13,13 @@
 5. Set time to 0 in servermode
 
 pending
-6. In server mode - green not being sent
-7. in server mode - red time is calculated once and sent
-8. In fixed mode - time 0 is also sent
+
 9. Wifi bug (Second ssid not connected)
 
+## 180625
+6. In server mode - green not being sent (11:40 - 12:10)
+8. time 0 is also sent (12:10 - 12:15)
+7. in server mode - red time is calculated once and sent (12:15 - 12:20 )
 
+Test - differeng times for green and ambed for all 4 roads in fixed and server mode
+tes
